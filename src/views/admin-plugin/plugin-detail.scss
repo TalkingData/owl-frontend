@@ -1,0 +1,30 @@
+.plugin-detail {
+  .common-detail-top {
+    position: fixed;
+    z-index: 10;
+    top: 55px;
+    box-sizing: border-box;
+    // width: 100%;
+    right: 0;
+    height: 55px;
+    padding: 0 20px;
+    background-color: #fff;
+    line-height: 55px;
+    font-size: 14px;
+    border-bottom: 1px solid #ced3d9;
+    transition: left .3s;
+    @at-root .shrinked & {
+      left: 60px;
+    }
+    @at-root .unshrinked & {
+      left: 200px;
+    }
+    .common-detail-top-title {
+      color: #5697f1;
+      cursor: pointer;
+    }
+  }
+  .table-list {
+    margin-top: 50px;
+  }
+}

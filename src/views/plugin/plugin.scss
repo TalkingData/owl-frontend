@@ -1,0 +1,46 @@
+.plugin {
+  .manage {
+    position: relative;
+    width: 100%;
+    height: auto;
+  }
+  .manage-detail {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .pop-alter {
+    width: 100%;
+    height: 100%;
+    background: rgba(32, 35, 53, 0.6);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 200;
+  }
+  .pagingbox {
+    width: 50%;
+    min-width: 620px;
+    background: #FFF;
+    border-radius: 5px;
+    margin: 80px auto 0;
+    animation: scale 0.5s;
+  }
+  .set-panel {
+    position: absolute;
+    top: 70px;
+    left: 35.5%;
+    width: 29%;
+    /*height:658px;*/
+    animation: scale 0.5s;
+  }
+  /*---动画效果---*/
+  @keyframes scale {
+    from {
+      transform: scale(0.8);
+    }
+    ,
+    to {
+      transform: scale(1);
+    }
+  }
+}

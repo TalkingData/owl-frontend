@@ -1,0 +1,51 @@
+.manage-user-list {
+  .ok-count {
+    .ivu-badge-count {
+      background: #19be6b !important;
+    }
+  }
+  .alert-count {
+    .ivu-badge-count {
+      background: #ed3f14 !important;
+    }
+  }
+  .unknow-count {
+    .ivu-badge-count {
+      background: #ff9900 !important;
+    }
+  }
+  .nodata-count {
+    .ivu-badge-count {
+      background: #bbbec4 !important;
+    }
+  }
+	// ----------------------
+	// status
+	.type{
+    position: relative;
+    box-sizing: border-box;
+	  display: inline-block;
+	  padding-left: 15px;
+  }
+  .type:before {
+  	position: absolute;
+    content: "";
+    top:18px;
+    left: 1px;
+    width:8px;
+    height:8px;
+    border-radius: 8px;
+  }
+  .high-bool:before{
+    background-color: #f36363;
+  }
+  .mid-bool:before{
+    background-color: #ff9000;
+  }
+  .low-bool:before{
+    background-color:#ffca29;
+  }
+  .suc-bool:before{
+    background-color:#00ff00;
+  }
+}

@@ -1,0 +1,41 @@
+.group-sets {
+  width: 100%;
+  .set-item-block {
+    color: #495060;
+    display: inline-block;
+    // height: 32px;
+    // line-height: 32px;
+    padding: 8px 8px;
+    border: 1px solid #e9eaec;
+    border-radius: 3px;
+    background: #f7f7f7;
+    font-size: 12px;
+    vertical-align: middle;
+    opacity: 1;
+    overflow: hidden;
+    cursor: pointer;
+    &.success {
+      background: #2d8cf0;
+      color: #fff;
+    }
+    &.failure {
+      background: #f7f7f7;
+      color: #495060;
+    }
+    &-word {
+
+    }
+    i {
+      display: inline-block;
+      font-size: 14px;
+      transform: scale(1.42857143) rotate(0);
+      cursor: pointer;
+      margin-left: 8px;
+      color: #666;
+      opacity: .66;
+      position: relative;
+      top: 1px;
+      cursor: pointer;
+    }
+  }
+}

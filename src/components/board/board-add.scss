@@ -1,0 +1,134 @@
+.board-add {
+  /*搜索栏样式*/
+  .search-board {
+    width: 100%;
+    padding: 5px 15px;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-align: right;
+  }
+  .board-body {
+    overflow: auto;
+    background: #F5F6FA;
+    box-sizing: border-box;
+    padding: 10px 0;
+    max-height: 400px;
+    // position: absolute;
+    width: 100%;
+    // top: 90px;
+    // bottom: 10px;
+  }
+  .check-board {
+    float: left;
+    width: 240px;
+    height: 310px;
+    margin: 20px 0 0 20px;
+    background: #FFF;
+    cursor: pointer;
+    box-sizing: border-box;
+    box-shadow: -1px -1px 8px rgba(199, 199, 199, 0.5);
+    padding: 15px;
+    position: relative;
+  }
+  .check-board>h1 {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 30px;
+    color: #464c5b;
+  }
+  .check-board>.img {
+    position: absolute;
+    bottom: 60px;
+    top: 50px;
+    left: 0;
+    right: 0;
+  }
+  .check-board>.img>img {
+    width: 85%;
+    height: 100%;
+    margin: 0 auto;
+    display: block;
+  }
+  .check-board>.info {
+    overflow: hidden;
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    left: 20px;
+  }
+  .create {
+    background-image: url('../../assets/image/set.png');
+    background-size: 80% 85%;
+    background-repeat: no-repeat;
+    background-position: center center;
+    box-sizing: border-box;
+  }
+  // .board-pop {
+  //   position: absolute;
+  //   top: 0;
+  //   bottom: 30px;
+  //   overflow: hidden;
+  // }
+  // .head-board {
+  //   width: 100%;
+  //   height: 45px;
+  //   background: #5697f1;
+  //   color: #FFF;
+  //   line-height: 45px;
+  // }
+  // .head-board>p {
+  //   float: left;
+  //   font-size: 14px;
+  //   padding-left: 15px;
+  // }
+  // .head-board>span {
+  //   float: right;
+  //   width: 40px;
+  //   height: 45px;
+  //   font-size: 32px;
+  //   line-height: 45px;
+  //   text-align: center;
+  //   cursor: pointer;
+  // }
+  // .info>p {
+  //   width: 49%;
+  //   display: inline-block;
+  // }
+  // .info>p>i,
+  // .info>p>span {
+  //   display: block;
+  //   font-weight: 500;
+  //   color: #464c5b;
+  // }
+  // .info>p>i {
+  //   font-size: 12px;
+  //   margin-bottom: 2px;
+  // }
+  // .info>p>span {
+  //   font-size: 14px;
+  // }
+  // .info>p>b {
+  //   font-weight: 500;
+  // }
+  // .info>.bg {
+  //   background: #bfc5cb;
+  //   color: #FFF;
+  //   font-size: 12px;
+  //   text-align: center;
+  //   padding: 2px 0;
+  // }
+  // .search {
+  //   float: right;
+  //   box-sizing: border-box;
+  //   padding-left: 24px;
+  //   height: 30px;
+  //   border: 1px solid #dfe7f2;
+  //   border-radius: 30px;
+  //   padding-right: 10px;
+  //   width: 24%;
+  //   background-image: url('assets/image/search.png');
+  //   background-size: auto 16px;
+  //   background-position: 5px center;
+  //   background-repeat: no-repeat;
+  // }
+}

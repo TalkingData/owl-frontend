@@ -1,0 +1,107 @@
+<style lang="scss">
+  @import './product.scss'
+</style>
+<template>
+  <div class="product">
+    <theader></theader>
+    <div class="product-box">
+      <ul class="product-list" v-if="isAdmin">
+        <li class="product-item" @click="gotoAdmin">
+          <a><Icon type="gear-b" class="mr-10"></Icon>进入管理员页面</a>
+        </li>
+      </ul>
+      <ul class="product-list" v-if="productList.length > 0">
+        <li class="product-item" v-for="(item, index) in productList" :key="index" @click="selectProduct(item)">
+          {{item.name}}
+        </li>
+      </ul>
+      <ul class="product-list" v-if="productList.length === 0 && !loading">
+        <li class="product-item">
+          <Alert type="warning" show-icon>你还没有产品线，请联系管理员</Alert>
+        </li>
+      </ul>
+    </div>
+    <div class="footer">
+      TalkingData@2011~2018
+    </div>
+  </div>
+</template>
+<script>
+import Cookies from 'js-cookie';
+import md5 from 'md5';
+import { getProducts } from '../../models/service';
+import bus from '../../libs/bus';
+import theader from '../../components/header';
+
+export default {
+  data() {
+    return {
+      // 登陆信息
+      userInfo: {
+        username: '',
+        userpsd: '',
+      },
+      addModal: false,
+      // 添加产品线信息
+      addProInfo: {
+        name: '',
+      },
+      productList: [], // 产品线列表
+      errorMsg: '', // 错误信息
+      role: md5(1), // 1是管理员,0是普通用户
+      isAdmin: false, // 判断是否是管理员
+      loading: true, // 加载中
+    };
+  },
+  computed: {
+  },
+  components: {
+    theader,
+  },
+  mounted() {
+    this.isAdmin = this.role === Cookies.get('owl_role');
+    this.getProducts();
+    bus.$on('on-role-info', (role) => {
+      this.isAdmin = this.role === role;
+    });
+  },
+  created() {
+  },
+  beforeDestroy() {
+    bus.$off('on-role-info');
+  },
+  methods: {
+    // 前往管理员页面
+    gotoAdmin() {
+      this.$router.push({
+        path: '/admin/product/productlist',
+      });
+    },
+    addData() {
+      this.errorMsg = '';
+      this.addModal = true;
+      this.addProInfo.name = '';
+    },
+    // 获取产品线列表
+    getProducts() {
+      this.loading = true;
+      getProducts().then((res) => {
+        this.loading = false;
+        if (res.status === 200 && res.data.code === 200) {
+          this.productList = res.data.products;
+        } else {
+          this.productList = [];
+        }
+      });
+    },
+    // 选择产品线
+    selectProduct(obj) {
+      localStorage.setItem('productInfo', JSON.stringify(obj));
+      this.$router.push({
+        path: `/console/panel/list/${obj.id}`,
+      });
+    },
+  },
+};
+
+</script>

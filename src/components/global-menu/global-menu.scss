@@ -1,0 +1,11 @@
+.ivu-shrinkable-menu {
+  width: 100%;
+  height: 100%;
+  .ivu-menu-vertical.ivu-menu-light:after {
+    background: transparent;
+  }
+  .ivu-menu-submenu-title .ivu-icon, .ivu-menu-item .ivu-icon {
+    width: 16px;
+  }
+  transition: all .3s;
+}

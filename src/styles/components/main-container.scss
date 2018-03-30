@@ -1,0 +1,56 @@
+.main-container {
+  // margin-top: 55px;
+  .common-detail-top-fixed {
+    position: fixed;
+    z-index: 11;
+    top: 60px;
+    box-sizing: border-box;
+    // width: 100%;
+    right: 0;
+    transition: left .3s;
+    @at-root .shrinked & {
+      left: 60px;
+    }
+    @at-root .unshrinked & {
+      left: 200px;
+    }
+  }
+  .tabs-fixed {
+    &.ivu-tabs {
+      overflow: visible;
+    }
+    .ivu-tabs-bar {
+      position: fixed;
+      top: 110px;
+      z-index: 10;
+      // width: 100%;
+      padding-top: 10px;
+      background: #fff;
+      right: 0;
+      transition: left .3s;
+      @at-root .shrinked & {
+        left: 60px;
+      }
+      @at-root .unshrinked & {
+        left: 200px;
+      }
+    }
+    .ivu-tabs-content {
+      margin-top: 50px;
+      padding: 10px 10px 0;
+      height: auto;
+      height: 100%;
+      overflow: visible;
+      .ivu-tabs-tabpane {
+        height: 100%;
+        overflow: visible;
+      }
+    }
+  }
+}
+.main-list-content {
+  width: 100%;
+  padding: 6px 10px 6px;
+  position: relative;
+  -webkit-box-sizing: border-box;
+}

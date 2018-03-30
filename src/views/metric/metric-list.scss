@@ -1,0 +1,39 @@
+.metric-list {
+  width: 100%;
+  // max-height: 1580px;
+  // margin-top: 70px;
+  padding: 6px 10px 6px;
+  .table-list {
+    .box-content-item {
+      &.selected {
+        background-color: #e0f0f7!important;
+      }
+    }
+  }
+}
+.screen-show-data {
+  // width: 335px;
+  margin-right: 24px;
+  position: fixed;
+  z-index: 1010;
+  top: 120px;
+  right: 0px;
+  .tag-area {
+    max-height: 320px;
+    overflow-y: scroll;
+  }
+  .tag-item {
+    border: 1px solid #d6d6d6;
+    padding: 5px;
+    margin-bottom: 5px;
+  }
+  .key-title-sub {
+    // text-transform: uppercase;
+    font-size: 13px;
+    font-weight: bold;
+    color: #444;
+    border-bottom: 1px solid #d6d6d6;
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+  }
+}

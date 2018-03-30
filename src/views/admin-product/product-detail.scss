@@ -1,0 +1,98 @@
+.product-detail {
+  position: relative;
+  width: 100%;
+  .ivu-form-item-required .ivu-form-item-label:before {
+    content: '';
+    display: inline-block;
+    margin-right: 0;
+    line-height: 1;
+    font-family: SimSun;
+    font-size: 12px;
+    color: #ed3f14;
+  }
+  .float-item {
+    height: 32px;
+    line-height: 32px;
+  }
+  .metric-block {
+    height: 32px;
+    line-height: 32px;
+    margin-bottom: 28px;
+  }
+  .common-detail-top {
+    height: 50px;
+    padding: 0 20px;
+    background-color: #fff;
+    line-height: 50px;
+    font-size: 14px;
+    border-bottom: 1px solid #ced3d9;
+    .common-detail-top-title {
+      color: #5697f1;
+      cursor: pointer;
+    }
+  }
+  .reminder-word {
+    color: #ced3d9;
+  }
+  .common-detail-margin {
+    margin-top: 50px;
+    position: relative;
+    .sort-page {
+      .ivu-table-sort {
+        height: 13px;
+      }
+    }
+  }
+  .tabs-fixed {
+    .ivu-tabs-content {
+      padding: 10px 0 0;
+    }
+  }
+  .common-detail-body {
+    box-sizing: border-box;
+    padding: 20px 20px 0;
+    &-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+  }
+  .ok-count {
+    .ivu-badge-count {
+      background: #19be6b !important;
+    }
+  }
+  .alert-count {
+    .ivu-badge-count {
+      background: #ed3f14 !important;
+    }
+  }
+  .unknow-count {
+    .ivu-badge-count {
+      background: #ff9900 !important;
+    }
+  }
+  .nodata-count {
+    .ivu-badge-count {
+      background: #bbbec4 !important;
+    }
+  }
+  
+}
+.event-process-modal {
+  .event-process {
+    padding: 0 20px 10px;
+    &-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+  }
+  .step-vertical .step-bar:last-child .main-box {
+    padding-bottom: 0px;
+  }
+  .ivu-modal-body {
+    max-height: 255px;
+    overflow-y: scroll;
+  }
+}

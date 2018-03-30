@@ -1,0 +1,12 @@
+.notice-card {
+  // min-width: 335px;
+  margin-right: 24px;
+  position: absolute;
+  z-index: 1010;
+  background: transparent;
+  // top: 24px;
+  // right: 0px;
+  .ivu-card {
+    opacity: 0.8;
+  }
+}

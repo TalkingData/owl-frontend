@@ -1,0 +1,85 @@
+@import "../../styles/index.scss";
+
+.cursor-pointer {
+  cursor: pointer;
+}
+.main-header {
+  position: relative;
+  z-index: 11;
+  height: 60px;
+  font-family: PingFangSC-Regular, "Microsoft Yahei";
+  background: #fff;
+  // border-bottom: 1px solid #dddee1;
+  box-shadow: 0 2px 1px 1px rgba(100, 100, 100, .1);
+  .navicon-con {
+    display: inline-block;
+    margin: 6px;
+    .ivu-btn-text:focus {
+      box-shadow: none;
+    }
+  }
+  .logo-con {
+    height: 60px;
+    padding: 8px;
+    text-align: center;
+    img {
+      display: inline-block;
+      width: auto;
+      height: 44px;
+    }
+  }
+  // .header-avator-con {
+  //   position: absolute;
+  //   top: 0;
+  //   right: 0;
+  //   @include size(auto, 100%);
+  //   .user-dropdown {
+  //     &-menu-con {
+  //       display: inline-block;
+  //       padding: 18px 0;
+  //       .main-user-name {
+  //         display: inline-block;
+  //         overflow: hidden;
+  //         text-align: right;
+  //         text-overflow: ellipsis;
+  //         word-break: keep-all;
+  //         white-space: nowrap;
+  //         vertical-align: middle;
+  //       }
+  //     }
+  //     &-innercon {
+  //       height: 100%;
+  //       padding-right: 16px;
+  //     }
+  //   }
+  // }
+  .bread-con {
+    display: inline-block;
+    // height: 100%;
+    @include size(auto, 100%);
+  }
+  .personal-center {
+    display: inline-block;
+    // height: 100%;
+    @include size(auto, 100%);
+    .ivu-row-flex {
+      height: 100%;
+    }
+  }
+  .hnav-icon {
+    // float: right;
+    display: inline-block;
+    box-sizing: border-box;
+    font-size: 14px;
+    padding: 0 15px;
+    margin: 0 5px;
+    // height: 55px;
+    text-align: center;
+    // line-height: 55px;
+    // vertical-align: middle;
+    cursor: pointer;
+  }
+  .hnav-icon:hover {
+    color: #4683de;
+  }
+}

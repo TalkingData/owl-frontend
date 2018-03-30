@@ -1,0 +1,50 @@
+.core-view{
+  width: 100%;
+  height: 274px;
+  .top{
+    height: 40px;
+    line-height: 40px;
+    width: 100%;
+    padding:0 15px;
+    box-sizing: border-box;
+  }
+  .top>span{
+    float: left;
+    line-height: 40px;
+  }
+  .top>input{
+    float: right;
+    height: 25px;
+    margin-top: 8px;
+    padding-left: 5px;
+    line-height: 25px;
+    border:1px solid  #dfe7f2;
+  }
+  .core-body{
+    box-sizing: border-box;
+    border-top:1px dashed #dfe7f2;
+    padding:0 15px;
+    box-sizing: border-box;
+  }
+  .body-item{
+    margin-top: 10px;
+  }
+  .body-item-l{
+    float: left;
+  }
+  .body-item-l>span{
+    width:180px;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    overflow:hidden;
+    cursor: pointer;
+  }
+  .body-item-r{
+    float: right;
+  }
+  .body-item-r>span{
+    margin-left: 15px;
+    color:#43a3fb;
+    cursor: pointer;
+  }
+}

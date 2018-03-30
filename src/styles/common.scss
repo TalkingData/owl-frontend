@@ -1,0 +1,200 @@
+@charset 'utf-8';
+/*RESET v3*/
+html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, a, cite, img, sub, sup, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  border: 0;
+  /*font: inherit;*/
+  margin: 0;
+  padding: 0;
+  font-weight: normal;
+  vertical-align: baseline;
+}
+html, body{
+  height:100%;
+}
+html{
+  /*10 ÷ 16 × 100% = 62.5%
+  * 1rem = 10px;
+  * 移动端改变字体时简单易用
+  */
+  /*font-size:20px;*/
+  font-size: 62.5%;
+  /*width:62.5%;*/
+  /*height:62.5%;*/
+}
+body {
+  min-width: 1280px;
+  font-family:'Microsoft Yahei';
+}
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+button {
+  outline: none;
+  cursor:pointer;
+}
+ol,ul{
+  margin: 0;
+  padding: 0;
+}
+ol, ul, li {
+  list-style: none;
+}
+i, em {
+  font-style: normal;
+}
+blockquote {
+  quotes: none;
+}
+blockquote:before, blockquote:after {
+  content: '';
+  content: none;
+}
+a {
+  outline: none;
+  text-decoration: none;
+  text-decoration:none;
+  text-decoration: none;
+}
+
+select, option{
+    font-family: inherit;
+}
+option {
+    appearance:none;
+    -moz-appearance: none; /* Firefox */
+    -webkit-appearance:none; /* Safari 和 Chrome */
+}
+.noselect{
+    -webkit-user-select: none;
+    user-select: none;
+}
+.clear {
+    clear: both;
+}
+
+.clearfix:before,.clearfix:after{
+  content:"";
+  display:table;
+}
+.clearfix:after{
+  clear:both;
+}
+.clearfix{
+  *zoom:1;
+}
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: #a9a9a9;
+}
+.scroll{
+  box-sizing: border-box;
+  min-height: 30px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.scroll::-webkit-scrollbar {
+    width: 8px;
+}
+.scroll::-webkit-scrollbar-track {
+    background-color: #ffffff;
+} /* 滚动条的滑轨背景颜色 */
+
+.scroll::-webkit-scrollbar-thumb {
+    background-color: #999;
+} /* 滑块颜色 */
+
+.scroll::-webkit-scrollbar-button {
+    background-color: #ffffff;
+} /* 滑轨两头的监听按钮颜色 */
+
+.common-float-left {
+  float: left;
+}
+.float-left {
+  float: left;
+}
+.common-float-right {
+  float: right;
+}
+.float-right {
+  float: right;
+}
+.text-center {
+  text-align: center;
+}
+.shadow-background{
+  position: fixed;
+  left:0;
+  top:0;
+  z-index: 200;
+  width:100%;
+  height:100%;
+  background-color:rgba(32,35,53,0.6);
+}
+.cursor-pointer {
+  cursor: pointer;
+}
+.ivu-input-icon {
+  cursor: pointer;
+}
+.ivu-select-dropdown-transfer {
+  max-height: 180px !important;
+}
+// table特殊格式
+.ivu-table td {
+  .ivu-table-cell {
+    .status {
+      position: relative;
+      line-height: 1;
+      i {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 6px;
+        margin-right: 3px;
+        margin-bottom: 3px;
+        vertical-align: middle;
+        &.fail-status {
+          background: #fe7847;
+        }
+        &.normal-status {
+          background: #1fce6d;
+        }
+        &.disable-status {
+          background: #f6a234;
+        }
+        &.new-status {
+          background: #5697f1;
+        }
+      }
+    }
+  }
+  .error-font {
+    color: #ED6A6A;
+  }
+}
+.un-required.ivu-form-item-required .ivu-form-item-label:before {
+  content: '' !important;
+  display: inline-block;
+  margin-right: 4px;
+  line-height: 1;
+  font-family: SimSun;
+  font-size: 12px;
+  color: #ed3f14;
+}
+.brule {
+  .ivu-input[disabled], fieldset[disabled] .ivu-input {
+    color: #495060;
+  }
+  .ivu-select-disabled .ivu-select-selection {
+    color: #495060;
+  }
+  .ivu-input-number-input[disabled] {
+    color: #495060;
+  }
+}

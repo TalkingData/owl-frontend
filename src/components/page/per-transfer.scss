@@ -1,0 +1,71 @@
+.per-transfer {
+	width: 100%;
+	position: relative;
+	.per-transfer-list {
+		display: inline-block;
+    width: 100%;
+    // height: 210px;
+    font-size: 12px;
+    vertical-align: middle;
+    position: relative;
+    padding-top: 35px;
+	}
+	.per-transfer-list-header {
+    padding: 8px 16px;
+    background: #f9fafc;
+    color: #495060;
+    border: 1px solid #dddee1;
+    border-bottom: 1px solid #e9eaec;
+    border-radius: 6px 6px 0 0;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+	}
+	.per-transfer-list-body {
+    height: 100%;
+    border: 1px solid #dddee1;
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    position: relative;
+    overflow: hidden;
+	}
+	.per-transfer-list-body-with-search {
+    padding-top: 34px;
+	}
+	.per-transfer-list-body-search-wrapper {
+    padding: 8px 8px 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+	}
+	.ivu-transfer-list-content {
+		padding: 6px 0 0;
+		height: 100%;
+    overflow: auto;
+	}
+	.view-left {
+		position: relative;
+    background-color: #fff;
+	}
+	.view-mid {
+		text-align: center;
+		position: relative;
+		// display: inline-block;
+    // overflow: hidden;
+    // margin: 0 16px;
+    // vertical-align: middle;
+	}
+	.view-mid-text {
+		// display: inline-block;
+		width: 100%;
+		height: 100%;
+		vertical-align: middle;
+		position: absolute;
+		top: 50%;
+		left: 0;
+		margin-top: -30px;
+	}
+}

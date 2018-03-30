@@ -1,0 +1,30 @@
+.metric-dashboard {
+  width: 100%;
+  // max-height: 1580px;
+  // margin-top: 70px;
+  padding: 6px 10px 6px;
+  .box-content {
+    position: relative;
+  }
+  .table-list {
+  }
+  .chartBox {
+    width: 100%;
+    float: left;
+  }
+  .chartBoxMul {
+    width: 100%;
+    float: left;
+  }
+  .common-detail-top-title {
+    font-size: 16px;
+    color: #5697f1;
+    cursor: pointer;
+  }
+  .chart-das {
+    height: 100%;
+    .border-area {
+      // border: 1px solid #d6d6d6;
+    }
+  }
+}

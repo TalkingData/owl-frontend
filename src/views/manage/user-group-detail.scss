@@ -1,0 +1,85 @@
+.user-group-detail {
+  .common-detail-top {
+    position: fixed;
+    z-index: 10;
+    top: 55px;
+    box-sizing: border-box;
+    // width: 100%;
+    right: 0;
+    height: 55px;
+    padding: 0 20px;
+    background-color: #fff;
+    line-height: 55px;
+    font-size: 14px;
+    border-bottom: 1px solid #ced3d9;
+    transition: left .3s;
+    @at-root .shrinked & {
+      left: 60px;
+    }
+    @at-root .unshrinked & {
+      left: 200px;
+    }
+    &.success {
+      background-color: #19be6b;
+    }
+    &.failure {
+      background-color: #ed3f14;
+    }
+    .common-detail-top-title {
+      color: #5697f1;
+      cursor: pointer;
+    }
+  }
+  .ok-count {
+    .ivu-badge-count {
+      background: #19be6b !important;
+    }
+  }
+  .alert-count {
+    .ivu-badge-count {
+      background: #ed3f14 !important;
+    }
+  }
+  .unknow-count {
+    .ivu-badge-count {
+      background: #ff9900 !important;
+    }
+  }
+  .nodata-count {
+    .ivu-badge-count {
+      background: #bbbec4 !important;
+    }
+  }
+  .table-list {
+    margin-top: 52px;
+  }
+	// ----------------------
+	// status
+	.type{
+    position: relative;
+    box-sizing: border-box;
+	  display: inline-block;
+	  padding-left: 15px;
+  }
+  .type:before {
+  	position: absolute;
+    content: "";
+    top:18px;
+    left: 1px;
+    width:8px;
+    height:8px;
+    border-radius: 8px;
+  }
+  .high-bool:before{
+    background-color: #f36363;
+  }
+  .mid-bool:before{
+    background-color: #ff9000;
+  }
+  .low-bool:before{
+    background-color:#ffca29;
+  }
+  .suc-bool:before{
+    background-color:#00ff00;
+  }
+}

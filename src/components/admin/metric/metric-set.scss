@@ -1,0 +1,42 @@
+.metric-set {
+  /*搜索栏样式*/
+  .search-data {
+    width: 100%;
+    padding: 5px 15px;
+    box-sizing: border-box;
+    overflow: hidden;
+    background: #f5f7f9;
+  }
+  .search-data-title {
+    margin-left: 10px;
+  }
+  .metric-form {
+    padding: 10px 20px;
+    box-sizing: border-box;
+    // height: 69%;
+    // max-height: 400px;
+    // overflow: auto;
+  }
+  .operate-area {
+    border-top: 1px solid #dfe7f2;
+    border-bottom: 1px solid #dfe7f2;
+    padding: 5px 0;
+    .operate-area-title {
+      padding: 5px 0;
+      font-size: 14px;
+      font-weight: bold;
+    }
+  }
+  .element-item {
+    padding-top: 20px;
+    border-top: 1px dashed #dfe7f2;
+  }
+  .ivu-form-item .ivu-form-item {
+    margin-bottom: 24px;
+  }
+}
+
+// .setdata {
+//   height: 100%;
+//   position: relative;
+// }

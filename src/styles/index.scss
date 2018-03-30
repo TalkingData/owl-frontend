@@ -1,0 +1,14 @@
+@import 'common.scss';
+@import 'base.scss';
+@import 'components/box-header.scss';
+@import 'components/main-container.scss';
+@import 'components/table-list.scss';
+// @import 'fonts/reset.scss';
+// @import 'fonts/ownfont.scss';
+// @import 'fonts/newfont.css';
+// @import 'components/calendar-select.scss';
+
+@mixin size($width, $height: $width) {
+  width: $width;
+  height: $height;
+}

@@ -1,0 +1,64 @@
+.box {
+	.box-header {
+    box-sizing: border-box;
+    width: 100%;
+    height: 50px;
+    line-height: 50px;
+    padding: 0 20px;
+    color: #464c5b;
+    background-color: #fff;
+    &.t-fixed {
+    	min-width: 1024px;
+	    position: fixed;
+	    top: 55px;
+	    background: #fff;
+	    z-index: 200;
+    }
+  }
+
+  .box-header-title {
+    display: inline-block;
+    height: 100%;
+    margin-right: 39px;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 50px;
+  }
+
+  .box-border-r {
+    border-right: 1px solid #dfe7f2;
+  }
+
+  .box-border-l {
+    border-left: 1px solid #dfe7f2;
+  }
+  .box-header-tool {
+    float: right;
+    height: 50px;
+    line-height: 50px;
+    font-size: 14px;
+  }
+
+  .box-header-tool>input {
+    display: inline-block;
+    box-sizing: border-box;
+    height: 36px;
+    margin-left: 14px;
+    border: 2px solid #dfe7f2;
+    border-radius: 5px;
+    padding-left: 5px;
+    padding-right: 24px;
+  }
+
+  .box-header-tool>span {
+    box-sizing: border-box;
+    display: inline-block;
+    height: 36px;
+    margin-left: 14px;
+    padding: 0 24px;
+    line-height: 30px;
+    border: 2px solid #dfe7f2;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+}

@@ -1,0 +1,52 @@
+// layout
+@media screen and ( max-width:1024px ){
+  html{
+    min-width:1024px;
+    min-height:580px;
+  }
+  .bodyStyle{
+    height:100%;
+    width:100%;
+    overflow: hidden;
+    // background-image:url('assets/image/bg.jpg');
+    // background-repeat: no-repeat;
+    background-size:100% 100%;
+    // box-sizing:border-box;
+  }
+}
+.bodyStyle {
+  background-image: url('assets/image/bg.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+}
+.body-style-product {
+  background: #f2f6ec;
+  box-sizing: border-box;
+  // position: absolute;
+  // top: 0;
+  // bottom: 0;
+  // left: 0;
+  // right: 0;
+  width: 100%;
+  height: 100%;
+}
+.parent-router {
+  position: relative;
+  width: 100%;
+  height: auto;
+  min-width: 1280px;
+}
+.parent-router-header {
+  position: relative;
+  width: 100%;
+  margin-bottom: 55px;
+  z-index: 100;
+}

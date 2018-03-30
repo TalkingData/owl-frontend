@@ -1,0 +1,131 @@
+.rule-item-view {
+	width:100%;
+  border:1px dashed #dce1e7;
+  padding: 5px 5px 0;
+  margin-bottom: 10px; 
+  .rule-title {
+    width: 60px;
+    padding-top: 1px;
+  }
+  .rule-title-label {
+    background: #e7e7e7;
+    color: #7d7d7d;
+    display: block;
+    width: 40px;
+    height: 32px;
+    line-height: 31px;
+    font-size: 15px;
+    text-align: center;
+    margin-right: 10px;
+    border-radius: 4px;
+    position: relative;
+  }
+  .view-mid{
+    box-sizing: border-box;
+    width:100%;
+    height: auto;
+    // padding: 10px;
+  }
+  .metric-main {
+    .float-left {
+      display: inline-block;
+    }
+  }
+  .metric-block {
+    height: 32px;
+    line-height: 32px;
+    margin-bottom: 28px;
+  }
+  .float-item {
+    height: 32px;
+    line-height: 32px;
+  }
+  .tag-block {
+    color: #495060;
+    display: inline-block;
+    height: 22px;
+    line-height: 20px;
+    padding: 0 8px;
+    border: 1px solid #e9eaec;
+    border-radius: 3px;
+    background: #f7f7f7;
+    font-size: 12px;
+    vertical-align: middle;
+    opacity: 1;
+    overflow: hidden;
+    i {
+      display: inline-block;
+      font-size: 14px;
+      transform: scale(1.42857143) rotate(0);
+      cursor: pointer;
+      margin-left: 8px;
+      color: #666;
+      opacity: .66;
+      position: relative;
+      top: 1px;
+      cursor: pointer;
+    }
+  }
+  .ivu-form-item-label {
+  	// background-color: #eaeef2;
+  }
+  .view-tag-item {
+  	.ivu-form-item-label {
+  		// font-size: 14px;
+  		// padding: 20px 12px 20px 0;
+  		// background-color: #f4f7fb;
+  	}
+  }
+  .ivu-form-item-label {
+		// font-size: 14px;
+	}
+  .tag-content {
+  	// position: relative;
+  	// padding: 10px;
+   //  border: 1px solid #dce1e7;
+   //  background-color: #f4f7fb;
+  }
+  .view-mid-r-control{
+    box-sizing: border-box;
+    padding-left:13px;
+    border-bottom: 1px dashed #e0e4ea;
+    button {
+    	color:#43a3fb;
+    }
+  }
+  .character {
+    display: inline-block;
+    margin-left: 9px;
+    margin-right: 9px;
+    font-size: 14px;
+    color: #9ea7b4;
+	}
+	.ivu-form-item-required .ivu-form-item-label:before {
+    content: '';
+    display: inline-block;
+    margin-right: 0;
+    line-height: 1;
+    font-family: SimSun;
+    font-size: 12px;
+    color: #ed3f14;
+	}
+  .ivu-auto-complete.ivu-select-dropdown {
+    max-height: 200px;
+  }
+}
+.layout {
+	.layout-title {
+		padding: 15px 0;
+		background-color: #f4f7fb;
+		text-align: center;
+	}
+  .layout-left {
+    float: left;
+    padding-right: 20px;
+    width: 120px;
+  }
+  .layout-center {
+  	margin-left: 120px;
+  	padding: 10px 0;
+  }
+}

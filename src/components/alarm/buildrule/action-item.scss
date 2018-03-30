@@ -1,0 +1,13 @@
+.action-item-view {
+  width:100%;
+  border:1px dashed #dce1e7;
+  padding: 5px 5px 0;
+  margin-bottom: 10px;
+  textarea.ivu-input {
+  	font-size: 12px;
+  }
+  .show-x .ivu-select-dropdown {
+  	overflow-y: scroll;
+  	overflow-x: visible;
+  }
+}

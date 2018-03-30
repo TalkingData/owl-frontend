@@ -1,0 +1,30 @@
+.rule-detail-modal {
+  .hidden {
+    .ivu-table-cell {
+      .ivu-poptip {
+        width: 100%;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+      span {
+        // text-overflow: ellipsis;
+        // white-space: nowrap;
+        // overflow: hidden;
+      }
+      .ivu-poptip-rel {
+        // text-overflow: ellipsis;
+        // white-space: nowrap;
+        // overflow: hidden;
+      }
+      // .ivu-poptip-popper {
+      //   width: 300px;
+      // }
+      .word-break {
+        word-wrap: break-word;
+        white-space: normal;
+        max-width: 300px;
+      }
+    }
+  }
+}

@@ -1,0 +1,114 @@
+.create-template {
+  position: relative;
+  width: 100%;
+  .ivu-form-item-required .ivu-form-item-label:before {
+    content: '';
+    display: inline-block;
+    margin-right: 0;
+    line-height: 1;
+    font-family: SimSun;
+    font-size: 12px;
+    color: #ed3f14;
+  }
+  .ivu-form-item-label {
+    // font-size: 14px;
+  }
+  .ivu-date-picker {
+    vertical-align: middle;
+    line-height: 32px;
+  }
+  .ivu-input-number,
+  .ivu-poptip-rel {
+    vertical-align: middle;
+    line-height: 32px;
+  }
+  .float-item {
+    height: 32px;
+    line-height: 32px;
+  }
+  .metric-block {
+    height: 32px;
+    line-height: 32px;
+    margin-bottom: 28px;
+  }
+
+
+  .brule-top {
+    position: fixed;
+    z-index: 10;
+    top: 55px;
+    box-sizing: border-box;
+    // width: 100%;
+    right: 0;
+    height: 55px;
+    padding: 0 24px 0 30px;
+    background-color: #fff;
+    line-height: 55px;
+    font-size: 16px;
+    border-bottom: 2px solid #ced3d9;
+    transition: left .3s;
+    @at-root .shrinked & {
+      left: 60px;
+    }
+    @at-root .unshrinked & {
+      left: 200px;
+    }
+    .brule-top-title {
+      color: #5697f1;
+      cursor: pointer;
+    }
+  }
+  .reminder-word {
+    color: #ced3d9;
+  }
+  .brule-margin {
+    margin-top: 55px;
+    height: 100%;
+  }
+
+  .brule-body {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 28px 29px 0 30px; // background-color: #f5f7f9;
+    .subody {
+      width: 100%;
+      height: auto;
+      background-color: #ffffff;
+    }
+    .subody-top {
+      box-sizing: border-box;
+      width: 100%;
+      height: 54px;
+      padding-left: 30px;
+      line-height: 54px;
+      font-size: 16px;
+      color: #464c5b;
+      border-bottom: 1px solid #ebeef1;
+    }
+    .subody-panel {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 30px;
+      color: #464c5b;
+      background-color: #ffffff;
+      border-right: 1px solid #ebeef1;
+      border-left: 1px solid #ebeef1;
+    }
+    .subody-panel-filter {
+      .ivu-col {
+        padding-right: 15px;
+      }
+      .ivu-form-item-label,
+      .ivu-input {
+        // font-size: 14px;
+      }
+      .ivu-form-item-label {
+        padding: 10px 0;
+      }
+      .ivu-input-disabled {
+        background-color: #e5e8ee;
+        color: #464c5b;
+      }
+    }
+  }
+}

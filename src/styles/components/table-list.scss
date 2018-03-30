@@ -1,0 +1,110 @@
+/* 规则列表样式 */
+.table-list {
+  width: 100%;
+  box-sizing: border-box;
+  &-header {
+    // width: 100%;
+    position: relative;
+    .float-left {
+      position: relative;
+    } 
+  }
+  .box-content-title, .box-content-body{
+    background-color: #f4f7fb;
+    border: 1px solid #dfe7f2;
+  }
+  .box-content-title{
+    font-size:14px;
+    .title-th {
+      border-right: 1px solid #dfe7f2;
+      padding-left: 10px;
+      color:#464c5b;
+      font-weight: 700;
+      height: 45px;
+      line-height: 45px;
+      &:last-child {
+        border: none;
+      }
+    }
+  }
+  // ----------------------
+  .box-content-body{
+    font-size:12px;
+    background: #fff;
+    border-top: none;
+    border-bottom: none;
+    // line-height: 44px;
+    .box-content-item {
+      padding: 10px 0;
+      box-sizing: border-box;
+      border-bottom: 1px solid #dfe7f2;
+      // cursor: pointer;
+      .cursor-pointer {
+        cursor: pointer;
+      }
+      &.disabled {
+        // background: #bbbec4;
+        background: #f8f8f9;
+        cursor: not-allowed !important;
+      }
+      .ivu-icon, .ivu-badge {
+        cursor: pointer;
+      }
+      &:hover {
+        .operate-item {
+          display: block;
+        }
+      }
+    }
+    .operate-item {
+      display: none;
+      .ivu-icon {
+        &:hover {
+          color: #39f;
+        }
+      }
+      .ivu-tooltip-rel {
+        // vertical-align: middle;
+      }
+    }
+    .body-td {
+      word-wrap: break-word;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      // box-sizing: border-box;
+      &.hedden-td {
+        overflow: hidden;
+      }
+      &.hidden-td {
+        overflow: hidden;
+      }
+      &.width-limit {
+        .ivu-poptip {
+          width: 100%;
+        }
+        .ivu-poptip-rel {
+          max-width: 100%;
+          span {
+            width: 100%;
+            display: inline-block;
+            overflow: hidden;
+            word-wrap: break-word;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            // box-sizing: border-box;
+          }
+        }
+        .ivu-poptip-popper {
+          z-index: 8;
+        }
+      }
+    }
+    .ivu-col{
+      vertical-align: middle;
+      padding: 0 10px;
+    }
+  }
+  .footer {
+    margin-top: 10px;
+  }
+}

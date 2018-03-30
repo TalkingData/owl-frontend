@@ -1,0 +1,44 @@
+.my-table-list {
+  position: relative;
+  max-height: 320px;
+  overflow-y: scroll;
+  font-size: 12px;
+  tfoot {
+    td {
+      text-align: center;
+    }
+  }
+  .show-list-table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    border-spacing: 2px;
+    border: 1px solid #e9eaec;
+    margin: 10px 0;
+    .ivu-table-cell {}
+    th {
+      background-color: #f8f8f9;
+      height: 32px;
+      box-sizing: border-box;
+      text-align: left;
+      text-overflow: ellipsis;
+      vertical-align: middle;
+      border-bottom: 1px solid #e9eaec;
+    }
+    tbody tr {
+      // height: 40px;
+      border-bottom: 1px solid #e9eaec;
+    }
+    td {
+      height: 40px;
+      vertical-align: middle;
+      text-align: left;
+      &.center-word {
+        text-align: center;
+      }
+    }
+    .table-row-cursor {
+      cursor: pointer;
+    }
+  }
+}

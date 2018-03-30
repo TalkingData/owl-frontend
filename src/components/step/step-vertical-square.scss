@@ -1,0 +1,111 @@
+.step-vertical-square {
+	width: 100%;
+	position: relative;
+	.step-bar {
+		width: 100%;
+		position: relative;
+		margin-bottom: 3px;
+		.step-header {
+			cursor: pointer;
+			margin: -3px 0 16px;
+			font-size: 14px;
+		}
+		.step-icon {
+			display: inline-block;
+	    min-width: 26px;
+	    height: 26px;
+	    line-height: 24px;
+	    margin-right: 8px;
+	    padding: 0 5px;
+	    // text-align: center;
+	    // border-radius: 50%;
+	    font-size: 14px;
+	    border: 1px solid #ccc;
+	    color: #ccc;
+		}
+		.step-status-icon {
+			display: inline-block;
+	    width: 26px;
+	    height: 26px;
+	    line-height: 24px;
+	    margin-right: 8px;
+	    text-align: center;
+	    border-radius: 50%;
+	    // font-size: 14px;
+	    border: 1px solid #ccc;
+	    color: #ccc;
+	    // background-color: #2d8cf0;
+		}
+		.step-title {
+			color: #999;
+			display: inline-block;
+	    // margin-bottom: 4px;
+	    margin-top: 2px;
+	    padding-right: 10px;
+	    font-size: 14px;
+	    font-weight: 700;
+	    background: #fff;
+		}
+		.main-box {
+			border-left: 3px solid #e9eaec;
+			padding: 16px 8px 16px 32px;
+	    margin-left: 12px;
+	    margin-top: -16px;
+	    transition: border .5s ease;
+	    transform-origin: top;
+		}
+		&:last-child {
+			.main-box {
+	    	border: none;
+	    	margin-left: 15px;
+			}
+    }
+		&.open.done, &.close.done {
+			.step-icon {
+				border: 1px solid #2d8cf0;
+	    	color: #fff;
+	    	background-color: #2d8cf0;
+			}
+		}
+		&.open.success, &.close.success {
+			.step-icon {
+				border: 1px solid #19be6b;
+	    	color: #19be6b;
+	    	// background-color: #19be6b;
+			}
+		}
+		&.open.hidden-text, &.close.hidden-text {
+			.step-icon {
+	    	color: rgba(0, 0, 0, 0) !important;
+			}
+		}
+		&.close {
+			.step-icon {
+				border: 1px solid #ccc;
+	    	color: #ccc;
+			}
+			.step-title {
+				color: #999;
+			}
+			.main-box {
+				height: 0;
+				// margin-top: -16px;
+    		padding-bottom: 0;
+    		overflow: hidden;
+			}
+		}
+		&.open {
+			.step-icon {
+				border: 1px solid #2d8cf0;
+	    	color: #2d8cf0;
+			}
+			.step-title {
+				color: #666;
+			}
+			.main-box {
+				height: auto;
+				border-color: #2d8cf0;
+			}
+		}
+	}
+}
