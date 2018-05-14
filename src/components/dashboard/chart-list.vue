@@ -61,10 +61,16 @@ export default {
     },
     // 获取panel详情数据,获取panel下所有chart列表
     getData(params) {
+      if (this.dataList.length > 0) {
+        this.$refs.editChart.forEach((item) => {
+          item.showLoad();
+        });
+      }
       const param = {
         panelId: params.panelId,
         productId: params.productId,
         query: params.query,
+        paging: false,
       };
       if (!param.query) delete param.query;
       getPanelCharts(param).then((res) => {

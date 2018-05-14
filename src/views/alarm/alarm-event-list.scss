@@ -1,15 +1,6 @@
 .alarm-event {
-  .alarm-content {
+  .main-list-content {
     width: 100%;
-    padding: 6px 10px 6px;
-    position: relative;
-    box-sizing: border-box;
-    .add-btn-box {
-      position: absolute;
-      top: 6px;;
-      right: 20px;
-      z-index: 99;
-    }
     .ivu-tabs {
       overflow-y: auto;
     }

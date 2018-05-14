@@ -13,7 +13,10 @@
           </div>
           <div class="float-right">
             <div class="mr-20">
-              <calendar-select @on-date-change="dateChange" placement="bottom-end"></calendar-select>
+              <calendar-select ref="calendar" 
+              @on-date-change="dateChange" 
+              placement="bottom-end" 
+              :refresh="true"></calendar-select>
             </div>
           </div>
         </div>
@@ -94,10 +97,11 @@ export default {
     search: _.debounce(function() {
       this.filter.query = this.searchName;
       this.getData(this.filter);
-    }, 300),
+    }, 1000),
     // 刷新
     reload() {
-      this.getData(this.filter);
+      this.$refs.calendar.reload();
+      // this.getData(this.filter);
     },
     // 获取数据,用在子页面
     getData(params) {

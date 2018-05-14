@@ -3,74 +3,32 @@
 
 </style>
 <template>
-  <div class="main-container">
+  <div class="main-container user-group-list">
     <div class="main-list-content">
-      <div class="table-list user-group-list">
-        <div class="table-list-header clearfix mb-10">
-          <div class="float-left">
-            <Button icon="minus" @click="removeData('multiple')" :disabled="!disableObj.isRemove" type="primary">删除用户组</Button>
-            <Button type="primary" icon="plus" @click="createData">创建用户组</Button>
-          </div>
-          <div class="float-right">
-            <Input style="width:200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
-            <Button @click="reload">
-              <Icon size="18" type="refresh"></Icon>
-            </Button>
-          </div>
+      <div class="common-detail-top clearfix mb-10">
+        <div class="float-left">
+          <Button icon="minus" @click="removeData('multiple')" :disabled="!disableObj.isRemove" type="primary">删除用户组</Button>
+          <Button type="primary" icon="plus" @click="createData">创建用户组</Button>
         </div>
+        <div class="float-right">
+          <Input style="width:200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
+          <Button @click="reload">
+            <Icon size="18" type="refresh"></Icon>
+          </Button>
+        </div>
+      </div>
+      <div class="table-list">
         <div class="box-content">
-          <div class="box-content-title">
-            <Row>
-              <Col class="title-th" span="6">
-              <Checkbox v-model="checkAll" @on-change="selectAll"></Checkbox>
-              用户组名称
-              <sort-page 
-                :sort-value="filter.order" 
-                sort-name="name"
-                @on-sort-change="handleSort"></sort-page>
-              </Col>
-              <Col class="title-th" span="8">描述
-              <sort-page 
-                :sort-value="filter.order" 
-                sort-name="description"
-                @on-sort-change="handleSort"></sort-page></Col>
-              <Col class="title-th" span="10"></Col>
-            </Row>
-          </div>
           <paging ref="userGroupList" :total="total" @on-page-info-change="pageInfoChange">
-            <div slot="listTable" class="box-content-body" v-if="dataList.length > 0">
-              <Row class="box-content-item cursor-pointer" v-for="(item, index) in dataList" :key="index" @click.native="viewDetail(item)">
-                <Col class="body-td hidden-td" span="6">
-                <Checkbox v-model="item.checked" @click.native.stop="selectItem(item, index)"></Checkbox>
-                <span :title="item.name">{{item.name || '--'}}</span>
-                </Col>
-                <Col class="body-td width-limit" span="8">
-                <span :title="item.description">{{item.description || '--'}}</span>
-                  <!-- <Poptip placement="right" width="300" trigger="hover">
-                    <span style="cursor: pointer;">{{item.description}}</span>
-                    <div slot="title"><i>描述详情</i></div>
-                    <div slot="content" @click.native.stop="doNothing">
-                      <div class="pop-show-content">
-                        <pre>{{item.description}}</pre>
-                      </div>
-                    </div>
-                  </Poptip> -->
-                </Col>
-                <Col class="body-td" span="10">
-                <div class="float-right pr-20">
-                  <Tooltip content="编辑组信息" placement="top">
-                    <Icon size="18" type="edit" @click.native.stop="updateUserGroup(item)"></Icon>
-                  </Tooltip>
-                  <Tooltip content="删除" placement="top" class="ml-10">
-                    <Icon size="18" type="trash-a" @click.native.stop="removeData(item)"></Icon>
-                  </Tooltip>
-                </div>
-                </Col>
-              </Row>
-            </div>
-            <div slot="listTable" class="box-content-body" v-else>
-              <Row style="text-align: center" class="box-content-item">暂无数据</Row>
-            </div>
+            <Table slot="listTable" size="small" border
+              ref="tablelist"
+              :data="dataList" 
+              :columns="columns"
+              no-data-text="暂无数据"
+              @on-select-all="selectAll"
+              @on-selection-change="selectItem"
+              @on-sort-change="handleSort"
+              ></Table>
           </paging>
         </div>
       </div>
@@ -92,14 +50,12 @@ import _ from 'lodash';
 import { getUserGroups, deleteUserGroup } from '../../models/service';
 import paging from '../../components/page/paging';
 import createUserGroup from '../../components/manage/create-user-group';
-import sortPage from '../../components/page/sort-page';
 
 export default {
   name: 'userGroupList',
   components: {
     paging,
     createUserGroup,
-    sortPage,
   },
   props: {},
   data() {
@@ -113,10 +69,77 @@ export default {
         productId: '',
       },
       total: 0,
-      checkAll: false, // 全选
       selectedData: [], // 选中数据
       deleteShowData: [],
       removeModal: false,
+      columns: [
+        {
+          type: 'selection',
+          width: 60,
+          align: 'center',
+        }, {
+          title: '用户组名称',
+          key: 'name',
+          sortable: 'custom',
+          width: 200,
+          render: (h, params) => h('a', {
+            attrs: {
+              title: '查看用户组',
+              // eslint-disable-next-line
+              href: 'javascript:;',
+            },
+            on: {
+              click: () => {
+                this.viewDetail(params.row);
+              },
+            },
+          }, params.row.name),
+        }, {
+          title: '描述',
+          key: 'description',
+          sortable: 'custom',
+        }, {
+          title: '操作',
+          align: 'right',
+          width: 200,
+          render: (h, params) => h('div', [h('Tooltip', {
+            props: {
+              content: '编辑',
+              placement: 'top',
+            },
+          }, [h('Icon', {
+            props: {
+              size: 18,
+              type: 'edit',
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.updateUserGroup(params.row);
+              },
+            },
+          })]), h('Tooltip', {
+            props: {
+              content: '删除',
+              placement: 'top',
+            },
+            style: {
+              marginLeft: '10px',
+            },
+          }, [h('Icon', {
+            props: {
+              size: 18,
+              type: 'trash-a',
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.removeData(params.row);
+              },
+            },
+          })])]),
+        },
+      ],
     };
   },
   methods: {
@@ -204,26 +227,11 @@ export default {
     },
     // 全选
     selectAll(flag) {
-      if (flag) {
-        this.selectedData = this.dataList.map((item) => {
-          const obj = item;
-          obj.checked = true;
-          return obj;
-        });
-      } else {
-        this.selectedData = [];
-        this.dataList.map((item) => {
-          const obj = item;
-          obj.checked = false;
-          return obj;
-        });
-      }
+      this.selectedData = flag;
     },
     // 单选
-    selectItem(item, index) {
-      this.dataList[index].checked = !this.dataList[index].checked;
-      this.selectedData = this.dataList.filter(plugin => plugin.checked);
-      this.checkAll = this.selectedData.length === this.dataList.length;
+    selectItem(item) {
+      this.selectedData = item;
     },
     // 翻页
     pageInfoChange(filter) {
@@ -233,8 +241,12 @@ export default {
     },
     // 排序
     handleSort(value) {
-      this.filter.order = value;
+      const order = value.order === 'normal' ? '' : `${value.key}|${value.order}`;
+      this.filter.order = order;
       this.initFilter();
+    },
+    rowClassName() {
+      return 'cursor-ivu-row';
     },
     // 初始化过滤条件
     initFilter() {
@@ -246,18 +258,13 @@ export default {
     // 获取数据
     getData(params) {
       this.selectedData = [];
-      this.checkAll = false;
       const param = Object.assign({}, params);
       if (!param.query) delete param.query;
       if (!param.order) delete param.order;
       getUserGroups(param).then((res) => {
         if (res.status === 200) {
           this.total = res.data.total;
-          this.dataList = res.data.user_groups.map((item) => {
-            const obj = item;
-            obj.checked = false;
-            return obj;
-          });
+          this.dataList = res.data.user_groups;
         }
       });
     },

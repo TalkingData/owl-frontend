@@ -64,15 +64,6 @@ const menu = [
         // eslint-disable-next-line
         component: (resolve) => require(['../views/console/panel-detail.vue'], resolve),
       },
-    ],
-  },
-  {
-    path: '/metric',
-    icon: 'podium',
-    name: 'metric',
-    title: '监控指标',
-    // component: Layout,
-    children: [
       {
         path: 'metric/list/:productId',
         title: '指标列表',
@@ -93,7 +84,7 @@ const menu = [
     path: '/monitor',
     icon: 'ios-list',
     name: 'monitor',
-    title: '设备管理',
+    title: '主机管理',
     // component: Layout,
     children: [
       {
@@ -113,6 +104,15 @@ const menu = [
         component: (resolve) => require(['../views/monitor/host-detail.vue'], resolve),
       },
       {
+        path: 'host/plugin/:hostId/:productId',
+        title: '查看插件',
+        name: 'hostpluginofhost',
+        isSubPage: true,
+        parentPage: 'monitor_host',
+        // eslint-disable-next-line
+        component: (resolve) => require(['../views/monitor/host-plugin.vue'], resolve),
+      },
+      {
         path: 'monitorgroup/:productId',
         title: '主机组列表',
         name: 'monitor_group',
@@ -130,12 +130,21 @@ const menu = [
       },
       {
         path: 'grouphost/:hostId/:groupId/:productId',
-        title: '',
+        title: '主机详情',
         name: 'hostdetailofgroup',
         isSubPage: true,
         parentPage: 'monitor_group',
         // eslint-disable-next-line
         component: (resolve) => require(['../views/monitor/host-detail.vue'], resolve),
+      },
+      {
+        path: 'group/plugin/:hostId/:groupId/:productId',
+        title: '查看插件',
+        name: 'hostpluginofgroup',
+        isSubPage: true,
+        parentPage: 'monitor_group',
+        // eslint-disable-next-line
+        component: (resolve) => require(['../views/monitor/host-plugin.vue'], resolve),
       },
     ],
   },
@@ -143,7 +152,7 @@ const menu = [
     path: '/alarm',
     icon: 'ios-bell',
     name: 'alarm',
-    title: '预警告警',
+    title: '报警管理',
     children: [
       {
         path: 'strategylist/:productId',
@@ -190,14 +199,14 @@ const menu = [
       },
       {
         path: 'eventlist/:productId',
-        title: '告警列表',
+        title: '报警事件',
         name: 'eventlist',
         // eslint-disable-next-line
         component: (resolve) => require(['../views/alarm/alarm-event-list.vue'], resolve),
       },
       {
         path: 'eventlistby/:strategyId/:status/:productId',
-        title: '告警列表',
+        title: '报警事件',
         name: 'eventlistBy',
         isSubPage: true,
         parentPage: 'eventlist',
@@ -219,14 +228,14 @@ const menu = [
     path: '/manage',
     icon: 'person-stalker',
     name: 'manage',
-    title: '人员设置',
+    title: '用户管理',
     children: [
       {
         path: 'userlist/:productId',
         title: '用户列表',
         name: 'userlist',
         // eslint-disable-next-line
-        component: (resolve) => require(['../views/manage/user-list.vue'], resolve),
+        component: (resolve) => require(['../views/manage/manage-user-list.vue'], resolve),
       },
       {
         path: 'usergroup/:productId',
@@ -256,14 +265,14 @@ const adminMenu = [
     title: '产品线',
     children: [
       {
-        path: 'productlist',
-        title: '产品线管理',
+        path: 'list',
+        title: '产品线列表',
         name: 'admin_productlist',
         // eslint-disable-next-line
         component: (resolve) => require(['../views/admin-product/admin-product.vue'], resolve),
       },
       {
-        path: 'productdetail/:productId',
+        path: 'detail/:productId',
         title: '产品线详情',
         name: 'admin_productdetail',
         isSubPage: true,
@@ -280,17 +289,26 @@ const adminMenu = [
         // eslint-disable-next-line
         component: (resolve) => require(['../views/monitor/host-detail.vue'], resolve),
       },
+      {
+        path: 'host/plugin/:hostId/:productId',
+        title: '查看插件',
+        name: 'hostpluginofproduct',
+        isSubPage: true,
+        parentPage: 'admin_productlist',
+        // eslint-disable-next-line
+        component: (resolve) => require(['../views/monitor/host-plugin.vue'], resolve),
+      },
     ],
   },
   {
     path: '/admin/monitor',
     icon: 'ios-list',
     name: 'adminmonitor',
-    title: '设备管理',
+    title: '主机管理',
     children: [
       {
         path: 'hostlist',
-        title: '主机管理',
+        title: '主机列表',
         name: 'admin_monitor_host',
         // eslint-disable-next-line
         component: (resolve) => require(['../views/admin-monitor/product-host.vue'], resolve),
@@ -304,20 +322,14 @@ const adminMenu = [
         // eslint-disable-next-line
         component: (resolve) => require(['../views/monitor/host-detail.vue'], resolve),
       },
-    ],
-  },
-  {
-    path: '/admin/manage',
-    icon: 'person-stalker',
-    name: 'adminmanage',
-    title: '人员列表',
-    children: [
       {
-        path: 'userlist',
-        title: '用户管理',
-        name: 'admin_user_list',
+        path: 'host/plugin/:hostId',
+        title: '查看插件',
+        name: 'hostpluginofadmin',
+        isSubPage: true,
+        parentPage: 'admin_monitor_host',
         // eslint-disable-next-line
-        component: (resolve) => require(['../views/admin-manage/admin-user-list.vue'], resolve),
+        component: (resolve) => require(['../views/monitor/host-plugin.vue'], resolve),
       },
     ],
   },
@@ -325,11 +337,11 @@ const adminMenu = [
     path: '/admin/plugin',
     icon: 'ios-pricetag',
     name: 'adminplugin',
-    title: '插件列表',
+    title: '插件管理',
     children: [
       {
         path: 'pluginlist',
-        title: '插件管理',
+        title: '插件列表',
         name: 'admin_plugin_list',
         // eslint-disable-next-line
         component: (resolve) => require(['../views/admin-plugin/admin-plugin-list.vue'], resolve),
@@ -349,11 +361,11 @@ const adminMenu = [
     path: '/admin/script',
     icon: 'code-working',
     name: 'adminscript',
-    title: '脚本列表',
+    title: '告警介质',
     children: [
       {
         path: 'scriptlist',
-        title: '脚本管理',
+        title: '脚本列表',
         name: 'admin_script_list',
         // eslint-disable-next-line
         component: (resolve) => require(['../views/admin-script/admin-script-list.vue'], resolve),
@@ -361,29 +373,14 @@ const adminMenu = [
     ],
   },
   {
-    path: '/admin/log',
-    icon: 'ios-book',
-    name: 'adminloglist',
-    title: '日志列表',
-    children: [
-      {
-        path: 'loglist',
-        title: '日志列表',
-        name: 'admin_log_list',
-        // eslint-disable-next-line
-        component: (resolve) => require(['../views/admin-log/admin-log.vue'], resolve),
-      },
-    ],
-  },
-  {
     path: '/admin/template',
     icon: 'social-buffer',
     name: 'admintemplate',
-    title: '模板列表',
+    title: '告警模板',
     children: [
       {
         path: 'list',
-        title: '模板管理',
+        title: '模板列表',
         name: 'admin_template',
         // eslint-disable-next-line
         component: (resolve) => require(['../views/admin-template/template-list.vue'], resolve),
@@ -430,14 +427,44 @@ const adminMenu = [
     path: '/admin/cluster',
     icon: 'help-buoy',
     name: 'admincluster',
-    title: '集群管理',
+    title: '告警队列',
     children: [
       {
         path: 'detail',
-        title: '集群状态',
+        title: '告警队列',
         name: 'admin_cluster',
         // eslint-disable-next-line
         component: (resolve) => require(['../views/admin-cluster/cluster.vue'], resolve),
+      },
+    ],
+  },
+  {
+    path: '/admin/manage',
+    icon: 'person-stalker',
+    name: 'adminmanage',
+    title: '用户管理',
+    children: [
+      {
+        path: 'userlist',
+        title: '用户列表',
+        name: 'admin_user_list',
+        // eslint-disable-next-line
+        component: (resolve) => require(['../views/admin-manage/admin-user-list.vue'], resolve),
+      },
+    ],
+  },
+  {
+    path: '/admin/log',
+    icon: 'ios-book',
+    name: 'adminloglist',
+    title: '日志管理',
+    children: [
+      {
+        path: 'loglist',
+        title: '日志列表',
+        name: 'admin_log_list',
+        // eslint-disable-next-line
+        component: (resolve) => require(['../views/admin-log/admin-log.vue'], resolve),
       },
     ],
   },

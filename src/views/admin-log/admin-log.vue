@@ -2,83 +2,30 @@
   @import './admin-log.scss'
 </style>
 <template>
-  <div class="main-container">
-    <div class="admin-log-list">
-      <div class="table-list group-list">
-        <div class="table-list-header clearfix  mb-10">
-          <div class="float-left">
-            <calendar-select placement="bottom-start" @on-date-change="dateChange"></calendar-select>
-          </div>
-          <div class="float-right">
-            <Input style="width:200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
-            <Button @click="reload">
-              <Icon size="18" type="refresh"></Icon>
-            </Button>
-          </div>
+  <div class="main-container admin-log-list">
+    <div class="main-list-content">
+      <div class="common-detail-top clearfix mb-10">
+        <div class="float-left">
+          <calendar-select ref="calendar" placement="bottom-start" @on-date-change="dateChange"></calendar-select>
         </div>
+        <div class="float-right">
+          <Input style="width:200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
+          <Button @click="reload">
+            <Icon size="18" type="refresh"></Icon>
+          </Button>
+        </div>
+      </div>
+      <div class="table-list group-list">
         <div class="box-content">
-          <div class="box-content-title">
-            <Row>
-              <Col class="title-th" span="3">
-              IP
-              </Col>
-              <Col class="title-th" span="5">API</Col>
-              <Col class="title-th" span="2">方法类型</Col>
-              <Col class="title-th" span="5">参数</Col>
-              <Col class="title-th" span="2">操作结果</Col>
-              <Col class="title-th" span="4">操作人</Col>
-              <Col class="title-th" span="3">操作时间</Col>
-            </Row>
-          </div>
           <paging :total="total" @on-page-info-change="pageInfoChange" ref="page">
-            <div slot="listTable" class="box-content-body" v-if="dataList.length > 0">
-              <!-- @click.native="viewDetail(item)" -->
-              <Row class="box-content-item" v-for="(item, index) in dataList" :key="index" @click.native="viewDetail(item)">
-                <Col class="body-td hidden-td" span="3">
-                <span :title="item.ip">{{item.ip || '--'}}</span>
-                </Col>
-                <Col class="body-td width-limit" span="5">
-                  <Poptip placement="right" width="400" trigger="hover">
-                    <span style="color: #2d8cf0;cursor: pointer;">{{item.api || '--'}}</span>
-                    <div slot="title"><i>API详情</i></div>
-                    <div slot="content">
-                      <div class="pop-show-content">
-                        <pre>{{getPre(item.api)}}</pre>
-                        <!-- <pre>{{item.body}}</pre> -->
-                      </div>
-                    </div>
-                  </Poptip>
-                </Col>
-                <Col class="body-td hidden-td" span="2">
-                  {{item.method || '--'}}
-                </Col>
-                <Col class="body-td" span="5">
-                  <Poptip placement="right" width="400">
-                    <span style="color: #2d8cf0;cursor: pointer;">查看详情</span>
-                    <div slot="title"><i>参数详情</i></div>
-                    <div slot="content">
-                      <div class="pop-show-content">
-                        <pre>{{getPre(item.body)}}</pre>
-                        <!-- <pre>{{item.body}}</pre> -->
-                      </div>
-                    </div>
-                    <!-- <Button @click="test(item.body)">test</Button> -->
-                  </Poptip>
-                </Col>
-                <Col class="body-td" span="2">
-                  {{getResult(item.result)}}
-                </Col>
-                <Col class="body-td hidden-td" span="4">
-                <span :title="item.operator">{{item.operator || '--'}}</span>
-                </Col>
-                <Col class="body-td" span="3">
-                  {{item.time || '--'}}
-                </Col>
-              </Row>
-            </div>
-            <div slot="listTable" class="box-content-body" v-else>
-              <Row style="text-align: center" class="box-content-item">暂无数据</Row>
-            </div>
+            <Table slot="listTable" size="small" border
+              ref="tablelist"
+              :data="dataList" 
+              :columns="columns"
+              no-data-text="暂无数据"
+              @on-row-click="viewDetail"
+              @on-sort-change="handleSort"
+            ></Table>
           </paging>
         </div>
       </div>
@@ -107,7 +54,6 @@ export default {
         page: 1,
       },
       total: 0, // 总数
-      checkAll: false, // 全选
       selectedData: [], // 选中数据
       statusList: [], // 筛选
       dataStatus: '',
@@ -126,6 +72,82 @@ export default {
       actionType: '',
       errorMsg: '',
       visibleBody: false,
+      columns: [
+        {
+          title: 'IP',
+          key: 'ip',
+          // sortable: 'custom',
+          width: 180,
+        }, {
+          title: 'API',
+          key: 'api',
+          ellipsis: true,
+          width: 200,
+          render: (h, params) => h('div', {
+            attrs: {
+              class: 'width-limit',
+            },
+          }, [h('Poptip', {
+            props: {
+              placement: 'right',
+              width: 400,
+              trigger: 'hover',
+            },
+          }, [h('span', {
+            style: {
+              color: '#2d8cf0',
+              cursor: 'pointer',
+            },
+          }, params.row.api), h('div', {
+            slot: 'title',
+          }, 'API详情'), h('div', {
+            slot: 'content',
+          }, [h('div', {
+            attrs: {
+              class: 'pop-show-content',
+            },
+          }, [h('pre', this.getPre(params.row.api))])])])]),
+        }, {
+          title: '方法类型',
+          key: 'method',
+          width: 120,
+        }, {
+          title: '参数',
+          key: 'body',
+          width: 120,
+          render: (h, params) => h('div', [h('Poptip', {
+            props: {
+              placement: 'right',
+              width: 400,
+              trigger: 'hover',
+            },
+          }, [h('span', {
+            style: {
+              color: '#2d8cf0',
+              cursor: 'pointer',
+            },
+          }, '查看详情'), h('div', {
+            slot: 'title',
+          }, '参数详情'), h('div', {
+            slot: 'content',
+          }, [h('div', {
+            attrs: {
+              class: 'pop-show-content',
+            },
+          }, [h('pre', this.getPre(params.row.body))])])])]),
+        }, {
+          title: '操作结果',
+          key: 'result',
+          width: 120,
+          render: (h, params) => h('span', this.getResult(params.row.result)),
+        }, {
+          title: '操作人',
+          key: 'operator',
+        }, {
+          title: '操作时间',
+          key: 'time',
+        },
+      ],
     };
   },
   computed: {
@@ -203,7 +225,6 @@ export default {
     // 获取表格内容数据
     getData(params) {
       this.selectedData = [];
-      this.checkAll = false;
       const obj = Object.assign({}, params);
       if (!obj.query) delete obj.query;
       if (obj.start_time === obj.end_time) {
@@ -226,27 +247,18 @@ export default {
       this.getData(this.filter);
     },
     // 单选
-    selectItem(item, index) {
-      this.dataList[index].checked = !this.dataList[index].checked;
-      this.selectedData = this.dataList.filter(plugin => plugin.checked);
-      this.checkAll = this.selectedData.length === this.dataList.length;
+    selectItem(item) {
+      this.selectedData = item;
     },
     // 全选
     selectAll(flag) {
-      if (flag) {
-        this.selectedData = this.dataList.map((item) => {
-          const obj = item;
-          obj.checked = true;
-          return obj;
-        });
-      } else {
-        this.selectedData = [];
-        this.dataList.map((item) => {
-          const obj = item;
-          obj.checked = false;
-          return obj;
-        });
-      }
+      this.selectedData = flag;
+    },
+    // 排序
+    handleSort(value) {
+      const order = value.order === 'normal' ? '' : `${value.key}|${value.order}`;
+      this.filter.order = order;
+      this.initFilter();
     },
     // eslint-disable-next-line
     search: _.debounce(function() { // 输入框筛选
@@ -258,7 +270,8 @@ export default {
     }, 300),
     // 刷新
     reload() {
-      this.getData(this.filter);
+      this.$refs.calendar.reload();
+      // this.getData(this.filter);
     },
     getResult(result) {
       if (result) return '成功';

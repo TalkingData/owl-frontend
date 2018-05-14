@@ -18,86 +18,16 @@
           </div>
         </div>
         <div class="box-content">
-          <div class="box-content-title">
-            <Row>
-              <Col class="title-th" span="4">
-              <!-- <Checkbox v-model="checkAll" @on-change="selectAll"></Checkbox> -->
-              用户名称
-              <sort-page 
-                :sort-value="filter.order" 
-                sort-name="username"
-                @on-sort-change="handleSort"></sort-page>
-              </Col>
-              <Col class="title-th" span="3">显示名称
-                <sort-page 
-                :sort-value="filter.order" 
-                sort-name="display_name"
-                @on-sort-change="handleSort"></sort-page>
-              </Col>
-              <Col class="title-th" span="2">角色
-              <sort-page 
-                :sort-value="filter.order" 
-                sort-name="role"
-                @on-sort-change="handleSort"></sort-page></Col>
-              <Col class="title-th" span="4">手机
-              <sort-page 
-                :sort-value="filter.order" 
-                sort-name="phone"
-                @on-sort-change="handleSort"></sort-page></Col>
-              <Col class="title-th" span="4">微信
-              <sort-page 
-                :sort-value="filter.order" 
-                sort-name="wechat"
-                @on-sort-change="handleSort"></sort-page></Col>
-              <Col class="title-th" span="4">邮箱
-              <sort-page 
-                :sort-value="filter.order" 
-                sort-name="mail"
-                @on-sort-change="handleSort"></sort-page></Col>
-            </Row>
-          </div>
           <paging ref="page" :total="total" @on-page-info-change="pageInfoChange">
-            <div slot="listTable" class="box-content-body" v-if="dataList.length > 0">
-              <Row class="box-content-item" v-for="(item, index) in dataList" :key="index" @click.native="selectItem(item, index)">
-                <!-- @click.native.stop="selectItem(item, index)" -->
-                <Col class="body-td hidden-td" span="4">
-                <!-- <Checkbox v-model="item.checked" ></Checkbox> -->
-                <span :title="item.username">{{item.username || '--'}}</span>
-                </Col>
-                <Col class="body-td hidden-td" span="3" :title="item.display_name">{{item.display_name || '--'}}</Col>
-                <Col class="body-td" span="2">
-                  {{getRoleStr(item.role)}}
-                </Col>
-                <Col class="body-td" span="4">
-                  {{item.phone_number || '--'}}
-                </Col>
-                <Col class="body-td" span="4">
-                  {{item.wechat || '--'}}
-                </Col>
-                <Col class="body-td hidden-td" span="4">
-                <span :title="item.email_address">{{item.email_address || '--'}}</span>
-                </Col>
-                <Col class="body-td" span="3">
-                <div class="float-right pr-20">
-                  <Tooltip content="修改权限" placement="top" class="ml-10">
-                    <Icon size="18" type="ios-people" @click.native.stop="editRole(item)"></Icon>
-                  </Tooltip>
-                  <Tooltip content="编辑信息" placement="top" class="ml-10">
-                    <Icon size="18" type="edit" @click.native.stop="editUser(item)"></Icon>
-                  </Tooltip>
-                  <Tooltip content="重置密码" placement="top" class="ml-10">
-                    <Icon size="18" type="key" @click.native.stop="resetPass(item)"></Icon>
-                  </Tooltip>
-                  <Tooltip content="删除用户" placement="top" class="ml-10">
-                    <Icon size="18" type="trash-a" @click.native.stop="deleteUser(item)"></Icon>
-                  </Tooltip>
-                </div>
-                </Col>
-              </Row>
-            </div>
-            <div slot="listTable" class="box-content-body" v-else>
-              <Row style="text-align: center" class="box-content-item">暂无数据</Row>
-            </div>
+            <Table slot="listTable" size="small" border
+              ref="tablelist"
+              :data="dataList" 
+              :columns="columns"
+              no-data-text="暂无数据"
+              @on-sort-change="handleSort"
+              ></Table>
+            <!-- @on-select-all="selectAll"
+            @on-selection-change="selectItem" -->
           </paging>
         </div>
       </div>
@@ -184,24 +114,19 @@
 </template>
 <script>
 import _ from 'lodash';
+import Util from '../../libs/utils';
 // import bus from '../../libs/bus';
 import { getAllUsers, changeUserRole,
   updateUser, addUsers, deleteUsers, resetDefaultUser } from '../../models/service';
 import paging from '../../components/page/paging';
-import sortPage from '../../components/page/sort-page';
 
 export default {
   name: 'userGroupList',
   components: {
     paging,
-    sortPage,
   },
   props: {},
   data() {
-    const phoneReg = /^1(3|4|5|7|8)\d{9}$/;
-    // eslint-disable-next-line
-    const emailReg = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-    const wechatReg = /^[a-zA-Z0-9]{1}([-_a-zA-Z0-9]{5,19})+$/;
     return {
       dataList: [], // 数据列表
       searchName: '', //  搜索名称
@@ -228,57 +153,23 @@ export default {
       userInfoModal: false,
       userInfo: {},
       userNameRules: [{
-        validator: (rule, value, callback) => {
-          if (!value) {
-            callback(new Error('请输入用户名'));
-          } else if (!wechatReg.test(value)) {
-            callback(new Error('用户名格式不正确'));
-          } else {
-            callback();
-          }
-        },
+        validator: Util.validateName,
         trigger: 'change',
         required: true,
       }],
       userInfoRules: {
         phone_number: [{
-          validator: (rule, value, callback) => {
-            if (!value) {
-              // callback(new Error('请输入手机号'));
-              callback();
-            } else if (!phoneReg.test(value)) {
-              callback(new Error('手机号格式不正确'));
-            } else {
-              callback();
-            }
-          },
+          validator: Util.validatePhone,
           trigger: 'change',
           required: true,
         }],
         email_address: [{
-          validator: (rule, value, callback) => {
-            if (!value) {
-              callback(new Error('请输入邮箱'));
-            } else if (!emailReg.test(value)) {
-              callback(new Error('邮箱格式不正确'));
-            } else {
-              callback();
-            }
-          },
+          validator: Util.validateMail,
           trigger: 'change',
           required: true,
         }],
         wechat: [{
-          validator: (rule, value, callback) => {
-            if (!value) {
-              // callback(new Error('请输微信号'));
-              callback();
-            } else if (!wechatReg.test(value)) {
-              callback(new Error('微信号格式不正确'));
-            } else {
-              callback();
-            }
-          },
+          validator: Util.validateWechat,
           trigger: 'change',
           required: true,
         }],
@@ -293,6 +184,120 @@ export default {
         wechat: '',
       },
       createModal: false,
+      columns: [
+        {
+          title: '用户名称',
+          key: 'username',
+          sortable: 'custom',
+          minWidth: 150,
+        }, {
+          title: '显示名称',
+          key: 'display_name',
+          sortable: 'custom',
+          minWidth: 100,
+        }, {
+          title: '邮箱',
+          key: 'email_address',
+          sortable: 'custom',
+          minWidth: 150,
+        }, {
+          title: '角色',
+          key: 'role',
+          sortable: 'custom',
+          width: 100,
+          render: (h, params) => h('span', this.getRoleStr(params.row.role)),
+        }, {
+          title: '手机',
+          key: 'phone_number',
+          sortable: 'custom',
+          width: 150,
+        }, {
+          title: '微信',
+          key: 'wechat',
+          sortable: 'custom',
+          width: 150,
+        }, {
+          title: '操作',
+          align: 'right',
+          render: (h, params) => h('div', [h('Tooltip', {
+            props: {
+              content: '修改权限',
+              placement: 'top',
+            },
+            style: {
+              marginLeft: '10px',
+            },
+          }, [h('Icon', {
+            props: {
+              size: 18,
+              type: 'ios-people',
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.editRole(params.row);
+              },
+            },
+          })]), h('Tooltip', {
+            props: {
+              content: '编辑信息',
+              placement: 'top',
+            },
+            style: {
+              marginLeft: '10px',
+            },
+          }, [h('Icon', {
+            props: {
+              size: 18,
+              type: 'edit',
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.editUser(params.row);
+              },
+            },
+          })]), h('Tooltip', {
+            props: {
+              content: '重置密码',
+              placement: 'top',
+            },
+            style: {
+              marginLeft: '10px',
+            },
+          }, [h('Icon', {
+            props: {
+              size: 18,
+              type: 'key',
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.resetPass(params.row);
+              },
+            },
+          })]), h('Tooltip', {
+            props: {
+              content: '删除用户',
+              placement: 'top',
+            },
+            style: {
+              marginLeft: '10px',
+            },
+          }, [h('Icon', {
+            props: {
+              size: 18,
+              type: 'trash-a',
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.deleteUser(params.row);
+              },
+            },
+          })])]),
+        },
+      ],
     };
   },
   methods: {
@@ -450,26 +455,11 @@ export default {
     },
     // 全选
     selectAll(flag) {
-      if (flag) {
-        this.selectedData = this.dataList.map((item) => {
-          const obj = item;
-          obj.checked = true;
-          return obj;
-        });
-      } else {
-        this.selectedData = [];
-        this.dataList.map((item) => {
-          const obj = item;
-          obj.checked = false;
-          return obj;
-        });
-      }
+      this.selectedData = flag;
     },
     // 单选
-    selectItem(item, index) {
-      this.dataList[index].checked = !this.dataList[index].checked;
-      this.selectedData = this.dataList.filter(plugin => plugin.checked);
-      this.checkAll = this.selectedData.length === this.dataList.length;
+    selectItem(item) {
+      this.selectedData = item;
     },
     // 翻页
     pageInfoChange(filter) {
@@ -479,8 +469,20 @@ export default {
     },
     // 排序
     handleSort(value) {
-      this.filter.order = value;
+      let key = '';
+      if (value.key === 'phone_number') {
+        key = 'phone';
+      } else if (value.key === 'email_address') {
+        key = 'mail';
+      } else {
+        key = value.key;
+      }
+      const order = value.order === 'normal' ? '' : `${key}|${value.order}`;
+      this.filter.order = order;
       this.initFilter();
+    },
+    rowClassName() {
+      return 'cursor-ivu-row';
     },
     // 初始化过滤条件
     initFilter() {

@@ -112,18 +112,16 @@ export default {
     },
     // 重新请求数据 刷新操作-> console, create-board
     refreshChart() {
+      this.highchartStore.showLoading();
       this.$emit('on-refresh-data', this.data.id);
-      this.showTool();
     },
     // 编辑图表
     editChart() {
       this.$emit('on-edit-chart-block', this.data.id);
-      this.showTool();
     },
     // 删除该图表
     removeChart() {
       this.$emit('on-remove-chart-block', this.data.id);
-      this.showTool();
     },
     // 全屏查看
     showAllScreen() {
@@ -150,6 +148,9 @@ export default {
     },
     // 查询数据,修改日期查询全屏数据
     getQueryChart(type) {
+      if (this.highchartModalStore) {
+        this.highchartModalStore.showLoading();
+      }
       let axiosArr = [];
       if (type === 'list') { // 普通模式,主控台使用
         axiosArr = this.data.elements.map((ele) => {
@@ -253,13 +254,13 @@ export default {
         },
       });
       const params = {
-        colors: ['#f7acbc', '#cd9a5b', '#66ffff', '#ccFF66', '#f47920',
-          '#1d953f', '#abc88b', '#769149', '#7f7522', '#9b95c9',
+        colors: ['#7bbfea', '#b3424a', '#f05b72', '#596032', '#bd6758',
+          '#cd9a5b', '#918597', '#70a19f', '#005344', '#FF00FF',
+          '#f7acbc', '#5f5d46', '#66ffff', '#ccFF66', '#f47920',
+          '#769149', '#1d953f', '#abc88b', '#7f7522', '#9b95c9',
           '#f3715c', '#ea66a6', '#d1c7b7', '#9d9087', '#77787b',
-          '#f58220', '#c37e00', '#918597', '#f26522', '#FF00FF',
-          '#76624c', '#1b315e', '#2468a2', '#ca8687', '#bd6758',
-          '#596032', '#5f5d46', '#00ae9d', '#70a19f', '#005344',
-          '#d71345', '#7bbfea', '#76becc', '#b3424a', '#f05b72',
+          '#f58220', '#c37e00', '#00ae9d', '#f26522', '#76becc',
+          '#76624c', '#d71345', '#2468a2', '#ca8687', '#1b315e',
         ],
         chart: {
           renderTo: ele,
@@ -267,6 +268,15 @@ export default {
           plotBorderWidth: 1,
           type: this.chartType,
           height: chartInfo.height || 400,
+        },
+        loading: {
+          // labelStyle: {
+          //   color: '#fff',
+          // },
+          style: {
+            backgroundColor: '#ffffff',
+            opacity: 0.7,
+          },
         },
         credits: {
           enabled: false, // 不显示水印
@@ -281,6 +291,10 @@ export default {
           },
         },
         xAxis: {
+          crosshair: {
+            width: 2,
+            color: '#aaa',
+          },
           type: 'datetime',
           labels: {
             // eslint-disable-next-line
@@ -349,9 +363,9 @@ export default {
           enabled: false,
         },
         plotOptions: {
-          area: {
+          line: {
             lineWidth: 1,
-            stacking: 'normal',
+            stacking: null,
           },
           series: {
             animation: false,
@@ -433,6 +447,7 @@ export default {
         });
         // eslint-disable-next-line
         this.highchartStore = new highstock.StockChart(params);
+        this.highchartStore.hideLoading();
       } else if (chartSite === 'screen') { // 全屏显示
         params.series = dataArg.map((item) => {
           const obj = Object.assign(item);
@@ -479,6 +494,7 @@ export default {
         });
         // eslint-disable-next-line
         this.highchartModalStore = new highstock.StockChart(params);
+        this.highchartModalStore.hideLoading();
       }
     },
     // 设置数据, filter区分
@@ -490,6 +506,11 @@ export default {
       this.data = chartItem;
       this.seriesItem = seriesItem;
       this.initChart(chartItem, seriesItem, this.$refs.lineChartArea, 'local');
+    },
+    showLoad() {
+      if (this.highchartStore) {
+        this.highchartStore.showLoading();
+      }
     },
     nullData() {},
     // 获取格式

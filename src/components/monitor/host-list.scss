@@ -1,8 +1,11 @@
-.admin-product {
+.common-host-list {
   width: 100%;
-  // padding: 6px 10px 6px;
-  .product-list {
+  padding: 6px 10px 6px;
+  .host-list {
     // margin-top: 16px;
+    .ivu-badge-count {
+      z-index: 9;
+    }
     .ok-count {
       .ivu-badge-count {
         background: #19be6b !important;
@@ -22,6 +25,16 @@
       .ivu-badge-count {
         background: #bbbec4 !important;
       }
+    }
+    .add-count {
+      .ivu-badge-count {
+        background: #2d8cf0 !important;
+      }
+    }
+    .ivu-tag {
+      // height: auto;
+      // line-height: 1;
+      margin: 0 4px 0 0;
     }
   }
 }

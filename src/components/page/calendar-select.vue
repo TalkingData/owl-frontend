@@ -1,7 +1,11 @@
+<style lang="scss">
+@import './calendar-select.scss'
+
+</style>
 <template>
-  <div class="calendar-select" :style="fontStyle" v-clickoutside="outside">
+  <div class="calendar-select" :style="fontStyle">
     <div class="choose-date">
-      <Date-picker 
+      <Date-picker v-clickoutside="outside"
         class="data-picker-module"
         :open="dateOpenFlag"
         :options="date.datePickerOptions"
@@ -23,6 +27,15 @@
         </a>
       </Date-picker>
     </div>
+    <div class="refresh-area" v-if="refresh">
+      刷新周期
+      <Select style="width: 100px;" v-model="interval" @on-change="selectInterval">
+        <Option v-for="item in intervalList" 
+        :value="item.value" 
+        :label="item.name"
+        :key="item.value">{{item.name}}</Option>
+      </Select>
+    </div>
   </div>
 </template>
 <script>
@@ -43,9 +56,14 @@ export default {
       type: Number,
       default: 14,
     },
+    refresh: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
+      datePast: '',
       dateOpenFlag: false, // 展示日期选择框
       date: {
         // 选择的日期显示字样
@@ -180,6 +198,24 @@ export default {
       },
       confirmDate: [], // 存储日期，用于取消反向赋值
       selectDate: [],
+      intervalList: [{
+        value: 0,
+        name: '从不',
+      }, {
+        value: 60,
+        name: '1分钟',
+      }, {
+        value: 180,
+        name: '3分钟',
+      }, {
+        value: 300,
+        name: '5分钟',
+      }, {
+        value: 600,
+        name: '10分钟',
+      }],
+      interval: 0,
+      intervalTimer: null,
     };
   },
   methods: {
@@ -213,6 +249,15 @@ export default {
       this.date.showDateValue = this.formatDate(this.confirmDate);
       this.$emit('on-date-change', this.confirmDate);
     },
+    selectInterval(val) {
+      if (val) {
+        this.intervalTimer = setInterval(() => {
+          this.getIntervalData(this.interval);
+        }, val * 1000);
+      } else {
+        clearInterval(this.intervalTimer);
+      }
+    },
     formatDate(dateArr) {
       if (dateArr.join) {
         return dateArr.join(' ~ ');
@@ -230,8 +275,37 @@ export default {
       this.date.currentDate = [startTime, endTime];
       this.date.showDateValue = `${startTime} ~ ${endTime}`;
     },
+    test() {
+      this.getIntervalData(60);
+    },
+    getIntervalData(interval) {
+      const start = new Date(this.confirmDate[0]);
+      const end = new Date(this.confirmDate[1]);
+      start.setSeconds(start.getSeconds() + interval);
+      end.setSeconds(end.getSeconds() + interval);
+      const startTime = bus.timeFormate(start, 'yyyy/MM/dd-hh:mm');
+      const endTime = bus.timeFormate(end, 'yyyy/MM/dd-hh:mm');
+      this.confirmDate = [startTime, endTime];
+      this.date.currentDate = [startTime, endTime];
+      this.date.showDateValue = `${startTime} ~ ${endTime}`;
+      this.$emit('on-date-change', this.confirmDate);
+    },
+    reload() {
+      const start = new Date(this.confirmDate[1]);
+      const now = new Date();
+      const interval = Math.floor((now.getTime() - start.getTime()) / 1000);
+      if (interval >= 60) {
+        this.getIntervalData(interval);
+      } else {
+        this.$Message.info({
+          duration: 3,
+          content: '最小刷新间隔为1分钟，请稍后刷新',
+        });
+      }
+    },
     // 需要外部设置默认时间的接口
     initTime(obj) {
+      this.close();
       if (obj) {
         // 设置开始时间
         const startTime = obj.start.slice(0, 16);
@@ -243,6 +317,10 @@ export default {
       } else {
         this.getDefaultDate();
       }
+    },
+    close() {
+      this.interval = 0;
+      clearInterval(this.intervalTimer);
     },
   },
   computed: {
@@ -256,6 +334,7 @@ export default {
     this.getDefaultDate();
   },
   beforeDestroy() {
+    this.close();
   },
 };
 </script>

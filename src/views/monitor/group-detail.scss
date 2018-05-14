@@ -43,6 +43,14 @@
   .common-detail-margin {
     margin-top: 50px;
     position: relative;
+    .tabs-fixed {
+      .ivu-tabs-content {
+        padding: 6px 0 0;
+      }
+      .tab-strategy-content {
+        padding: 6px 10px 0;
+      }
+    }
   }
   .common-detail-body {
     box-sizing: border-box;

@@ -2,18 +2,17 @@
   @import './metric-dashboard.scss'
 </style>
 <template>
-  <div class="main-container">
-    <div class="metric-dashboard">
-      <div class="table-list">
-        <div class="table-list-header clearfix mb-10">
-          <div class="float-left">
-            <span class="common-detail-top-title">指标预览</span>
-          </div>
-          <div class="float-right mr-20">
-            <!-- <date-select @on-date-change="dateChange"></date-select> -->
-            <calendar-select @on-date-change="dateChange" placement="bottom-end"></calendar-select>
-          </div>
+  <div class="main-container metric-dashboard">
+    <div class="main-list-content">
+      <div class="common-detail-top clearfix mb-10">
+        <div class="float-left">
+          <span class="common-detail-top-title">指标预览</span>
         </div>
+        <div class="float-right mr-10">
+          <calendar-select @on-date-change="dateChange" placement="bottom-end"></calendar-select>
+        </div>
+      </div>
+      <div class="table-list">
         <div class="box-content">
           <Row class="chart-das" :gutter="10">
             <Col span="10">
@@ -94,6 +93,15 @@ export default {
     getChartParam(params, chartCount) {
       this.chartCount = chartCount;
       this.metricInfo = params;
+      if (this.chartCount === 'single') {
+        this.$refs.editChartSingle.showLoad();
+      } else if (this.chartCount === 'multiple') {
+        if (this.lineList.length > 0) {
+          this.$refs.editChartMultiple.forEach((item) => {
+            item.showLoad();
+          });
+        }
+      }
       getQueryChart({
         metric: params.metric,
         tags: params.tags,

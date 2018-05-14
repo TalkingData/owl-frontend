@@ -11,12 +11,19 @@
             <span title="返回到上级页面" @click="backTo" class="common-detail-top-title">主机列表&gt;</span>
             <span>&nbsp;主机名称 : {{hostItemInfo.hostname || '主机详情'}}</span>
           </div>
+          <div class="float-right">
+            <Tag @click.native="triggerApp('default')" 
+            :color="getColor('default')">default</Tag>
+            <Tag @click.native="triggerApp(item)" v-for="item in appList" 
+            :key="item" :color="getColor(item)">{{item}}</Tag>
+          </div>
         </Row>
         <Row class="common-detail-top-item">
           <div class="float-left">
-            <div class="mr-20">
-              <calendar-select @on-date-change="dateChange" placement="bottom-start"></calendar-select>
-            </div>
+            <calendar-select ref="calendar"
+            @on-date-change="dateChange"
+            placement="bottom-start"
+            :refresh="true"></calendar-select>
           </div>
           <div class="float-right">
             <Input style="width:200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
@@ -75,6 +82,8 @@ export default {
         start_time: '',
         end_time: '',
         chartCount: 'multiple', // multiple,多图显示;single,单图显示
+        prefix: 'default',
+        load: 'refresh',
       },
       total: 0,
       startTime: '',
@@ -83,24 +92,37 @@ export default {
       hostItemInfo: {}, // 主机信息
       removeModal: false, // 删除弹出
       deleteObj: {}, // 删除对象
+      appList: [], // 主机分类列表
     };
   },
   methods: {
     backTo() {
       this.$router.go(-1);
     },
+    triggerApp(name) {
+      localStorage.setItem('hostAppname', name);
+      if (this.filter.prefix === name) {
+        this.filter.prefix = '';
+      } else {
+        this.filter.prefix = name;
+      }
+      this.filter.load = 'init';
+      this.getData(this.filter);
+    },
     // eslint-disable-next-line
     search: _.debounce(function() {
       this.filter.query = this.searchName;
+      this.filter.load = 'init';
       this.getData(this.filter);
-    }, 300),
+    }, 1000),
     // 刷新
     reload() {
-      this.getData(this.filter);
+      this.$refs.calendar.reload();
+      // this.getData(this.filter);
     },
     // 获取数据,用在子页面
     getData(params) {
-      this.$refs.chartList.initData(params);
+      this.$refs.chartList.initData(params, this.hostItemInfo);
     },
     // 初始化获取数据
     getDetailData() {
@@ -119,8 +141,16 @@ export default {
       this.hostId = this.$route.params.hostId; // 主机id
       const str = localStorage.getItem('hostItemInfo');
       const hostItemInfo = JSON.parse(str);
+      this.appList = hostItemInfo.apps;
       this.hostItemInfo = hostItemInfo;
       this.filter.hostId = this.hostId;
+      const hostAppname = localStorage.getItem('hostAppname');
+      if (hostAppname) {
+        this.filter.prefix = hostAppname;
+      } else {
+        this.filter.prefix = 'default';
+      }
+      this.filter.load = 'init';
       // filter中是productId和hostId
       this.getData(this.filter);
     },
@@ -137,6 +167,7 @@ export default {
         } else {
           this.$Message.success('编辑成功');
         }
+        this.filter.load = 'refresh';
         this.getData(this.filter);
       }
     },
@@ -158,6 +189,7 @@ export default {
       };
       deleteCharts(params).then((res) => {
         if (res.status === 200 && res.data.code === 200) {
+          this.filter.load = 'refresh';
           this.getData(this.filter);
           this.removeModal = false;
           this.$Message.success('移除成功');
@@ -173,7 +205,12 @@ export default {
     dateChange(time) {
       this.filter.start_time = `${time[0]}:00`;
       this.filter.end_time = `${time[1]}:59`;
+      this.filter.load = 'refresh';
       this.getData(this.filter);
+    },
+    getColor(item) {
+      if (item === this.filter.prefix) return 'blue';
+      return 'default';
     },
   },
   computed: {

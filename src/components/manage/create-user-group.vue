@@ -49,14 +49,12 @@ import {
   getUserOutPro,
   addUserInPro,
 } from '../../models/service';
-import simpleTable from '../charts/simple-table';
 import paging from '../page/paging';
 
 export default {
   name: 'createUserGroup',
   props: {},
   components: {
-    simpleTable,
     paging,
   },
   data() {

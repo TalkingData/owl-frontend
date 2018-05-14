@@ -11,7 +11,7 @@
     </div>
     <div class="common-detail-margin">
       <Tabs :animated="false" v-model="tabValue" @on-click="tabclick" class="tabs-fixed">
-        <TabPane name="queue" label="报警队列">
+        <TabPane name="queue" label="告警队列">
           <Row v-if="tabValue === 'queue'">
             <queue-list ref="queueList"></queue-list>
           </Row>

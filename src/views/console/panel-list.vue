@@ -2,63 +2,32 @@
   @import './panel-list.scss'
 </style>
 <template>
-  <div class="main-container">
-    <div class="monitor-container">
-      <div class="table-list panel-list">
-        <div class="table-list-header clearfix mb-10">
-          <div class="float-left">
-            <Button icon="minus" @click="removeData('multiple')" :disabled="!disableObj.isRemove" type="primary">删除看板</Button>
-            <Button type="primary" icon="plus" @click="createData">创建看板</Button>
-          </div>
-          <div class="float-right">
-            <Input style="width:200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
-            <Button @click="reload">
-              <Icon size="18" type="refresh"></Icon>
-            </Button>
-          </div>
+  <div class="main-container panel-list">
+    <div class="main-list-content">
+      <div class="common-detail-top clearfix">
+        <div class="float-left">
+          <Button icon="minus" @click="removeData('multiple')" :disabled="!disableObj.isRemove" type="primary">删除看板</Button>
+          <Button type="primary" icon="plus" @click="createData">创建看板</Button>
         </div>
+        <div class="float-right">
+          <Input style="width:200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
+          <Button @click="reload">
+            <Icon size="18" type="refresh"></Icon>
+          </Button>
+        </div>
+      </div>
+      <div class="table-list">
         <div class="box-content">
-          <div class="box-content-title">
-            <Row>
-              <Col class="title-th" span="8">
-              <Checkbox v-model="checkAll" @on-change="selectAll"></Checkbox>
-              看板名称
-              <sort-page 
-                :sort-value="filter.order" 
-                sort-name="name"
-                @on-sort-change="handleSort"></sort-page>
-              </Col>
-              <Col class="title-th" span="8">创建人
-              <sort-page 
-                :sort-value="filter.order" 
-                sort-name="creator"
-                @on-sort-change="handleSort"></sort-page></Col>
-              <Col class="title-th" span="8"></Col>
-            </Row>
-          </div>
           <paging :total="total" @on-page-info-change="pageInfoChange" ref="page">
-            <div slot="listTable" class="box-content-body" v-if="dataList.length > 0">
-              <Row class="box-content-item cursor-pointer" v-for="(item, index) in dataList" :key="index" @click.native="viewDetail(item)">
-                <Col class="body-td hidden-td" span="8">
-                <Checkbox v-model="item.checked" @click.native.stop="selectItem(item, index)"></Checkbox>
-                <span :title="item.name">{{item.name || '--'}}</span>
-                </Col>
-                <Col class="body-td" span="8">{{item.creator || '--'}}</Col>
-                <Col class="body-td" span="8">
-                <div class="float-right pr-20">
-                  <Tooltip content="编辑" placement="top">
-                    <Icon size="18" type="edit" @click.native.stop="editData(item)"></Icon>
-                  </Tooltip>
-                  <Tooltip content="删除" placement="top" class="ml-10">
-                    <Icon size="18" type="trash-a" @click.native.stop="removeData(item)"></Icon>
-                  </Tooltip>
-                </div>
-                </Col>
-              </Row>
-            </div>
-            <div slot="listTable" class="box-content-body" v-else>
-              <Row style="text-align: center" class="box-content-item">暂无数据</Row>
-            </div>
+            <Table slot="listTable" size="small" border
+              ref="tablelist"
+              :data="dataList" 
+              :columns="columns"
+              no-data-text="暂无数据"
+              @on-select-all="selectAll"
+              @on-selection-change="selectItem"
+              @on-sort-change="handleSort"
+              ></Table>
           </paging>
         </div>
       </div>
@@ -89,13 +58,11 @@ import axios from 'axios';
 // import bus from '../../libs/bus';
 import { getPanels, addPanels, updatePanels, deletePanels } from '../../models/service';
 import paging from '../../components/page/paging';
-import sortPage from '../../components/page/sort-page';
 
 export default {
   name: 'panelList',
   components: {
     paging,
-    sortPage,
   },
   data() {
     return {
@@ -107,7 +74,6 @@ export default {
         order: '',
       },
       total: 0, // 总数
-      checkAll: false, // 全选
       selectedData: [], // 选中数据
       statusList: [], // 筛选
       dataStatus: '',
@@ -120,6 +86,72 @@ export default {
       createInfo: {
         name: '',
       },
+      columns: [
+        {
+          type: 'selection',
+          width: 60,
+          align: 'center',
+        }, {
+          title: '看板名称',
+          key: 'name',
+          sortable: 'custom',
+          render: (h, params) => h('a', {
+            attrs: {
+              title: '查看看板',
+              // eslint-disable-next-line
+              href: 'javascript:;',
+            },
+            on: {
+              click: () => {
+                this.viewDetail(params.row);
+              },
+            },
+          }, params.row.name),
+        }, {
+          title: '创建人',
+          key: 'creator',
+          sortable: 'custom',
+        }, {
+          title: '操作',
+          align: 'right',
+          render: (h, params) => h('div', [h('Tooltip', {
+            props: {
+              content: '编辑',
+              placement: 'top',
+            },
+          }, [h('Icon', {
+            props: {
+              size: 18,
+              type: 'edit',
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.editData(params.row);
+              },
+            },
+          })]), h('Tooltip', {
+            props: {
+              content: '删除',
+              placement: 'top',
+            },
+            style: {
+              marginLeft: '10px',
+            },
+          }, [h('Icon', {
+            props: {
+              size: 18,
+              type: 'trash-a',
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.removeData(params.row);
+              },
+            },
+          })])]),
+        },
+      ],
     };
   },
   methods: {
@@ -252,18 +284,13 @@ export default {
     // 获取表格内容数据
     getData(params) {
       this.selectedData = [];
-      this.checkAll = false;
       const obj = Object.assign({}, params);
       if (!obj.query) delete obj.query;
       if (!obj.order) delete obj.order;
       getPanels(obj).then((res) => {
         if (res.status === 200) {
           this.total = res.data.total;
-          this.dataList = res.data.panels.map((item) => {
-            const host = item;
-            host.checked = false;
-            return host;
-          });
+          this.dataList = res.data.panels;
         } else {
           this.total = 0;
           this.dataList = [];
@@ -277,31 +304,21 @@ export default {
     },
     // 排序
     handleSort(value) {
-      this.filter.order = value;
+      const order = value.order === 'normal' ? '' : `${value.key}|${value.order}`;
+      this.filter.order = order;
+      // this.filter.order = value;
       this.initFilter();
     },
     // 单选
-    selectItem(item, index) {
-      this.dataList[index].checked = !this.dataList[index].checked;
-      this.selectedData = this.dataList.filter(plugin => plugin.checked);
-      this.checkAll = this.selectedData.length === this.dataList.length;
+    selectItem(item) {
+      this.selectedData = item;
+    },
+    rowClassName() {
+      return 'cursor-ivu-row';
     },
     // 全选
-    selectAll(flag) {
-      if (flag) {
-        this.selectedData = this.dataList.map((item) => {
-          const obj = item;
-          obj.checked = true;
-          return obj;
-        });
-      } else {
-        this.selectedData = [];
-        this.dataList.map((item) => {
-          const obj = item;
-          obj.checked = false;
-          return obj;
-        });
-      }
+    selectAll(arr) {
+      this.selectedData = arr;
     },
     // eslint-disable-next-line
     search: _.debounce(function() { // 输入框筛选

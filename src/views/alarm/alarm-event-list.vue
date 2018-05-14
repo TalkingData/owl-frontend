@@ -4,114 +4,45 @@
 </style>
 <template>
   <div class="main-container alarm-event">
-    <div class="alarm-content">
-      <div class="table-list event-list">
-        <div class="table-list-header clearfix  mb-10">
-          <div class="float-left">
-            <Dropdown placement="bottom-start" trigger="click" @on-click="awareData">
-              <Button :disabled="!disableObj.isRemove" type="primary">知悉</Button>
-              <DropdownMenu slot="list">
-                <DropdownItem name="1h">1h</DropdownItem>
-                <DropdownItem name="4h">4h</DropdownItem>
-                <DropdownItem name="8h">8h</DropdownItem>
-                <DropdownItem name="1d">1天</DropdownItem>
-                <DropdownItem name="1w">1周</DropdownItem>
-                <!-- <DropdownItem name="forever">forever</DropdownItem> -->
-              </DropdownMenu>
-            </Dropdown>
-            <!-- <Button @click="removeData" :disabled="!disableObj.isRemove" type="primary">删除</Button> -->
-          </div>
-          <div class="float-right">
-            <Select v-model="alarmStatus" style="width:100px;" @on-change="statusSelect">
-              <Option v-for="status in statusList" :key="status.label" :label="status.label" :value="status.value">{{status.label}}</Option>
-            </Select>
-            <Input style="width:200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
-            <Button @click="reload">
-              <Icon size="18" type="refresh"></Icon>
-            </Button>
-          </div>
+    <div class="main-list-content">
+      <div class="common-detail-top clearfix mb-10">
+        <div class="float-left">
+          <Dropdown placement="bottom-start" trigger="click" @on-click="awareData">
+            <Button :disabled="!disableObj.isRemove" type="primary">知悉</Button>
+            <DropdownMenu slot="list">
+              <DropdownItem name="1h">1h</DropdownItem>
+              <DropdownItem name="4h">4h</DropdownItem>
+              <DropdownItem name="8h">8h</DropdownItem>
+              <DropdownItem name="1d">1天</DropdownItem>
+              <DropdownItem name="1w">1周</DropdownItem>
+              <!-- <DropdownItem name="forever">forever</DropdownItem> -->
+            </DropdownMenu>
+          </Dropdown>
+          <!-- <Button @click="removeData" :disabled="!disableObj.isRemove" type="primary">删除</Button> -->
         </div>
+        <div class="float-right">
+          <Select v-model="alarmStatus" style="width:100px;" @on-change="statusSelect">
+            <Option v-for="status in statusList" :key="status.label" :label="status.label" :value="status.value">{{status.label}}</Option>
+          </Select>
+          <Input style="width:200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
+          <Button @click="reload">
+            <Icon size="18" type="refresh"></Icon>
+          </Button>
+        </div>
+      </div>
+      <div class="table-list event-list">
         <div class="box-content">
-          <div class="box-content-title">
-            <Row>
-              <Col class="title-th" span="3">
-              <Checkbox v-model="checkAll" @on-change="selectAll"></Checkbox>规则名称
-              <sort-page 
-                :sort-value="filter.order" 
-                sort-name="strategy_name"
-                @on-sort-change="handleSort"></sort-page>
-              </Col>
-              <Col class="title-th" span="4">告警设备
-              <sort-page 
-                :sort-value="filter.order" 
-                sort-name="host_name"
-                @on-sort-change="handleSort"></sort-page></Col>
-              <Col class="title-th" span="3">IP地址<sort-page 
-                :sort-value="filter.order" 
-                sort-name="ip"
-                @on-sort-change="handleSort"></sort-page></Col>
-              <Col class="title-th" span="2">报警次数<sort-page 
-                :sort-value="filter.order" 
-                sort-name="count"
-                @on-sort-change="handleSort"></sort-page></Col>
-              <Col class="title-th" span="2">状态<sort-page 
-                :sort-value="filter.order" 
-                sort-name="status"
-                @on-sort-change="handleSort"></sort-page></Col>
-              <Col class="title-th" span="4">最近更新时间<sort-page 
-                :sort-value="filter.order" 
-                sort-name="update_time"
-                @on-sort-change="handleSort"></sort-page></Col>
-              <Col class="title-th" span="4">报警知悉过期时间<sort-page 
-                :sort-value="filter.order" 
-                sort-name="aware_end_time"
-                @on-sort-change="handleSort"></sort-page></Col>
-              <Col class="title-th" span="2"></Col>
-            </Row>
-          </div>
           <paging ref="eventList" :total="total" @on-page-info-change="pageInfoChange">
-            <div slot="listTable" class="box-content-body" v-if="dataList.length > 0">
-              <Row class="box-content-item cursor-pointer" v-for="(item, index) in dataList" :key="index" @click.native="viewDetail(item)">
-                <Col class="body-td hidden-td" span="3">
-                <Checkbox v-model="item.checked" @click.native.stop="selectItem(item, index)"></Checkbox>
-                <span :title="item.strategy_name">{{item.strategy_name || '--'}}</span>
-                </Col>
-                <Col class="body-td hidden-td" span="4" :title="item.host_name">{{item.host_name || '--'}}</Col>
-                <Col class="body-td" span="3">{{item.ip || '--'}}</Col>
-                <Col class="body-td" span="2">{{item.count}} / {{item.alarm_count}}</Col>
-                <Col class="body-td" span="2">
-                  <Badge v-if="item.status===1" count="活跃" class="alert-count"></Badge>
-                  <Badge v-if="item.status===2" count="知悉" class="unknow-count"></Badge>
-                  <Badge v-if="item.status===3" count="恢复" class="ok-count"></Badge>
-                </Col>
-                <Col class="body-td" span="4">{{item.update_time || '--'}}</Col>
-                <Col class="body-td" span="4">{{item.status===2 ? getTimeLast(item.aware_end_time) : '--'}}</Col>
-                <Col class="body-td" span="2">
-                  <div class="float-right pr-20">
-                    <Poptip v-model="item.muteVisible" placement="left">
-                      <Icon size="18" type="android-volume-up" @click.native.stop="showMute(index)"></Icon>
-                      <!-- <div slot="title"><i>自定义标题</i></div> -->
-                      <div slot="content">
-                        <Button @click.stop="awareData('1h', item, index)">1h</Button>
-                        <Button @click.stop="awareData('4h', item, index)">4h</Button>
-                        <Button @click.stop="awareData('8h', item, index)">8h</Button>
-                        <Button @click.stop="awareData('1d', item, index)">1天</Button>
-                        <Button @click.stop="awareData('1w', item, index)">1周</Button>
-                      </div>
-                    </Poptip>
-                    <!-- <Tooltip content="关闭" placement="top" class="ml-10">
-                      <Icon size="18" type="close-circled" @click.native.stop="closeAlarm"></Icon>
-                    </Tooltip> -->
-                    <!-- <Tooltip content="删除" placement="top" class="ml-10">
-                      <Icon size="18" type="trash-a" @click.native.stop="deleteAlarm"></Icon>
-                    </Tooltip> -->
-                  </div>
-                </Col>
-              </Row>
-            </div>
-            <div slot="listTable" class="box-content-body" v-else>
-              <Row style="text-align: center" class="box-content-item">暂无数据</Row>
-            </div>
+            <Table slot="listTable" size="small" border
+              ref="tablelist"
+              :data="dataList" 
+              :columns="columns"
+              :row-class-name="rowClassName"
+              no-data-text="暂无数据"
+              @on-select-all="selectAll"
+              @on-selection-change="selectItem"
+              @on-sort-change="handleSort"
+              ></Table>
           </paging>
         </div>
       </div>
@@ -123,13 +54,11 @@ import _ from 'lodash';
 import bus from '../../libs/bus';
 import { getEvents, awareEvent } from '../../models/service';
 import paging from '../../components/page/paging';
-import sortPage from '../../components/page/sort-page';
 
 export default {
   name: 'alarmEvent',
   components: {
     paging,
-    sortPage,
   },
   data() {
     return {
@@ -157,10 +86,131 @@ export default {
       },
       pageArr: [10, 50, 100, 200, 500], // 页数
       total: 0,
-      checkAll: false, // 全选
       selectedData: [], // 选中数据
       editPluginInfo: {}, // 正在编辑插件信息
       pluginId: '',
+      columns: [
+        {
+          type: 'selection',
+          width: 60,
+          align: 'center',
+        }, {
+          title: '规则名称',
+          key: 'strategy_name',
+          sortable: 'custom',
+          width: 150,
+          render: (h, params) => h('a', {
+            attrs: {
+              title: '查看告警',
+              // eslint-disable-next-line
+              href: 'javascript:;',
+            },
+            on: {
+              click: () => {
+                this.viewDetail(params.row);
+              },
+            },
+          }, params.row.strategy_name),
+        }, {
+          title: '告警设备',
+          key: 'host_name',
+          sortable: 'custom',
+        }, {
+          title: 'IP地址',
+          key: 'ip',
+          sortable: 'custom',
+          width: 130,
+        }, {
+          title: '报警次数',
+          key: 'count',
+          sortable: 'custom',
+          width: 100,
+          render: (h, params) => h('span', `${params.row.count}/${params.row.alarm_count}`),
+        }, {
+          title: '状态',
+          key: 'status',
+          sortable: 'custom',
+          width: 100,
+          render: (h, params) => h('div', [h('Badge', {
+            class: {
+              'alert-count': params.row.status === 1,
+              'unknow-count': params.row.status === 2,
+              'ok-count': params.row.status === 3,
+            },
+            props: {
+              count: this.getStatusCount(params.row.status),
+            },
+          })]),
+        }, {
+          title: '最近更新时间',
+          key: 'update_time',
+          sortable: 'custom',
+          width: 150,
+        }, {
+          title: '报警知悉过期时间',
+          key: 'aware_end_time',
+          sortable: 'custom',
+          width: 170,
+          render: (h, params) => h('span', this.getTimeLast(params.row.aware_end_time, params.row.status)),
+        }, {
+          title: '操作',
+          align: 'right',
+          render: (h, params) => h('div', [h('Poptip', {
+            props: {
+              placement: 'left',
+              value: params.row.muteVisible,
+            },
+          }, [h('Icon', {
+            props: {
+              size: 18,
+              type: 'android-volume-up',
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.showMute(params.index);
+              },
+            },
+          }), h('div', {
+            slot: 'content',
+          }, [h('Button', {
+            on: {
+              click: (event) => {
+                event.stopPropagation();
+                this.awareData('1h', params.row, params.index);
+              },
+            },
+          }, '1h'), h('Button', {
+            on: {
+              click: (event) => {
+                event.stopPropagation();
+                this.awareData('4h', params.row, params.index);
+              },
+            },
+          }, '4h'), h('Button', {
+            on: {
+              click: (event) => {
+                event.stopPropagation();
+                this.awareData('8h', params.row, params.index);
+              },
+            },
+          }, '8h'), h('Button', {
+            on: {
+              click: (event) => {
+                event.stopPropagation();
+                this.awareData('1d', params.row, params.index);
+              },
+            },
+          }, '1天'), h('Button', {
+            on: {
+              click: (event) => {
+                event.stopPropagation();
+                this.awareData('1w', params.row, params.index);
+              },
+            },
+          }, '1周')])])]),
+        },
+      ],
     };
   },
   computed: {
@@ -208,26 +258,11 @@ export default {
     }, // 刷新
     // 全选
     selectAll(flag) {
-      if (flag) {
-        this.selectedData = this.dataList.map((item) => {
-          const obj = item;
-          obj.checked = true;
-          return obj;
-        });
-      } else {
-        this.selectedData = [];
-        this.dataList.map((item) => {
-          const obj = item;
-          obj.checked = false;
-          return obj;
-        });
-      }
+      this.selectedData = flag;
     },
     // 单选
-    selectItem(item, index) {
-      this.dataList[index].checked = !this.dataList[index].checked;
-      this.selectedData = this.dataList.filter(plugin => plugin.checked);
-      this.checkAll = this.selectedData.length === this.dataList.length;
+    selectItem(item) {
+      this.selectedData = item;
     },
     // 添加数据
     addData() {
@@ -243,6 +278,9 @@ export default {
         this.initFilter();
       }
     },
+    rowClassName(item) {
+      return item.enable === 0 ? 'show-ivu-row disabled' : 'show-ivu-row';
+    },
     // 翻页
     pageInfoChange(filter) {
       this.filter.page = filter.page;
@@ -251,7 +289,8 @@ export default {
     },
     // 排序
     handleSort(value) {
-      this.filter.order = value;
+      const order = value.order === 'normal' ? '' : `${value.key}|${value.order}`;
+      this.filter.order = order;
       this.initFilter();
     },
     // 初始化过滤条件
@@ -263,7 +302,6 @@ export default {
     },
     // 获取数据
     getData(params) {
-      this.checkAll = false;
       const param = Object.assign({}, params);
       if (param.query === '') delete param.query;
       if (param.order === '') delete param.order;
@@ -273,7 +311,6 @@ export default {
           this.total = res.data.total;
           this.dataList = res.data.events.map((item) => {
             const obj = item;
-            obj.checked = false;
             obj.muteVisible = false;
             return obj;
           });
@@ -321,22 +358,67 @@ export default {
         // 操作一组
         ids += `event_id=${obj.id}&aware_end_time=${time}`;
         this.dataList[count].muteVisible = false;
+        if (obj.status === 3) {
+          this.$Modal.warning({
+            title: '知悉结果',
+            content: `主机${obj.host_name},策略${obj.strategy_name}的告警已经恢复,无需知悉`,
+          });
+        } else {
+          const params = {
+            param: ids,
+            productId: this.filter.productId,
+          };
+          this.awareEvent(params);
+        }
       } else {
         // 操作多个
-        this.selectedData.forEach((item, index) => {
-          if (index === 0) {
-            ids += `event_id=${item.id}`;
+        const awareArr = []; // 需要知悉的
+        const awaredArr = []; // 已恢复的
+        let awareable = true; // 可以直接前去知悉
+        this.selectedData.forEach((item) => {
+          if (item.status === 3) {
+            awaredArr.push(item.host_name);
+            awareable = false;
           } else {
-            ids += `&event_id=${item.id}`;
+            awareArr.push(`event_id=${item.id}`);
           }
         });
-        ids += `&aware_end_time=${time}`;
+        ids += `${awareArr.join('&')}&aware_end_time=${time}`;
+        const params = {
+          param: ids,
+          productId: this.filter.productId,
+        };
+        if (awareArr.length) {
+          if (awareable) {
+            this.awareEvent(params);
+          } else {
+            this.$Modal.confirm({
+              title: '知悉确认',
+              content: `主机 ${awaredArr.join(', ')} 
+              的告警已经恢复,确认将知悉其他${awareArr.length}台主机的告警`,
+              onOk: () => {
+                this.awareEvent(params);
+              },
+            });
+          }
+        } else {
+          this.$Modal.warning({
+            title: '知悉结果',
+            content: '选中的告警均已经恢复,无需进行知悉操作',
+          });
+        }
       }
-      const params = {
-        param: ids,
-        productId: this.filter.productId,
-      };
-      this.awareEvent(params);
+    },
+    getStatusCount(arg) {
+      const status = parseInt(arg, 10);
+      if (status === 1) {
+        return '活跃';
+      } else if (status === 2) {
+        return '知悉';
+      } else if (status === 3) {
+        return '恢复';
+      }
+      return '';
     },
     // 获取时间
     getAwareTime(name) {
@@ -358,7 +440,8 @@ export default {
       return '';
     },
     // 获取持续时间
-    getTimeLast(time) {
+    getTimeLast(time, status) {
+      if (status !== 2) return '--';
       const now = new Date();
       const end = new Date(time);
       const num = end.getTime() - now.getTime();

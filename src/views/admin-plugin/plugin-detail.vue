@@ -28,48 +28,15 @@
           </div>
         </div>
         <div class="box-content">
-          <div class="box-content-title">
-            <Row>
-              <Col class="title-th" span="4">
-              <Checkbox v-model="checkAll" @on-change="selectAll"></Checkbox>主机组名称
-              </Col>
-              <Col class="title-th" span="4">所属产品线</Col>
-              <Col class="title-th" span="4">创建者</Col>
-              <Col class="title-th" span="4">创建时间</Col>
-              <Col class="title-th" span="4">描述</Col>
-              <Col class="title-th" span="4"></Col>
-            </Row>
-          </div>
           <paging ref="userGroupList" :total="total" @on-page-info-change="pageInfoChange">
-            <div slot="listTable" class="box-content-body" v-if="dataList.length > 0">
-              <Row class="box-content-item" v-for="(item, index) in dataList" :key="index" @click.native="selectItem(item, index)">
-                <!-- @click.native.stop="selectItem(item, index)" -->
-                <Col class="body-td hidden-td" span="4">
-                <Checkbox v-model="item.checked" ></Checkbox>
-                <span :title="item.name">{{item.name || '--'}}</span>
-                </Col>
-                <Col class="body-td hidden-td" span="4" :title="item.product">{{item.product || '--'}}</Col>
-                <Col class="body-td" span="4">
-                  {{item.creator || '--'}}
-                </Col>
-                <Col class="body-td" span="4">
-                  {{item.create_at || '--'}}
-                </Col>
-                <Col class="body-td hidden-td" span="4" :title="item.description">
-                  {{item.description || '--'}}
-                </Col>
-                <Col class="body-td" span="4">
-                  <div class="float-right pr-20">
-                    <Tooltip content="移除" placement="top" class="ml-10">
-                      <Icon size="18" type="ios-minus-outline" @click.native.stop="removeData(item)"></Icon>
-                    </Tooltip>
-                  </div>
-                </Col>
-              </Row>
-            </div>
-            <div slot="listTable" class="box-content-body" v-else>
-              <Row style="text-align: center" class="box-content-item">暂无数据</Row>
-            </div>
+            <Table slot="listTable" size="small" border
+              ref="tablelist"
+              :data="dataList" 
+              :columns="columns"
+              no-data-text="暂无数据"
+              @on-select-all="selectAll"
+              @on-selection-change="selectItem"
+              ></Table>
           </paging>
         </div>
       </div>
@@ -113,6 +80,56 @@ export default {
       pluginItem: {}, // 插件信息
       removeModal: false, // 删除弹出
       deleteShowData: [],
+      columns: [
+        {
+          type: 'selection',
+          width: 60,
+          align: 'center',
+        }, {
+          title: '主机组名称',
+          key: 'name',
+          width: 180,
+        }, {
+          title: '所属产品线',
+          key: 'product',
+          width: 150,
+        }, {
+          title: '创建者',
+          key: 'creator',
+        }, {
+          title: '创建时间',
+          key: 'create_at',
+          sortable: 'custom',
+          width: 180,
+        }, {
+          title: '描述',
+          key: 'description',
+        }, {
+          title: '操作',
+          align: 'right',
+          width: 120,
+          render: (h, params) => h('div', [h('Tooltip', {
+            props: {
+              content: '移除',
+              placement: 'top',
+            },
+            style: {
+              marginLeft: '10px',
+            },
+          }, [h('Icon', {
+            props: {
+              size: 18,
+              type: 'trash-a',
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.removeData(params.row);
+              },
+            },
+          })])]),
+        },
+      ],
     };
   },
   methods: {
@@ -123,26 +140,11 @@ export default {
     },
     // 全选
     selectAll(flag) {
-      if (flag) {
-        this.selectedData = this.dataList.map((item) => {
-          const obj = item;
-          obj.checked = true;
-          return obj;
-        });
-      } else {
-        this.selectedData = [];
-        this.dataList.map((item) => {
-          const obj = item;
-          obj.checked = false;
-          return obj;
-        });
-      }
+      this.selectedData = flag;
     },
     // 单选
-    selectItem(item, index) {
-      this.dataList[index].checked = !this.dataList[index].checked;
-      this.selectedData = this.dataList.filter(plugin => plugin.checked);
-      this.checkAll = this.selectedData.length === this.dataList.length;
+    selectItem(item) {
+      this.selectedData = item;
     },
     // eslint-disable-next-line
     search: _.debounce(function() {

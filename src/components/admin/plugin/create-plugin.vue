@@ -40,7 +40,6 @@
           :height="tableHeight"
           @on-sort-change="sortPage"
           @on-selection-change="selectChange"></Table>
-          <!-- <simpleTable slot="listTable" :columns="userColumn" :data="dataList" @on-select-row-data="dataSelect"></simpleTable> -->
         </paging>
       </div>
       <div slot="footer">
@@ -59,14 +58,12 @@ import {
   getGroupsOutPlugin,
   addGroupsInPlugin,
 } from '../../../models/service';
-import simpleTable from '../../charts/simple-table';
 import paging from '../../page/paging';
 
 export default {
   name: 'createPlugin',
   props: {},
   components: {
-    simpleTable,
     paging,
   },
   data() {

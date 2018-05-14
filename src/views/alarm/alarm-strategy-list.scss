@@ -1,19 +1,22 @@
 .alarm-strategy {
-  .alarm-content {
+  .common-detail-top {
+    // font-size: 14px;
+    background-color: #fff;
+    // height: 50px;
+    // line-height: 50px;
+    // padding: 0 20px;
+    // border-bottom: 1px solid #ced3d9;
+  }
+  .main-list-content {
   	width: 100%;
-    padding: 6px 10px 6px;
-    position: relative;
-    box-sizing: border-box;
-    .add-btn-box {
-      position: absolute;
-      top: 6px;;
-      right: 20px;
-      z-index: 99;
-    }
+    // padding: 6px 10px 6px;
     .ivu-tabs {
       overflow-y: auto;
     }
     .rule-list {
+      .ivu-badge {
+        cursor: pointer;
+      }
       // status
       .ok-count {
         .ivu-badge-count {

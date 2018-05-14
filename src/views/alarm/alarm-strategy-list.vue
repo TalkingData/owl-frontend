@@ -4,111 +4,47 @@
 </style>
 <template>
   <div class="main-container alarm-strategy">
-    <div class="alarm-content">
-      <div class="rule-list table-list">
-        <div class="table-list-header">
-          <div class="clearfix mb-10">
-            <div class="float-left">
-              <Button @click="enableData(1)" :disabled="!disableObj.isEnable" type="primary">启用</Button>
-              <Button @click="enableData(0)" :disabled="!disableObj.isDisable" type="primary">禁用</Button>
-              <Button @click="removeData" :disabled="!disableObj.isRemove" type="primary">删除</Button>
-              <Button type="primary" icon="plus" @click="createData">创建策略</Button>
-            </div>
-            <div class="float-right">
-              <Checkbox v-model="isMyrule" @on-change="checkMy">我的策略</Checkbox>
-              <!-- <Select v-model="filterEnable" style="width: 100px;" placeholder="启用筛选">
-                <Option value="all">全部</Option>
-                <Option :value="1">启用</Option>
-                <Option :value="0">禁用</Option>
-              </Select> -->
-              <!-- <Select v-model="filterStatus" style="width: 100px;" placeholder="状态筛选">
-                <Option value="all">全部</Option>
-                <Option :value="1">正常</Option>
-                <Option :value="0">异常</Option>
-              </Select> -->
-              <Input style="width: 200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
-              <Button @click="reload">
-                <Icon size="18" type="refresh"></Icon>
-              </Button>
-            </div>
+    <div class="main-list-content">
+      <div class="common-detail-top mb-10">
+        <div class="clearfix">
+          <div class="float-left">
+            <Button @click="enableData(1)" :disabled="!disableObj.isEnable" type="primary">启用</Button>
+            <Button @click="enableData(0)" :disabled="!disableObj.isDisable" type="primary">禁用</Button>
+            <Button @click="removeData" :disabled="!disableObj.isRemove" type="primary">删除</Button>
+            <Button type="primary" icon="plus" @click="createData">创建策略</Button>
+          </div>
+          <div class="float-right">
+            <Checkbox v-model="isMyrule" @on-change="checkMy">我的策略</Checkbox>
+            <!-- <Select v-model="filterEnable" style="width: 100px;" placeholder="启用筛选">
+              <Option value="all">全部</Option>
+              <Option :value="1">启用</Option>
+              <Option :value="0">禁用</Option>
+            </Select> -->
+            <!-- <Select v-model="filterStatus" style="width: 100px;" placeholder="状态筛选">
+              <Option value="all">全部</Option>
+              <Option :value="1">正常</Option>
+              <Option :value="0">异常</Option>
+            </Select> -->
+            <Input style="width: 200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
+            <Button @click="reload">
+              <Icon size="18" type="refresh"></Icon>
+            </Button>
           </div>
         </div>
+      </div>
+      <div class="rule-list table-list">
         <div class="box-content">
-          <div class="box-content-title">
-            <Row>
-              <Col class="title-th" span="6">
-              <Checkbox v-model="checkAll" @on-change="selectAll"></Checkbox>策略名称
-                <sort-page 
-                :sort-value="filter.order" 
-                sort-name="name"
-                @on-sort-change="handleSort"></sort-page>
-              </Col>
-              <Col class="title-th" span="6">status</Col>
-              <Col class="title-th" span="6">
-                创建者
-              </Col>
-              <Col class="title-th pr-20" span="6" style="text-align:right;">
-                操作
-              </Col>
-            </Row>
-          </div>
           <paging ref="ruleList" :total="total" @on-page-info-change="pageInfoChange">
-            <div slot="listTable" class="box-content-body" v-if="dataList.length > 0">
-              <Row class="box-content-item cursor-pointer" v-for="(item, index) in dataList" :key="index" :class="[item.enable === 0 ? 'disabled' : '']" @click.native="viewRule(item)">
-                <Col class="body-td" span="6">
-                <Checkbox v-model="item.checked" @click.native.stop="selectItem(item, index)"></Checkbox>
-                <span :title="item.name">{{item.name || '--'}}</span>
-                </Col>
-                <Col class="body-td" span="6">
-                <!-- 策略目前触发的活跃报警个数 -->
-                  <Tooltip content="alert" placement="top"v-if="item.alert_count != 0">
-                    <Badge :count="item.alert_count" class="alert-count mr-10"  @click.native.stop="openAlarmList(item)"></Badge>
-                  </Tooltip>
-                  <!-- 策略目前采集出问题的个数  5-->
-                  <Tooltip content="unknow" placement="top" v-if="item.unknow_count != 0" >
-                    <Badge
-                      :count="item.unknow_count" 
-                      class="unknow-count mr-10"
-                      @click.native.stop="showAlarm(item, item.name, 5)">
-                      </Badge>
-                  </Tooltip>
-                  <!-- 策略目前采集到空数据的个数  4-->
-                  <Tooltip content="nodata" placement="top" v-if="item.nodata_count != 0">
-                    <Badge
-                    :count="item.nodata_count" 
-                    class="nodata-count mr-10"
-                    @click.native.stop="showAlarm(item, item.name, 4)">
-                    </Badge>
-                  </Tooltip>
-                  <Tooltip content="正常" placement="top" v-if="item.alert_count === 0 && item.unknow_count === 0 && item.nodata_count === 0">
-                    <Badge  count="ok" class="ok-count"></Badge>
-                  </Tooltip>
-                </Col>
-                <Col class="body-td" span="6">
-                  <span :title="item.user_name">{{ item.user_name || '--'}}</span>
-                </Col>
-                <Col class="body-td" span="6">
-                <!-- operate-item -->
-                  <div class="float-right pr-20">
-                    <Tooltip content="编辑" placement="top" class="ml-10">
-                      <Icon size="18" type="edit" @click.native.stop="editRule(item)"></Icon>
-                    </Tooltip>
-                    <Tooltip content="克隆" placement="top" class="ml-10">
-                      <Icon size="18" type="ios-copy-outline" @click.native.stop="cloneRule(item)"></Icon>
-                    </Tooltip>
-                    <Tooltip :content="item.enable ? '禁用' : '启用'" placement="top" class="ml-10">
-                      <Icon size="18" :type="item.enable === 1 ? 'android-volume-off' : 'android-volume-up'" @click.native.stop="enableTrigger(item, index)"></Icon>
-                    </Tooltip>
-                    <Tooltip content="删除" placement="top" class="ml-10">
-                      <Icon size="18" type="trash-a" @click.native.stop="deleteRule(item, index)"></Icon>
-                    </Tooltip>
-                  </div>
-                </Col>
-              </Row>
-            </div>
-            <div slot="listTable" class="box-content-body" v-else>
-              <Row style="text-align: center" class="box-content-item">暂无数据</Row>
-            </div>
+            <Table slot="listTable" size="small" border
+              ref="tablelist"
+              :data="dataList" 
+              :columns="columns"
+              :row-class-name="rowClassName"
+              no-data-text="暂无数据"
+              @on-select-all="selectAll"
+              @on-selection-change="selectItem"
+              @on-sort-change="handleSort"
+              ></Table>
           </paging>
         </div>
       </div>
@@ -122,14 +58,12 @@ import bus from '../../libs/bus';
 import { getStrategies, enableStrategie, deleteStrategie } from '../../models/service';
 import paging from '../../components/page/paging';
 import ruleDetailModal from '../../components/alarm/rule-detail-modal';
-import sortPage from '../../components/page/sort-page';
 
 export default {
   name: 'alarmStrategy',
   components: {
     paging,
     ruleDetailModal,
-    sortPage,
   },
   data() {
     return {
@@ -147,10 +81,187 @@ export default {
         order: '',
       },
       total: 0,
-      checkAll: false, // 全选
       selectedData: [], // 选中数据
       deleteIndex: -1,
       deleteObj: null,
+      columns: [
+        {
+          type: 'selection',
+          width: 60,
+          align: 'center',
+        }, {
+          title: '策略名称',
+          key: 'name',
+          sortable: 'custom',
+          render: (h, params) => h('a', {
+            attrs: {
+              title: '查看策略',
+              // eslint-disable-next-line
+              href: 'javascript:;',
+            },
+            on: {
+              click: () => {
+                this.viewRule(params.row);
+              },
+            },
+          }, params.row.name),
+        }, {
+          title: '状态',
+          width: 200,
+          render: (h, params) => h('div', {}, [params.row.alert_count !== 0 ? h('Tooltip', {
+            props: {
+              content: 'alert',
+              placement: 'top',
+            },
+          }, [h('Badge', {
+            props: {
+              count: params.row.alert_count,
+            },
+            class: {
+              'alert-count': true,
+              'mr-10': true,
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.openAlarmList(params.row);
+              },
+            },
+          })]) : '', params.row.unknow_count !== 0 ? h('Tooltip', {
+            props: {
+              content: 'unknow',
+              placement: 'top',
+            },
+          }, [h('Badge', {
+            props: {
+              count: params.row.unknow_count,
+            },
+            class: {
+              'unknow-count': true,
+              'mr-10': true,
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.showAlarm(params.row, params.row.name, 5);
+              },
+            },
+          })]) : '', params.row.nodata_count !== 0 ? h('Tooltip', {
+            props: {
+              content: 'nodata',
+              placement: 'top',
+            },
+          }, [h('Badge', {
+            props: {
+              count: params.row.nodata_count,
+            },
+            class: {
+              'nodata-count': true,
+              'mr-10': true,
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.showAlarm(params.row, params.row.name, 4);
+              },
+            },
+          })]) : '', params.row.alert_count === 0 &&
+          params.row.unknow_count === 0 &&
+          params.row.nodata_count === 0 ? h('Tooltip', {
+            props: {
+              content: '正常',
+              placement: 'top',
+            },
+          }, [h('Badge', {
+            props: {
+              count: 'ok',
+            },
+            class: {
+              'ok-count': true,
+            },
+          })]) : '']),
+        }, {
+          title: '创建者',
+          key: 'user_name',
+        }, {
+          title: '操作',
+          align: 'right',
+          render: (h, params) => h('div', [h('Tooltip', {
+            props: {
+              content: '编辑',
+              placement: 'top',
+            },
+          }, [h('Icon', {
+            props: {
+              size: 18,
+              type: 'edit',
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.editRule(params.row);
+              },
+            },
+          })]), h('Tooltip', {
+            props: {
+              content: '克隆',
+              placement: 'top',
+            },
+            style: {
+              marginLeft: '10px',
+            },
+          }, [h('Icon', {
+            props: {
+              size: 18,
+              type: 'ios-copy-outline',
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.cloneRule(params.row);
+              },
+            },
+          })]), h('Tooltip', {
+            props: {
+              content: params.row.enable ? '禁用' : '启用',
+              placement: 'top',
+            },
+            style: {
+              marginLeft: '10px',
+            },
+          }, [h('Icon', {
+            props: {
+              size: 18,
+              type: params.row.enable ? 'android-volume-off' : 'android-volume-up',
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.enableTrigger(params.row, params.index);
+              },
+            },
+          })]), h('Tooltip', {
+            props: {
+              content: '删除',
+              placement: 'top',
+            },
+            style: {
+              marginLeft: '10px',
+            },
+          }, [h('Icon', {
+            props: {
+              size: 18,
+              type: 'trash-a',
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.deleteRule(params.row);
+              },
+            },
+          })])]),
+        },
+      ],
     };
   },
   computed: {
@@ -189,26 +300,14 @@ export default {
     }, 300), // 搜索
     // 全选
     selectAll(flag) {
-      if (flag) {
-        this.selectedData = this.dataList.map((item) => {
-          const obj = item;
-          obj.checked = true;
-          return obj;
-        });
-      } else {
-        this.selectedData = [];
-        this.dataList.map((item) => {
-          const obj = item;
-          obj.checked = false;
-          return obj;
-        });
-      }
+      this.selectedData = flag;
     },
     // 单选
-    selectItem(item, index) {
-      this.dataList[index].checked = !this.dataList[index].checked;
-      this.selectedData = this.dataList.filter(plugin => plugin.checked);
-      this.checkAll = this.selectedData.length === this.dataList.length;
+    selectItem(item) {
+      this.selectedData = item;
+    },
+    rowClassName(item) {
+      return item.enable === 0 ? 'show-ivu-row disabled' : 'show-ivu-row';
     },
     // 翻页
     pageInfoChange(filter) {
@@ -218,7 +317,8 @@ export default {
     },
     // 排序
     handleSort(value) {
-      this.filter.order = value;
+      const order = value.order === 'normal' ? '' : `${value.key}|${value.order}`;
+      this.filter.order = order;
       this.initFilter();
     },
     checkMy(value) {
@@ -247,15 +347,11 @@ export default {
       if (param.query === '') delete param.query;
       if (param.order === '') delete param.order;
       getStrategies(param).then((res) => {
-        this.checkAll = false;
+        this.selectedData = [];
         if (res.status === 200) {
           this.total = res.data.total;
           if (res.data.strategies) {
-            this.dataList = res.data.strategies.map((item) => {
-              const obj = item;
-              obj.checked = false;
-              return obj;
-            });
+            this.dataList = res.data.strategies;
           }
         } else {
           this.total = 0;

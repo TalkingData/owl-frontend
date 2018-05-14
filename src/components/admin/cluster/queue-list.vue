@@ -16,50 +16,17 @@
     </div>
     <div class="table-list">
       <div class="box-content">
-        <div class="box-content-title">
-          <Row>
-            <Col class="title-th" span="10">
-            <!-- <Checkbox v-model="checkAll" @on-change="selectAll"></Checkbox> -->
-            队列名称
-            </Col>
-            <!-- <Col class="title-th" span="4">ID</Col> -->
-            <Col class="title-th" span="6">count</Col>
-            <!-- <Col class="title-th" span="3">状态</Col> -->
-            <Col class="title-th" span="8"></Col>
-          </Row>
-        </div>
         <paging :total="total" @on-page-info-change="pageInfoChange" ref="page">
-          <div slot="listTable" class="box-content-body" v-if="dataList.length > 0">
-            <!-- @click.native="selectItem(item, index)" -->
-            <Row class="box-content-item" v-for="(item, index) in dataList" 
-            :key="index" 
-            :class="[item.mute ? 'disabled' : '']">
-              <Col class="body-td hidden-td" span="10">
-              <!-- @click.native.stop="selectItem(item, index)" -->
-              <!-- <Checkbox v-model="item.checked"></Checkbox> -->
-              <span :title="item.name">{{item.name}}</span>
-              </Col>
-              <!-- <Col class="body-td" span="4">{{item.id}}</Col> -->
-              <Col class="body-td" span="6">{{item.count}}</Col>
-              <!-- <Col class="body-td" span="3">
-                <Badge v-if="item.mute" count="关闭" class="nodata-count"></Badge>
-                <Badge v-else count="开启" class="ok-count"></Badge>
-              </Col> -->
-              <Col class="body-td" span="8">
-              <div class="float-right pr-20">
-                <Tooltip :content="item.mute ? '开启' : '关闭'" placement="top" class="ml-10">
-                  <Icon size="18" :type="item.mute ? 'android-volume-up' : 'android-volume-off'" @click.native.stop="muteTrigger(item, index)"></Icon>
-                </Tooltip>
-                <Tooltip content="清空队列" placement="top" class="ml-10">
-                  <Icon size="18" type="close" @click.native.stop="removeData(item)"></Icon>
-                </Tooltip>
-              </div>
-              </Col>
-            </Row>
-          </div>
-          <div slot="listTable" class="box-content-body" v-else>
-            <Row style="text-align: center" class="box-content-item">暂无数据</Row>
-          </div>
+          <Table slot="listTable" size="small" border
+            ref="tablelist"
+            :data="dataList" 
+            :columns="columns"
+            :row-class-name="rowClassName"
+            no-data-text="暂无数据"
+            ></Table>
+            <!-- @on-select-all="selectAll"
+            @on-selection-change="selectItem"
+            @on-sort-change="handleSort" -->
         </paging>
       </div>
     </div>
@@ -96,12 +63,59 @@ export default {
       total: 10,
       allDataList: [],
       dataList: [], // 列表
-      checkAll: false, // 全选
       selectedData: [], // 选中数据
       queueModal: false,
       deleteShowData: [],
       queueInfo: {}, // 操作队列信息
       actionName: '', // 操作名称
+      columns: [
+        {
+          title: '队列名称',
+          key: 'name',
+        }, {
+          title: 'count',
+          key: 'count',
+        }, {
+          title: '操作',
+          align: 'right',
+          render: (h, params) => h('div', [h('Tooltip', {
+            props: {
+              content: params.row.mute ? '开启' : '关闭',
+              placement: 'top',
+            },
+          }, [h('Icon', {
+            props: {
+              size: 18,
+              type: params.row.mute ? 'android-volume-up' : 'android-volume-off',
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.muteTrigger(params.row, params.index);
+              },
+            },
+          })]), h('Tooltip', {
+            props: {
+              content: '清空队列',
+              placement: 'top',
+            },
+            style: {
+              marginLeft: '10px',
+            },
+          }, [h('Icon', {
+            props: {
+              size: 18,
+              type: 'trash-b',
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.removeData(params.row);
+              },
+            },
+          })])]),
+        },
+      ],
     };
   },
   methods: {
@@ -114,23 +128,14 @@ export default {
       getQuequeStatus().then((res) => {
         if (res.status === 200) {
           // this.total = res.data.queues.length;
-          this.saveDataList = res.data.queues.map((item) => {
-            const obj = item;
-            obj.checked = false;
-            return obj;
-          });
+          this.saveDataList = res.data.queues;
           if (this.searchName !== '') {
             this.allDataList = this.saveDataList.filter((item) => {
               const obj = item;
-              obj.checked = false;
               return obj.name.toLowerCase().indexOf(this.searchName) > -1;
             });
           } else {
-            this.allDataList = res.data.queues.map((item) => {
-              const obj = item;
-              obj.checked = false;
-              return obj;
-            });
+            this.allDataList = res.data.queues;
           }
           this.total = this.allDataList.length;
           const start = (this.filter.page - 1) * this.filter.page_size;
@@ -167,15 +172,10 @@ export default {
       if (this.searchName !== '') {
         this.allDataList = this.saveDataList.filter((item) => {
           const obj = item;
-          obj.checked = false;
           return obj.name.toLowerCase().indexOf(this.searchName) > -1;
         });
       } else {
-        this.allDataList = this.saveDataList.map((item) => {
-          const obj = Object.assign({}, item);
-          obj.checked = false;
-          return obj;
-        });
+        this.allDataList = this.saveDataList;
       }
       this.total = this.allDataList.length;
       this.dataList = this.allDataList.slice(0, this.filter.page_size);
@@ -193,37 +193,17 @@ export default {
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
       // this.getData(this.filter);
-      this.allDataList = this.allDataList.map((item) => {
-        const obj = item;
-        obj.checked = false;
-        return obj;
-      });
       const start = (this.filter.page - 1) * this.filter.page_size;
       const end = this.filter.page * this.filter.page_size;
       this.dataList = this.allDataList.slice(start, end);
     },
     // 单选
-    selectItem(item, index) {
-      this.dataList[index].checked = !this.dataList[index].checked;
-      this.selectedData = this.dataList.filter(plugin => plugin.checked);
-      this.checkAll = this.selectedData.length === this.dataList.length;
+    selectItem(item) {
+      this.selectedData = item;
     },
     // 全选
     selectAll(flag) {
-      if (flag) {
-        this.selectedData = this.dataList.map((item) => {
-          const obj = item;
-          obj.checked = true;
-          return obj;
-        });
-      } else {
-        this.selectedData = [];
-        this.dataList.map((item) => {
-          const obj = item;
-          obj.checked = false;
-          return obj;
-        });
-      }
+      this.selectedData = flag;
     },
     // 清空队列
     removeData(obj) {
@@ -257,6 +237,9 @@ export default {
     cancel() {
       this.queueModal = false;
       this.deleteShowData = [];
+    },
+    rowClassName(item) {
+      return item.mute ? 'show-ivu-row disabled' : 'show-ivu-row';
     },
   },
   computed: {

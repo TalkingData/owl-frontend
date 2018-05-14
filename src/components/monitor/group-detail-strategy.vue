@@ -13,55 +13,14 @@
       </div>
     </div>
     <div class="box-content">
-      <div class="box-content-title">
-        <Row>
-          <Col class="title-th" span="6">
-            策略名称
-            <!-- <sort-page 
-              :sort-value="filter.order" 
-              sort-name="name"
-              @on-sort-change="handleSort"></sort-page> -->
-          </Col>
-          <Col class="title-th" span="6">作者
-            <!-- <sort-page 
-              :sort-value="filter.order" 
-              sort-name="user_name"
-              @on-sort-change="handleSort"></sort-page> -->
-          </Col>
-          <Col class="title-th" span="6">报警次数
-          <!-- <sort-page 
-            :sort-value="filter.order" 
-            sort-name="alarm_count"
-            @on-sort-change="handleSort"></sort-page> -->
-          </Col>
-          <Col class="title-th" span="6">策略追溯时间(分钟)
-          <!-- <sort-page 
-            :sort-value="filter.order" 
-            sort-name="cycle"
-            @on-sort-change="handleSort"></sort-page> -->
-          </Col>
-        </Row>
-      </div>
       <paging ref="ruleList" :total="total" @on-page-info-change="pageInfoChange">
-        <div slot="listTable" class="box-content-body" v-if="dataList.length > 0">
-          <Row class="box-content-item cursor-pointer" v-for="(item, index) in dataList" :key="index" :class="[item.enable === 0 ? 'disabled' : '']" @click.native="viewRule(item)">
-            <Col class="body-td hidden-td" span="6">
-              <span :title="item.name">{{item.name || '--'}}</span>
-            </Col>
-            <Col class="body-td" span="6">
-              {{ item.user_name || '--'}}
-            </Col>
-            <Col class="body-td" span="6">
-              {{ item.alarm_count || '--'}}
-            </Col>
-            <Col class="body-td" span="6">
-              {{ item.cycle || '--'}}
-            </Col>
-          </Row>
-        </div>
-        <div slot="listTable" class="box-content-body" v-else>
-          <Row style="text-align: center" class="box-content-item">暂无数据</Row>
-        </div>
+        <Table slot="listTable" size="small" border
+          ref="tablelist"
+          :data="dataList" 
+          :columns="columns"
+          :row-class-name="rowClassName"
+          no-data-text="暂无数据"
+          ></Table>
       </paging>
     </div>
   </div>
@@ -71,15 +30,11 @@ import _ from 'lodash';
 // import bus from '../../libs/bus';
 import { getStrategyInGroup } from '../../models/service';
 import paging from '../page/paging';
-import simpleTable from '../charts/simple-table';
-import sortPage from '../page/sort-page';
 
 export default {
   name: 'groupDetailStrategy',
   components: {
     paging,
-    simpleTable,
-    sortPage,
   },
   props: {},
   data() {
@@ -96,20 +51,29 @@ export default {
       total: 10,
       dataList: [], // 列表
       columns: [{
-        title: '名称',
+        title: '策略名称',
         key: 'name',
-      }, {
-        title: '策略追溯时间',
-        key: 'cycle',
-      }, {
-        title: '状态',
-        key: 'enable',
+        render: (h, params) => h('a', {
+          attrs: {
+            title: '查看策略',
+            // eslint-disable-next-line
+            href: 'javascript:;',
+          },
+          on: {
+            click: () => {
+              this.viewRule(params.row);
+            },
+          },
+        }, params.row.name),
       }, {
         title: '创建人',
         key: 'user_name',
       }, {
-        title: '优先级',
-        key: 'priority',
+        title: '报警次数',
+        key: 'alarm_count',
+      }, {
+        title: '策略追溯时间(分钟)',
+        key: 'cycle',
       }],
       selectedData: [], // 选中数据
       removeModal: false,
@@ -154,11 +118,7 @@ export default {
       getStrategyInGroup(param).then((res) => {
         if (res.status === 200) {
           this.total = res.data.total;
-          this.dataList = res.data.strategies.map((item) => {
-            const obj = item;
-            obj.checked = false;
-            return obj;
-          });
+          this.dataList = res.data.strategies;
         }
       });
     },
@@ -178,6 +138,9 @@ export default {
     handleSort(value) {
       this.filter.order = value;
       this.initFilter();
+    },
+    rowClassName(item) {
+      return item.enable === 0 ? 'show-ivu-row disabled' : 'show-ivu-row';
     },
   },
   computed: {

@@ -183,6 +183,25 @@ export const getHostOfGroup = schema.get('/products/{productId}/host_groups/{gro
   productId: { type: Number, required: true, urlOnly: true },
   groupId: { type: Number, required: true, urlOnly: true },
 });
+// 获取某主机组下已包含插件
+export const getPluginOfGroup = schema.get('/products/{productId}/host_groups/{groupId}/plugins', {
+  productId: { type: Number, required: true, urlOnly: true },
+  groupId: { type: Number, required: true, urlOnly: true },
+});
+// 向主机组中添加插件
+export const addPluginInGroup = schema.post('/products/{productId}/host_groups/{groupId}/plugins', {
+  productId: { type: Number, required: true, urlOnly: true },
+  groupId: { type: Number, required: true, urlOnly: true },
+});
+export const deletePluginOfGroup = schema.delete('/products/{productId}/host_groups/{groupId}/plugins/{pluginId}', {
+  productId: { type: Number, required: true, urlOnly: true },
+  groupId: { type: Number, required: true, urlOnly: true },
+  pluginId: { type: Number, required: true, urlOnly: true },
+});
+export const updatePluginInGroup = schema.put('/products/{productId}/host_groups/{groupId}/plugins', {
+  productId: { type: Number, required: true, urlOnly: true },
+  groupId: { type: Number, required: true, urlOnly: true },
+});
 // 获取不在主机组中的主机
 export const getHostOutGroup = schema.get('/products/{productId}/host_groups/{groupId}/hosts/not_in', {
   productId: { type: Number, required: true, urlOnly: true },
@@ -228,9 +247,26 @@ export const removeHostInPro = schema.put('/products/{productId}/hosts/remove', 
 export const getStatusSummary = schema.get('/products/{productId}/statistics/host/status', {
   productId: { type: Number, required: true, urlOnly: true },
 });
-// 获取主机信息根据metrics 
+// 获取主机下所有metric
 export const getMetricByHost = schema.get('/hosts/{hostId}/metrics', {
   hostId: { type: String, required: true, urlOnly: true },
+});
+// 获取主机下插件
+export const getPluginOfHost = schema.get('/hosts/{hostId}/plugins', {
+  hostId: { type: String, required: true, urlOnly: true },
+});
+// 添加主机下插件
+export const addPluginOfHost = schema.post('/hosts/{hostId}/plugins', {
+  hostId: { type: String, required: true, urlOnly: true },
+});
+// 修改主机下插件
+export const updatePluginOfHost = schema.put('/hosts/{hostId}/plugins', {
+  hostId: { type: String, required: true, urlOnly: true },
+});
+// 删除主机下插件
+export const deletePluginOfHost = schema.delete('/hosts/{hostId}/plugins/{pluginId}', {
+  hostId: { type: String, required: true, urlOnly: true },
+  pluginId: { type: Number, required: true, urlOnly: true },
 });
 // 获取主机信息根据plugins old
 export const getHostByPlugins = schema.get('/products/{productId}/hosts/{id}/plugins', {
@@ -244,7 +280,6 @@ export const getHostByStrategies = schema.get('/products/{productId}/hosts/{id}/
 });
 // monitor====================End=====================
 // plugin------------------------------------------
-export const getPlugins = schema.get('/plugins', {});
 export const editPlugin = schema.put('/plugins', {});
 export const getAllPlugins = schema.get('/plugins', {});
 export const createPlugin = schema.post('/plugins', {});

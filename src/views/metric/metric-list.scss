@@ -1,11 +1,16 @@
 .metric-list {
   width: 100%;
-  // max-height: 1580px;
-  // margin-top: 70px;
-  padding: 6px 10px 6px;
+  // padding: 6px 10px 6px;
   .table-list {
     .box-content-item {
       &.selected {
+        background-color: #e0f0f7!important;
+      }
+    }
+  }
+  .cursor-ivu-row {
+    &.selected {
+      td {
         background-color: #e0f0f7!important;
       }
     }

@@ -107,4 +107,72 @@
   .footer {
     margin-top: 10px;
   }
+  // ------------table----------
+  .ivu-table-small th {
+    height: 45px;
+    .ivu-table-cell {
+      font-size: 14px;
+      span {
+        color: #464c5b;
+        font-weight: 700;
+      }
+    }
+  }
+  .ivu-table-header {
+    background-color: #f4f7fb;
+    th {
+      background-color: #f4f7fb;
+    }
+  }
+  .cursor-ivu-row {
+    cursor: pointer;
+    &.disabled {
+      td {
+        // background: #bbbec4;
+        background: #f8f8f9;
+        cursor: not-allowed !important;
+      }
+    }
+  }
+  .show-ivu-row {
+    &.disabled {
+      td {
+        // background: #bbbec4;
+        background: #f8f8f9;
+        cursor: not-allowed !important;
+      }
+    }
+  }
+  .ivu-table-cell {
+    padding-right: 10px;
+    padding-left: 10px;
+    .ivu-icon {
+      cursor: pointer;
+    }
+    .width-limit {
+      .ivu-poptip {
+        width: 100%;
+      }
+      .ivu-poptip-rel {
+        max-width: 100%;
+        span {
+          width: 100%;
+          display: inline-block;
+          overflow: hidden;
+          word-wrap: break-word;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          // box-sizing: border-box;
+        }
+      }
+      .ivu-poptip-popper {
+        z-index: 8;
+      }
+    }
+  }
+  .ivu-table-column-center {
+    .ivu-checkbox-wrapper {
+      margin-right: 0;
+    }
+  }
 }

@@ -2,39 +2,27 @@
   @import './metric-list.scss'
 </style>
 <template>
-  <div class="main-container">
-    <div class="metric-list">
-      <div class="table-list">
-        <div class="table-list-header clearfix mb-10">
-          <div class="float-right">
-            <Input style="width:200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
-            <!-- <Button @click="reload">
-              <Icon size="18" type="refresh"></Icon>
-            </Button> -->
-          </div>
+  <div class="main-container metric-list">
+    <div class="main-list-content">
+      <div class="common-detail-top clearfix mb-10">
+        <div class="float-right">
+          <Input style="width:200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
+          <!-- <Button @click="reload">
+            <Icon size="18" type="refresh"></Icon>
+          </Button> -->
         </div>
+      </div>
+      <div class="table-list">
         <div class="box-content">
-          <div class="box-content-title">
-            <Row>
-              <Col class="title-th" span="24">
-              指标名称
-              </Col>
-            </Row>
-          </div>
           <paging :total="total" @on-page-info-change="pageInfoChange" ref="page">
-            <div slot="listTable" class="box-content-body" v-if="dataList.length > 0">
-              <Row class="box-content-item cursor-pointer" v-for="(item, index) in dataList" 
-              :key="index"
-              @click.native="viewDetail(item, index)" 
-              :class="{'selected' : item.checked}">
-                <Col class="body-td hidden-td" span="24">
-                  <span :title="item.name">{{item.name || '--'}}</span>
-                </Col>
-              </Row>
-            </div>
-            <div slot="listTable" class="box-content-body" v-else>
-              <Row style="text-align: center" class="box-content-item">暂无数据</Row>
-            </div>
+            <Table slot="listTable" size="small" border
+              ref="tablelist"
+              :data="dataList" 
+              :columns="columns"
+              :row-class-name="rowClassName"
+              no-data-text="暂无数据"
+              @on-row-click="viewDetail"
+              ></Table>
           </paging>
         </div>
       </div>
@@ -98,6 +86,12 @@ export default {
       tagSet: null, // 根据你metric获取的tags信息
       keydataList: [],
       valuedataList: [],
+      columns: [
+        {
+          title: '指标名称',
+          key: 'name',
+        },
+      ],
     };
   },
   computed: {
@@ -245,6 +239,9 @@ export default {
     // 滚动条复位
     refresh_scroll() {
       window.scrollTo(0, 0);
+    },
+    rowClassName(item) {
+      return item.checked ? 'cursor-ivu-row selected' : 'cursor-ivu-row';
     },
   },
   mounted() {

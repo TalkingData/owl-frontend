@@ -26,14 +26,15 @@
           <div class="mb-10">
             <span class="span-title">排除主机</span>
           </div>
-          <Form-item prop="desGroups">
+          <Form-item prop="desHosts">
             <Select 
+            @on-change="selectHost"
             v-model="groupHost.desHosts" 
             filterable 
             multiple 
             placeholder="选择需要排除的主机" 
             :disabled="viewDisable"
-            :label="groupHost.desHosts"
+            :label="hostArrLabel"
             :loading="false"
             remote
             :remote-method="remoteSearch"
@@ -94,6 +95,7 @@ export default {
         desGroups: [],
         desHosts: [],
       },
+      hostArrLabel: [], // 主机展示label
       hostOptionList: [], // 主机组展示部分
     };
   },
@@ -132,10 +134,14 @@ export default {
         this.getHost(hostApi);
       }
     },
+    selectHost() {
+    },
     // 获取后台数据并展示，父级调用
     setDataList() {
       this.groupHost.desGroups = this.strategyInfo.groups.map(item => item.id);
       this.groupHost.desHosts = this.strategyInfo.exclude_hosts.map(item => item.id);
+      // 默认显示
+      this.hostArrLabel = this.strategyInfo.exclude_hosts.map(item => item.hostname);
     },
     // 获取主机组
     getHostGroups(product) {

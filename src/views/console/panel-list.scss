@@ -1,32 +1,19 @@
-.monitor-container {
+.panel-list {
   width: 100%;
-  // max-height: 1580px;
-  // margin-top: 70px;
-  padding: 6px 10px 6px;
-  .panel-list {
-    // margin-top: 16px;
-    // .scroll::-webkit-scrollbar {
-    //   height: 5px;
-    // }
-    .ok-count {
-      .ivu-badge-count {
-        background: #19be6b !important;
-      }
+  .common-detail-top {
+    font-size: 14px;
+    background-color: #fff;
+    // height: 50px;
+    // line-height: 50px;
+    // padding: 0 20px;
+    // border-bottom: 1px solid #ced3d9;
+    margin-bottom: 10px;
+    .common-detail-top-title {
+      color: #5697f1;
+      cursor: pointer;
     }
-    .alert-count {
-      .ivu-badge-count {
-        background: #ed3f14 !important;
-      }
-    }
-    .unknow-count {
-      .ivu-badge-count {
-        background: #ff9900 !important;
-      }
-    }
-    .nodata-count {
-      .ivu-badge-count {
-        background: #bbbec4 !important;
-      }
-    }
+  }
+  .table-list {
+    // margin-top: 50px;
   }
 }

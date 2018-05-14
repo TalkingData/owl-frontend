@@ -1,13 +1,14 @@
 <style lang="scss">
-  @import './admin-plugin-list.scss'
+  @import './plugin-list.scss'
 </style>
 <template>
-  <div class="main-container admin-plugin-list"> 
-    <div class="main-list-content">
-      <div class="common-detail-top clearfix mb-10">
+  <div class="common-host-list">
+    <div class="table-list host-list">
+      <div class="table-list-header clearfix mb-10">
         <div class="float-left">
           <Button icon="minus" @click="removeData('multiple')" :disabled="!disableObj.isRemove" type="primary">删除插件</Button>
-          <Button type="primary" icon="plus" @click="createData">创建插件</Button>
+          <Button v-if="source === 'admin'" type="primary" icon="plus" @click="createData">创建插件</Button>
+          <Button v-if="source === 'group' || source === 'host'" type="primary" icon="plus" @click="addPlugin">添加插件</Button>
         </div>
         <div class="float-right">
           <Input style="width:200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
@@ -16,23 +17,22 @@
           </Button>
         </div>
       </div>
-      <div class="table-list group-list">
-        <div class="box-content">
-          <paging :total="total" @on-page-info-change="pageInfoChange" ref="page">
-            <Table slot="listTable" size="small" border
-              ref="tablelist"
-              :data="dataList" 
-              :columns="columns"
-              no-data-text="暂无数据"
-              @on-select-all="selectAll"
-              @on-selection-change="selectItem"
-              @on-sort-change="handleSort"
-              ></Table>
-          </paging>
-        </div>
+      <div class="box-content">
+        <paging :total="total" @on-page-info-change="pageInfoChange" ref="page">
+          <Table slot="listTable" size="small" border
+            ref="tablelist"
+            :data="dataList" 
+            :columns="columns"
+            no-data-text="暂无数据"
+            @on-select-all="selectAll"
+            @on-selection-change="selectItem"
+            @on-sort-change="handleSort"
+            ></Table>
+        </paging>
       </div>
     </div>
     <create-plugin ref="createPlugin" @on-create-success="createSuccess"></create-plugin>
+    <plugin-edit ref="pluginEdit" @on-create-success="createSuccess"></plugin-edit>
     <Modal title="移除插件" v-model="removeModal">
       <Alert type="warning" show-icon>确定要移除插件：<span v-for="(item,index) in deleteShowData" :key="item.id"><span v-if="index">，</span>{{item.name}}</span>&nbsp;吗？</Alert>
       <div slot="footer">
@@ -46,15 +46,24 @@
 import _ from 'lodash';
 import axios from 'axios';
 // import bus from '../../libs/bus';
-import { getAllPlugins, deletePlugin } from '../../models/service';
-import createPlugin from '../../components/admin/plugin/create-plugin';
-import paging from '../../components/page/paging';
+import { getAllPlugins, deletePluginOfGroup, getPluginOfGroup,
+  getPluginOfHost, deletePluginOfHost } from '../../../models/service';
+import createPlugin from '../../../components/admin/plugin/create-plugin';
+import pluginEdit from '../../../components/admin/plugin/plugin-edit';
+import paging from '../../../components/page/paging';
 
 export default {
-  name: 'monitorGroup',
+  name: 'pluginList',
   components: {
     createPlugin,
+    pluginEdit,
     paging,
+  },
+  props: {
+    source: {
+      type: String,
+      default: '',
+    },
   },
   data() {
     return {
@@ -63,6 +72,8 @@ export default {
         page_size: 10,
         page: 1,
       },
+      groupItem: {},
+      groupId: 0,
       total: 0, // 总数
       checkAll: false, // 全选
       selectedData: [], // 选中数据
@@ -79,7 +90,7 @@ export default {
         }, {
           title: '插件名称',
           key: 'name',
-          width: 150,
+          width: 180,
           render: (h, params) => h('span', params.row.name || params.row.hostname),
           // render: (h, params) => h('a', {
           //   attrs: {
@@ -100,21 +111,15 @@ export default {
         }, {
           title: '执行间隔(秒)',
           key: 'interval',
-          width: 120,
+          width: 150,
         }, {
           title: '超时时间(秒)',
           key: 'timeout',
-          width: 120,
-        }, {
-          title: '插件路径',
-          key: 'path',
           width: 150,
-        }, {
-          title: '校验和',
-          key: 'checksum',
         }, {
           title: '操作',
           align: 'right',
+          width: 150,
           render: (h, params) => h('div', [h('Tooltip', {
             props: {
               content: '编辑',
@@ -185,17 +190,28 @@ export default {
     createSuccess(msg, data) {
       if (data && data.code === 200) {
         this.reload();
-        if (msg === 'create') { // 创建成功后跳转到插件详情页
-          this.$Message.success('创建成功');
-          this.viewDetail(data.plugin);
-        } else if (msg === 'editPlugin') {
+        if (msg === 'groupadd' || msg === 'hostadd') {
+          this.$Message.success('添加成功');
+        } else if (msg === 'groupUpdate' || msg === 'hostUpdate') {
           this.$Message.success('编辑成功');
         }
       }
     },
+    // 添加插件
+    addPlugin() {
+      if (this.source === 'group') {
+        this.$refs.pluginEdit.editInit('groupadd', this.groupItem, this.filter.productId);
+      } else if (this.source === 'host') {
+        this.$refs.pluginEdit.editInit('hostadd', this.groupItem, this.filter.hostId);
+      }
+    },
     // 编辑插件
-    editPlugin(group) {
-      this.$refs.createPlugin.editInit('editPlugin', group);
+    editPlugin(plugin) {
+      if (this.source === 'group') {
+        this.$refs.pluginEdit.editInit('groupUpdate', this.groupItem, this.filter.productId, plugin);
+      } else if (this.source === 'host') {
+        this.$refs.pluginEdit.editInit('hostUpdate', this.groupItem, this.filter.hostId, plugin);
+      }
     },
     // //滚动条复位
     refresh_scroll() {
@@ -217,7 +233,11 @@ export default {
     deleteConfirm() {
       this.removeModal = false;
       if (this.deleteShowData.length) {
-        this.deletePlugin();
+        if (this.source === 'group') {
+          this.deletePluginOfGroup();
+        } else if (this.source === 'host') {
+          this.deletePluginOfHost();
+        }
       }
     },
     // 取消移除
@@ -226,12 +246,33 @@ export default {
       this.deleteShowData = [];
     },
     // 移除接口
-    deletePlugin() {
+    deletePluginOfGroup() {
       if (this.deleteShowData.length > 0) {
         const api = [];
         this.deleteShowData.forEach((item) => {
-          api.push(deletePlugin({
+          api.push(deletePluginOfGroup({
             pluginId: item.id,
+            groupId: this.filter.groupId,
+            productId: this.filter.productId,
+          }));
+        });
+        axios.all(api).then(() => {
+          this.selectedData = [];
+          this.deleteShowData = [];
+          this.initFilter();
+          this.removeModal = false;
+          this.$Message.success('移除成功');
+        });
+      }
+    },
+    // 移除主机插件
+    deletePluginOfHost() {
+      if (this.deleteShowData.length > 0) {
+        const api = [];
+        this.deleteShowData.forEach((item) => {
+          api.push(deletePluginOfHost({
+            pluginId: item.id,
+            hostId: this.filter.hostId,
           }));
         });
         axios.all(api).then(() => {
@@ -246,9 +287,9 @@ export default {
     // 查看详情
     viewDetail(item) {
       localStorage.setItem('pluginItem', JSON.stringify(item));
-      this.$router.push({
-        path: `/admin/plugin/plugindetail/${item.id}`,
-      });
+      // this.$router.push({
+      //   path: `/admin/plugin/plugindetail/${item.id}`,
+      // });
     },
     // 初始化过滤条件
     initFilter() {
@@ -264,19 +305,41 @@ export default {
       const obj = Object.assign({}, params);
       if (!obj.query) delete obj.query;
       if (!obj.order) delete obj.order;
-      getAllPlugins(obj).then((res) => {
-        if (res.status === 200) {
-          this.total = res.data.total;
-          this.dataList = res.data.plugins.map((item) => {
-            const host = item;
-            host.checked = false;
-            return host;
-          });
-        } else {
-          this.total = 0;
-          this.dataList = [];
-        }
-      });
+      if (this.source === 'group') {
+        getPluginOfGroup(obj).then((res) => {
+          if (res.status === 200) {
+            this.total = res.data.total;
+            this.dataList = res.data.plugins;
+          } else {
+            this.total = 0;
+            this.dataList = [];
+          }
+        });
+      } else if (this.source === 'host') {
+        delete obj.productId;
+        delete obj.groupId;
+        getPluginOfHost(obj).then((res) => {
+          if (res.status === 200) {
+            this.total = res.data.total;
+            this.dataList = res.data.plugins;
+          } else {
+            this.total = 0;
+            this.dataList = [];
+          }
+        });
+      } else if (this.source === 'admin') {
+        delete obj.productId;
+        delete obj.groupId;
+        getAllPlugins(obj).then((res) => {
+          if (res.status === 200) {
+            this.total = res.data.total;
+            this.dataList = res.data.plugins;
+          } else {
+            this.total = 0;
+            this.dataList = [];
+          }
+        });
+      }
     },
     pageInfoChange(filter) {
       this.filter.page = filter.page;
@@ -314,9 +377,26 @@ export default {
       // this.filter.query = '';
       // this.filter.page = 1;
     },
+    // 初始化
+    getDetailData() {
+      if (this.$route.params.productId) {
+        this.filter.productId = parseInt(this.$route.params.productId, 10);
+      }
+      if (this.source === 'group') {
+        const groupItem = localStorage.getItem('groupItem');
+        this.groupItem = JSON.parse(groupItem);
+        this.groupId = parseInt(this.$route.params.groupId, 10);
+        this.filter.groupId = this.groupId;
+      }
+      if (this.source === 'host' && this.$route.params.hostId) {
+        this.filter.hostId = this.$route.params.hostId;
+      }
+      this.getData(this.filter);
+    },
   },
   mounted() {
-    this.getData(this.filter);
+    this.getDetailData();
+    // this.getData(this.filter);
   },
 };
 

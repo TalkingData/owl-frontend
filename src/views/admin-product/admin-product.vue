@@ -2,73 +2,32 @@
   @import './admin-product.scss'
 </style>
 <template>
-  <div class="main-container">
-    <div class="monitor-container">
-      <div class="table-list product-list">
-        <div class="table-list-header clearfix  mb-10">
-          <div class="float-left">
-            <Button icon="minus" @click="removeData('multiple')" :disabled="!disableObj.isRemove" type="primary">删除产品线</Button>
-            <Button type="primary" icon="plus" @click="addData">创建产品线</Button>
-          </div>
-          <div class="float-right">
-            <Input style="width:200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
-            <Button @click="reload">
-              <Icon size="18" type="refresh"></Icon>
-            </Button>
-          </div>
+  <div class="main-container admin-product">
+    <div class="main-list-content">
+      <div class="common-detail-top clearfix mb-10">
+        <div class="float-left">
+          <Button icon="minus" @click="removeData('multiple')" :disabled="!disableObj.isRemove" type="primary">删除产品线</Button>
+          <Button type="primary" icon="plus" @click="addData">创建产品线</Button>
         </div>
+        <div class="float-right">
+          <Input style="width:200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
+          <Button @click="reload">
+            <Icon size="18" type="refresh"></Icon>
+          </Button>
+        </div>
+      </div>
+      <div class="table-list product-list">
         <div class="box-content">
-          <div class="box-content-title">
-            <Row>
-              <Col class="title-th" span="5">
-              <Checkbox v-model="checkAll" @on-change="selectAll"></Checkbox>
-              产品线名称
-              <sort-page 
-                :sort-value="filter.order" 
-                sort-name="name"
-                @on-sort-change="handleSort"></sort-page>
-              </Col>
-              <Col class="title-th" span="5">描述</Col>
-              <Col class="title-th" span="5">创建人
-              <sort-page 
-                :sort-value="filter.order" 
-                sort-name="creator"
-                @on-sort-change="handleSort"></sort-page></Col>
-              <Col class="title-th" span="3">主机数</Col>
-              <Col class="title-th" span="3">用户数</Col>
-              <Col class="title-th" span="3"></Col>
-            </Row>
-          </div>
           <paging :total="total" @on-page-info-change="pageInfoChange" ref="page">
-            <div slot="listTable" class="box-content-body" v-if="dataList.length > 0">
-              <Row class="box-content-item cursor-pointer" v-for="(item, index) in dataList" :key="index" @click.native="viewDetail(item)">
-                <Col class="body-td hidden-td" span="5">
-                <Checkbox v-model="item.checked" @click.native.stop="selectItem(item, index)"></Checkbox>
-                <span :title="item.name">{{item.name || '--'}}</span>
-                </Col>
-                <Col class="body-td hidden-td" span="5" hidden-td>
-                  <span :title="item.description">{{item.description || '--'}}</span>
-                </Col>
-                <Col class="body-td hidden-td" span="5" hidden-td>
-                  <span :title="item.creator">{{item.creator || '--'}}</span>
-                </Col>
-                <Col class="body-td" span="3">{{item.host_cnt || '0'}}</Col>
-                <Col class="body-td" span="3">{{item.user_cnt || '0'}}</Col>
-                <Col class="body-td" span="3">
-                <div class="float-right pr-20">
-                  <Tooltip content="编辑" placement="top">
-                    <Icon size="18" type="edit" @click.native.stop="editData(item)"></Icon>
-                  </Tooltip>
-                  <Tooltip content="删除" placement="top" class="ml-10">
-                    <Icon size="18" type="trash-a" @click.native.stop="removeData(item)"></Icon>
-                  </Tooltip>
-                </div>
-                </Col>
-              </Row>
-            </div>
-            <div slot="listTable" class="box-content-body" v-else>
-              <Row style="text-align: center" class="box-content-item">暂无数据</Row>
-            </div>
+            <Table slot="listTable" size="small" border
+              ref="tablelist"
+              :data="dataList" 
+              :columns="columns"
+              no-data-text="暂无数据"
+              @on-select-all="selectAll"
+              @on-selection-change="selectItem"
+              @on-sort-change="handleSort"
+              ></Table>
           </paging>
         </div>
       </div>
@@ -103,13 +62,11 @@ import axios from 'axios';
 // import bus from '../../libs/bus';
 import { deleteProduct, addProduct, getAllProducts, updatetProduct } from '../../models/service';
 import paging from '../../components/page/paging';
-import sortPage from '../../components/page/sort-page';
 
 export default {
   name: 'monitorGroup',
   components: {
     paging,
-    sortPage,
   },
   data() {
     return {
@@ -119,7 +76,6 @@ export default {
         page: 1,
       },
       total: 0, // 总数
-      checkAll: false, // 全选
       selectedData: [], // 选中数据
       searchName: '', // 搜索名称
       deleteShowData: [],
@@ -133,6 +89,105 @@ export default {
       },
       errorMsg: '', // 错误信息
       isEdit: false, // 是否是编辑
+      columns: [
+        {
+          type: 'selection',
+          width: 60,
+          align: 'center',
+        }, {
+          title: '产品线名称',
+          key: 'name',
+          sortable: 'custom',
+          render: (h, params) => h('a', {
+            attrs: {
+              title: '查看产品线',
+              // eslint-disable-next-line
+              href: 'javascript:;',
+            },
+            on: {
+              click: () => {
+                this.viewDetail(params.row, 'host');
+              },
+            },
+          }, params.row.name),
+        }, {
+          title: '描述',
+          key: 'description',
+        }, {
+          title: '创建人',
+          key: 'creator',
+          sortable: 'custom',
+        }, {
+          title: '主机数',
+          key: 'host_cnt',
+          render: (h, params) => h('a', {
+            attrs: {
+              title: '查看产品线主机',
+              // eslint-disable-next-line
+              href: 'javascript:;',
+            },
+            on: {
+              click: () => {
+                this.viewDetail(params.row, 'host');
+              },
+            },
+          }, params.row.host_cnt),
+        }, {
+          title: '用户数',
+          key: 'user_cnt',
+          render: (h, params) => h('a', {
+            attrs: {
+              title: '查看产品线用户',
+              // eslint-disable-next-line
+              href: 'javascript:;',
+            },
+            on: {
+              click: () => {
+                this.viewDetail(params.row, 'user');
+              },
+            },
+          }, params.row.user_cnt),
+        }, {
+          title: '操作',
+          align: 'right',
+          render: (h, params) => h('div', [h('Tooltip', {
+            props: {
+              content: '编辑',
+              placement: 'top',
+            },
+          }, [h('Icon', {
+            props: {
+              size: 18,
+              type: 'edit',
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.editData(params.row);
+              },
+            },
+          })]), h('Tooltip', {
+            props: {
+              content: '删除',
+              placement: 'top',
+            },
+            style: {
+              marginLeft: '10px',
+            },
+          }, [h('Icon', {
+            props: {
+              size: 18,
+              type: 'trash-a',
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.removeData(params.row);
+              },
+            },
+          })])]),
+        },
+      ],
     };
   },
   computed: {
@@ -221,7 +276,6 @@ export default {
             if (res.status === 200) {
               if (res.data.code === 200) {
                 this.$Message.success('修改成功');
-                // this.viewDetail(res.data.product);
                 this.addModal = false;
                 this.getData(this.filter);
               } else {
@@ -286,10 +340,15 @@ export default {
       }
     },
     // 查看详情
-    viewDetail(item) {
+    viewDetail(item, type) {
+      if (type) {
+        localStorage.setItem('productItem_type', type);
+      } else {
+        localStorage.removeItem('productItem_type');
+      }
       localStorage.setItem('productItem', JSON.stringify(item));
       this.$router.push({
-        path: `/admin/product/productdetail/${item.id}`,
+        path: `/admin/product/detail/${item.id}`,
       });
     },
     // 初始化过滤条件
@@ -302,18 +361,13 @@ export default {
     // 获取表格内容数据
     getData(params) {
       this.selectedData = [];
-      this.checkAll = false;
       const obj = Object.assign({}, params);
       if (!obj.query) delete obj.query;
       if (!obj.order) delete obj.order;
       getAllProducts(obj).then((res) => {
         if (res.status === 200) {
           this.total = res.data.total;
-          this.dataList = res.data.products.map((item) => {
-            const host = item;
-            host.checked = false;
-            return host;
-          });
+          this.dataList = res.data.products;
         } else {
           this.total = 0;
           this.dataList = [];
@@ -327,31 +381,17 @@ export default {
     },
     // 排序
     handleSort(value) {
-      this.filter.order = value;
+      const order = value.order === 'normal' ? '' : `${value.key}|${value.order}`;
+      this.filter.order = order;
       this.initFilter();
     },
     // 单选
-    selectItem(item, index) {
-      this.dataList[index].checked = !this.dataList[index].checked;
-      this.selectedData = this.dataList.filter(plugin => plugin.checked);
-      this.checkAll = this.selectedData.length === this.dataList.length;
+    selectItem(item) {
+      this.selectedData = item;
     },
     // 全选
     selectAll(flag) {
-      if (flag) {
-        this.selectedData = this.dataList.map((item) => {
-          const obj = item;
-          obj.checked = true;
-          return obj;
-        });
-      } else {
-        this.selectedData = [];
-        this.dataList.map((item) => {
-          const obj = item;
-          obj.checked = false;
-          return obj;
-        });
-      }
+      this.selectedData = flag;
     },
     // eslint-disable-next-line
     search: _.debounce(function() { // 输入框筛选

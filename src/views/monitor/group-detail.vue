@@ -14,17 +14,17 @@
       <Tabs :animated="false" :value="tabValue" @on-click="tabclick" class="tabs-fixed">
         <TabPane name="host" label="包含主机">
           <Row>
-            <group-detail-host ref="groupDetailHost"></group-detail-host>
+            <host-list source="group" ref="host"></host-list>
           </Row>
         </TabPane>
-        <!-- <TabPane name="plugin" label="插件列表">
-          <Row>
-            <host-detail-plugin></host-detail-plugin>
-          </Row>
-        </TabPane> -->
         <TabPane name="rule" label="包含策略">
-          <Row>
+          <Row class="tab-strategy-content">
             <group-detail-strategy ref="strategy"></group-detail-strategy>
+          </Row>
+        </TabPane>
+        <TabPane name="plugin" label="插件列表">
+          <Row>
+            <plugin-list source="group" ref="plugin"></plugin-list>
           </Row>
         </TabPane>
       </Tabs>
@@ -37,59 +37,23 @@
 // import _ from 'lodash';
 // import bus from '../../libs/bus';
 // import Util from '../../libs/utils';
-import hostDetailPlugin from '../../components/monitor/host-detail-plugin';
-import hostDetailMetric from '../../components/monitor/host-detail-metric';
-import groupDetailHost from '../../components/monitor/group-detail-host';
+import pluginList from '../../components/admin/plugin/plugin-list';
 import groupDetailStrategy from '../../components/monitor/group-detail-strategy';
+import hostList from '../../components/monitor/host-list';
 
 export default {
   name: 'groupDetail',
   components: {
-    hostDetailPlugin,
-    hostDetailMetric,
-    groupDetailHost,
+    pluginList,
     groupDetailStrategy,
+    hostList,
   },
   props: {},
   data() {
     return {
       productId: '',
-      stepsArr: [], // 告警详情步骤
-      stepFlag: false, // 步骤一验证
-      eventInfoList: [], // 获取详情信息
       groupItem: {}, // 从列表页获取的主机信息
-      countIndex: 0, // 告警次数
-      eventList: [], // 事件列表
-      eventProcess: [], // 处理记录
-      eventProcessStep: [], // 处理记录时间轴
-      eventColumns: [{
-        title: '时间',
-        key: 'process_time',
-      }, {
-        title: '处理人',
-        key: 'process_user',
-      }, {
-        title: '操作',
-        key: 'process_comments',
-      }],
-      showResultModal: false,
       tabValue: 'host', // 切换tab
-      // 主机组列表
-      groupList: [{
-        id: 1,
-        name: 'cehsi1',
-      }, {
-        id: 2,
-        name: 'cehsi2',
-      }, {
-        id: 3,
-        name: 'cehsi3',
-      }, {
-        id: 4,
-        name: 'cehsi3',
-      }],
-      groupSelected: '', // 选中组
-      pluginList: [],
     };
   },
   methods: {
@@ -97,10 +61,6 @@ export default {
       this.$router.push({
         path: `/monitor/monitorgroup/${this.productId}`,
       });
-    },
-    // 查看告警结果
-    showResult() {
-      this.showResultModal = true;
     },
     // 设置详情信息
     getDetailData() {
@@ -111,34 +71,19 @@ export default {
       this.groupItem = JSON.parse(groupItem);
     },
     tabclick() {},
-    // 点击组进行筛选
-    getGroup() {
-    },
-    // 删除组
-    removeGroup(index) {
-      this.$Modal.confirm({
-        title: '删除组',
-        content: `确定要删除组：<a>${this.groupList[index].name}</a> 吗？`,
-        onOk: () => {
-          this.groupList.splice(index, 1);
-        },
-      });
-    },
-    // 添加组
-    addGroup(arr) {
-      const groupIds = arr.map(item => item.name);
-      this.$Modal.confirm({
-        title: '添加组',
-        content: `确定要添加组 <a>${groupIds.toString()}</a> 到该主机吗？`,
-        onOk: () => {
-          arr.forEach((item) => {
-            this.groupList.push(item);
-          });
-        },
-      });
-    },
   },
   computed: {
+    groupId() {
+      return parseInt(this.$route.params.groupId, 10);
+    },
+  },
+  watch: {
+    groupId() {
+      this.getDetailData();
+      this.$refs.host.getDetailData();
+      this.$refs.strategy.getDetailData();
+      this.$refs.plugin.getDetailData();
+    },
   },
   mounted() {
     this.getDetailData();

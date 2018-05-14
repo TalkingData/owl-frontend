@@ -7,7 +7,7 @@
     <div class="product-box">
       <ul class="product-list" v-if="isAdmin">
         <li class="product-item" @click="gotoAdmin">
-          <a><Icon type="gear-b" class="mr-10"></Icon>进入管理员页面</a>
+          <a><Icon type="gear-b" class="mr-10"></Icon>进入管理员后台</a>
         </li>
       </ul>
       <ul class="product-list" v-if="productList.length > 0">
@@ -74,7 +74,7 @@ export default {
     // 前往管理员页面
     gotoAdmin() {
       this.$router.push({
-        path: '/admin/product/productlist',
+        path: '/admin/product/list',
       });
     },
     addData() {

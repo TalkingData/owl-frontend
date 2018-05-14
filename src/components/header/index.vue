@@ -342,7 +342,7 @@ export default {
   },
   computed: {
     titleRole() {
-      return this.routerNow.indexOf('admin') > -1 ? '管理员' : this.titleProduct;
+      return this.routerNow.indexOf('admin') > -1 ? '管理员后台' : this.titleProduct;
     },
     // 返回当前主路由
     routerNow() {

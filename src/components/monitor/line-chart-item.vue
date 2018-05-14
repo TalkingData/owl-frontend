@@ -19,7 +19,7 @@
         </span>
       </div>
     </div>
-    <div class="line-area" ref="lineChartArea"></div>
+    <div class="line-area list_line_area" ref="lineChartArea"></div>
     <Modal title="查看" v-model="screenModal" width="96%" class="line-chart-block-modal">
       <Row>
         <div class="float-right">
@@ -31,13 +31,14 @@
   </div>
 </template>
 <script>
-// import axios from 'axios';
+import axios from 'axios';
 import highstock from 'highcharts/highstock';
 import bus from '../../libs/bus';
 import calendarSelect from '../page/calendar-select';
 import { getQueryChart } from '../../models/service';
 
 require('highcharts/modules/no-data-to-display')(highstock);
+require('highcharts/modules/broken-axis')(highstock);
 
 export default {
   name: 'lineChartItem',
@@ -129,46 +130,78 @@ export default {
     },
     // 查询数据,修改日期查询全屏数据
     getQueryChart() {
+      if (this.highchartModalStore) {
+        this.highchartModalStore.showLoading();
+      }
+      let axiosArr = [];
+      if (Array.isArray(this.data.metric)) {
+        axiosArr = this.data.metric.map((ele) => {
+          const eleItem = ele;
+          return getQueryChart({
+            metric: eleItem,
+            tags: this.data.tags,
+            start: this.filter.start_time,
+            end: this.filter.end_time,
+          });
+        });
+      } else {
+        axiosArr = [getQueryChart({
+          metric: this.data.metric,
+          tags: this.data.tags,
+          start: this.filter.start_time,
+          end: this.filter.end_time,
+        })];
+      }
       // 一个图表
-      getQueryChart({
-        metric: this.data.metric,
-        tags: this.data.tags,
-        start: this.filter.start_time,
-        end: this.filter.end_time,
-      }).then((res) => {
+      // getQueryChart({
+      //   metric: this.data.metric,
+      //   tags: this.data.tags,
+      //   start: this.filter.start_time,
+      //   end: this.filter.end_time,
+      // })
+      axios.all(axiosArr).then((response) => {
         const series = [];
-        if (res.status === 200 && res.data.code === 200 && res.data.data) {
-          res.data.data.forEach((queryItem) => {
-            const seriesItem = {
-              theData: {
-                name: '',
-                data: [],
-                visible: true,
-                threshold: null,
-              },
-              metric_name: '',
-            };
-            // 图表中每条线的名字,后半部分
-            let host = `${queryItem.metric}, `;
-            const tagsArr = Object.keys(queryItem.tags);
-            tagsArr.forEach((tag) => {
-              if (tag !== 'uuid') {
-                host += `${tag}=${queryItem.tags[tag]}, `;
-              }
-            });
-            // 图表中每条线的名字,去掉最后的逗号与空格
-            seriesItem.theData.name = host.substring(0, host.length - 2);
-            seriesItem.metric_name = seriesItem.theData.name;
-            // 设置时间-数据格式对
-            const dpsArr = Object.entries(queryItem.dps);
-            // 将秒改为毫秒
-            seriesItem.theData.data = dpsArr.map(dpsItem =>
-              [dpsItem[0] * 1000, dpsItem[1]]);
-            series.push(seriesItem.theData);
+        if (response.length > 0) {
+          response.forEach((res) => {
+            if (res.status === 200 && res.data.code === 200 && res.data.data) {
+              res.data.data.forEach((queryItem) => {
+                const seriesItem = {
+                  theData: {
+                    name: '',
+                    data: [],
+                    visible: true,
+                    threshold: null,
+                  },
+                  metric_name: '',
+                };
+                // 图表中每条线的名字,后半部分
+                let host = `${queryItem.metric}, `;
+                const tagsArr = Object.keys(queryItem.tags);
+                tagsArr.forEach((tag) => {
+                  if (tag !== 'uuid') {
+                    host += `${tag}=${queryItem.tags[tag]}, `;
+                  }
+                });
+                // 图表中每条线的名字,去掉最后的逗号与空格
+                seriesItem.theData.name = host.substring(0, host.length - 2);
+                seriesItem.metric_name = seriesItem.theData.name;
+                // 设置时间-数据格式对
+                const dpsArr = Object.entries(queryItem.dps);
+                // 将秒改为毫秒
+                seriesItem.theData.data = dpsArr.map(dpsItem =>
+                  [dpsItem[0] * 1000, dpsItem[1]]);
+                series.push(seriesItem.theData);
+              });
+            }
           });
           this.initChart(this.data, series, this.$refs.screenShowArea, 'screen');
         }
       });
+    },
+    showLoad() {
+      if (this.highchartStore) {
+        this.highchartStore.showLoading();
+      }
     },
     // chartSite用于区分是全屏显示还是局部显示
     initChart(chartInfo, dataArg, ele, chartSite) {
@@ -189,26 +222,32 @@ export default {
         },
       });
       const params = {
-        colors: ['#f7acbc', '#cd9a5b', '#66ffff', '#ccFF66', '#f47920',
-          '#1d953f', '#abc88b', '#769149', '#7f7522', '#9b95c9',
+        colors: ['#7bbfea', '#b3424a', '#f05b72', '#596032', '#bd6758',
+          '#cd9a5b', '#918597', '#70a19f', '#005344', '#FF00FF',
+          '#f7acbc', '#5f5d46', '#66ffff', '#ccFF66', '#f47920',
+          '#769149', '#1d953f', '#abc88b', '#7f7522', '#9b95c9',
           '#f3715c', '#ea66a6', '#d1c7b7', '#9d9087', '#77787b',
-          '#f58220', '#c37e00', '#918597', '#f26522', '#FF00FF',
-          '#76624c', '#1b315e', '#2468a2', '#ca8687', '#bd6758',
-          '#596032', '#5f5d46', '#00ae9d', '#70a19f', '#005344',
-          '#d71345', '#7bbfea', '#76becc', '#b3424a', '#f05b72',
+          '#f58220', '#c37e00', '#00ae9d', '#f26522', '#76becc',
+          '#76624c', '#d71345', '#2468a2', '#ca8687', '#1b315e',
         ],
         chart: {
           renderTo: ele,
-          zoomType: 'x',
+          // zoomType: 'x',
           plotBorderWidth: 1,
           type: this.chartType,
           height: chartInfo.height || 400,
+        },
+        loading: {
+          style: {
+            backgroundColor: '#ffffff',
+            opacity: 0.7,
+          },
         },
         credits: {
           enabled: false, // 不显示水印
         },
         title: {
-          text: chartInfo.metric || null,
+          text: chartInfo.name || chartInfo.metric || null,
           align: 'left',
           useHTML: true,
           style: {
@@ -217,7 +256,11 @@ export default {
           },
         },
         xAxis: {
-          crosshair: true,
+          crosshair: {
+            width: 2,
+            color: '#aaa',
+            snap: false,
+          },
           type: 'datetime',
           dateTimeLabelFormats: {
             millisecond: '%Y-%m-%d<br/>%H:%M:%S',
@@ -253,6 +296,7 @@ export default {
           },
         },
         yAxis: {
+          // crosshair: true,
           gridLineColor: '#DCDCDC',
           title: {
             text: null,
@@ -277,9 +321,10 @@ export default {
           enabled: false,
         },
         plotOptions: {
-          area: {
+          line: {
             lineWidth: 1,
-            stacking: 'normal',
+            stacking: null,
+            // connectNulls: true,
           },
           series: {
             animation: false,
@@ -361,6 +406,7 @@ export default {
         });
         // eslint-disable-next-line
         this.highchartStore = new highstock.StockChart(params);
+        this.highchartStore.hideLoading();
       } else if (chartSite === 'screen') { // 全屏显示
         params.series = dataArg.map((item) => {
           const obj = Object.assign(item);
@@ -407,8 +453,8 @@ export default {
         });
         // eslint-disable-next-line
         this.highchartModalStore = new highstock.StockChart(params);
+        this.highchartModalStore.hideLoading();
       }
-      // console.log(highstock.charts);
     },
     // 设置数据, filter区分
     setData(chartItem, seriesItem, filter) {

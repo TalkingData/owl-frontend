@@ -15,76 +15,6 @@ const wechatReg = /^[a-zA-Z0-9]{1}([-_a-zA-Z0-9]{5,19})+$/;
 const pswReg = /[a-zA-Z0-9]{4,31}/;
 
 const Util = {
-  timeStamp(time) {
-    const date = new Date(time);
-    const year = date.getFullYear();
-    let month = date.getMonth() + 1;
-    let day = date.getDate();
-    let hour = date.getHours();
-    let minute = date.getMinutes();
-    if (month < 10) {
-      month = `0${month}`;
-    }
-    if (day < 10) {
-      day = `0${day}`;
-    }
-    if (hour < 10) {
-      hour = `0${hour}`;
-    }
-    if (minute < 10) {
-      minute = `0${minute}`;
-    }
-    const times = `${year}-${month}-${day} ${hour}:${minute}`;
-    return times;
-  },
-  timeFormat(time) {
-    const date = new Date(time);
-    const year = date.getFullYear();
-    let month = date.getMonth() + 1;
-    let day = date.getDate();
-    let hour = date.getHours();
-    let minute = date.getMinutes();
-    let second = date.getSeconds();
-    if (month < 10) {
-      month = `0${month}`;
-    }
-    if (day < 10) {
-      day = `0${day}`;
-    }
-    if (hour < 10) {
-      hour = `0${hour}`;
-    }
-    if (minute < 10) {
-      minute = `0${minute}`;
-    }
-    if (second < 10) {
-      second = `0${second}`;
-    }
-    const times = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
-    return times;
-  },
-  timeStampMac(time) {
-    const date = new Date(time);
-    const year = date.getFullYear();
-    let month = date.getMonth() + 1;
-    let day = date.getDate();
-    let hour = date.getHours();
-    let minute = date.getMinutes();
-    if (month < 10) {
-      month = `0${month}`;
-    }
-    if (day < 10) {
-      day = `0${day}`;
-    }
-    if (hour < 10) {
-      hour = `0${hour}`;
-    }
-    if (minute < 10) {
-      minute = `0${minute}`;
-    }
-    const times = `${year}/${month}/${day} ${hour}:${minute}`;
-    return times;
-  },
   validatePort(rule, value, callback) {
     if (value === '') {
       callback(new Error('请输入端口号'));
@@ -131,22 +61,11 @@ const Util = {
       callback();
     }
   },
-  validateSecId(rule, value, callback) {
-    if (value === '') {
-      callback(new Error('请选择安全组'));
-    } else if (value.length === 0) {
-      callback(new Error('请选择安全组'));
-    } else {
-      callback();
-    }
-  },
   validateName(rule, value, callback) {
-    if (value === '') {
-      callback(new Error('请输入主机名称'));
-    } else if (value.length > 60) {
-      callback(new Error('主机名长度要小于60'));
-    } else if (!nameReg.test(value)) {
-      callback(new Error('主机名称只能是字母'));
+    if (!value) {
+      callback(new Error('请输入用户名'));
+    } else if (!wechatReg.test(value)) {
+      callback(new Error('用户名格式不正确'));
     } else {
       callback();
     }
@@ -423,4 +342,3 @@ const Util = {
   },
 };
 export default Util;
-

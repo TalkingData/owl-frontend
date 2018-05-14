@@ -2,65 +2,32 @@
   @import './admin-script-list.scss'
 </style>
 <template>
-  <div class="main-container">
-    <div class="admin-script-list">
-      <div class="table-list group-list">
-        <div class="table-list-header clearfix  mb-10">
-          <div class="float-left">
-            <Button icon="minus" @click="removeData('multiple')" :disabled="!disableObj.isRemove" type="primary">删除脚本</Button>
-            <Button type="primary" icon="plus" @click="createData">创建脚本</Button>
-          </div>
-          <div class="float-right">
-            <Input style="width:200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
-            <Button @click="reload">
-              <Icon size="18" type="refresh"></Icon>
-            </Button>
-          </div>
+  <div class="main-container admin-script-list">
+    <div class="main-list-content">
+      <div class="common-detail-top clearfix mb-10">
+        <div class="float-left">
+          <Button icon="minus" @click="removeData('multiple')" :disabled="!disableObj.isRemove" type="primary">删除脚本</Button>
+          <Button type="primary" icon="plus" @click="createData">创建脚本</Button>
         </div>
+        <div class="float-right">
+          <Input style="width:200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
+          <Button @click="reload">
+            <Icon size="18" type="refresh"></Icon>
+          </Button>
+        </div>
+      </div>
+      <div class="table-list group-list">
         <div class="box-content">
-          <div class="box-content-title">
-            <Row>
-              <Col class="title-th" span="6">
-              <Checkbox v-model="checkAll" @on-change="selectAll"></Checkbox>
-              脚本名称
-              </Col>
-              <Col class="title-th" span="12">文件路径</Col>
-              <Col class="title-th" span="6"></Col>
-            </Row>
-          </div>
           <paging :total="total" @on-page-info-change="pageInfoChange" ref="page">
-            <div slot="listTable" class="box-content-body" v-if="dataList.length > 0">
-              <Row class="box-content-item" v-for="(item, index) in dataList" :key="index" @click.native="viewDetail(item)">
-                <Col class="body-td hidden-td" span="6">
-                <Checkbox v-model="item.checked" @click.native.stop="selectItem(item, index)"></Checkbox>
-                <span :title="item.name">{{item.name || '--'}}</span>
-                </Col>
-                <Col class="body-td width-limit" span="12">
-                  <Poptip placement="right" width="400" trigger="hover">
-                    <span style="cursor: pointer;">{{item.file_path || '--'}}</span>
-                    <div slot="title"><i>文件路径</i></div>
-                    <div slot="content">
-                      <div class="pop-show-content">
-                        <pre>{{item.file_path}}</pre>
-                      </div>
-                    </div>
-                  </Poptip>
-                </Col>
-                <Col class="body-td" span="6">
-                  <div class="float-right pr-20">
-                    <Tooltip content="编辑" placement="top">
-                      <Icon size="18" type="edit" @click.native.stop="editPlugin(item)"></Icon>
-                    </Tooltip>
-                    <Tooltip content="删除" placement="top" class="ml-10">
-                      <Icon size="18" type="trash-a" @click.native.stop="removeData(item)"></Icon>
-                    </Tooltip>
-                  </div>
-                </Col>
-              </Row>
-            </div>
-            <div slot="listTable" class="box-content-body" v-else>
-              <Row style="text-align: center" class="box-content-item">暂无数据</Row>
-            </div>
+            <Table slot="listTable" size="small" border
+              ref="tablelist"
+              :data="dataList" 
+              :columns="columns"
+              no-data-text="暂无数据"
+              @on-select-all="selectAll"
+              @on-selection-change="selectItem"
+            ></Table>
+            <!-- @on-row-click="viewDetail" -->
           </paging>
         </div>
       </div>
@@ -135,6 +102,59 @@ export default {
         trigger: 'change',
         required: true,
       }],
+      columns: [
+        {
+          type: 'selection',
+          width: 60,
+          align: 'center',
+        }, {
+          title: '脚本名称',
+          key: 'name',
+          width: 180,
+        }, {
+          title: '文件路径',
+          key: 'file_path',
+        }, {
+          title: '操作',
+          align: 'right',
+          render: (h, params) => h('div', [h('Tooltip', {
+            props: {
+              content: '编辑',
+              placement: 'top',
+            },
+          }, [h('Icon', {
+            props: {
+              size: 18,
+              type: 'edit',
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.editPlugin(params.row);
+              },
+            },
+          })]), h('Tooltip', {
+            props: {
+              content: '删除',
+              placement: 'top',
+            },
+            style: {
+              marginLeft: '10px',
+            },
+          }, [h('Icon', {
+            props: {
+              size: 18,
+              type: 'trash-a',
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.removeData(params.row);
+              },
+            },
+          })])]),
+        },
+      ],
     };
   },
   computed: {
@@ -294,24 +314,15 @@ export default {
       // if (!obj.query) delete obj.query;
       getScripts().then((res) => {
         if (res.status === 200) {
-          this.saveDataList = res.data.scripts.map((item) => {
-            const host = item;
-            host.checked = false;
-            return host;
-          });
+          this.saveDataList = res.data.scripts;
           if (this.searchName !== '') {
             this.allDataList = this.saveDataList.filter((item) => {
               const obj = item;
-              obj.checked = false;
               return obj.name.indexOf(this.searchName) > -1 ||
                obj.file_path.indexOf(this.searchName) > -1;
             });
           } else {
-            this.allDataList = res.data.scripts.map((item) => {
-              const host = item;
-              host.checked = false;
-              return host;
-            });
+            this.allDataList = res.data.scripts;
           }
           this.total = this.allDataList.length;
           const start = (this.filter.page - 1) * this.filter.page_size;
@@ -329,12 +340,6 @@ export default {
     pageInfoChange(filter) {
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
-      // this.getData(this.filter);
-      this.allDataList = this.allDataList.map((item) => {
-        const obj = item;
-        obj.checked = false;
-        return obj;
-      });
       const start = (this.filter.page - 1) * this.filter.page_size;
       const end = this.filter.page * this.filter.page_size;
       this.dataList = this.allDataList.slice(start, end);
@@ -342,27 +347,12 @@ export default {
       this.checkAll = false;
     },
     // 单选
-    selectItem(item, index) {
-      this.dataList[index].checked = !this.dataList[index].checked;
-      this.selectedData = this.dataList.filter(plugin => plugin.checked);
-      this.checkAll = this.selectedData.length === this.dataList.length;
+    selectItem(item) {
+      this.selectedData = item;
     },
     // 全选
     selectAll(flag) {
-      if (flag) {
-        this.selectedData = this.dataList.map((item) => {
-          const obj = item;
-          obj.checked = true;
-          return obj;
-        });
-      } else {
-        this.selectedData = [];
-        this.dataList.map((item) => {
-          const obj = item;
-          obj.checked = false;
-          return obj;
-        });
-      }
+      this.selectedData = flag;
     },
     // eslint-disable-next-line
     search: _.debounce(function() { // 输入框筛选
@@ -373,14 +363,12 @@ export default {
       if (this.searchName) {
         this.allDataList = this.saveDataList.filter((item) => {
           const obj = item;
-          obj.checked = false;
           return obj.name.indexOf(this.searchName) > -1 ||
            obj.file_path.indexOf(this.searchName) > -1;
         });
       } else {
         this.allDataList = this.saveDataList.map((item) => {
           const obj = Object.assign({}, item);
-          obj.checked = false;
           return obj;
         });
       }

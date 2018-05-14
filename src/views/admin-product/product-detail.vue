@@ -14,12 +14,12 @@
       <Tabs :animated="false" v-model="tabValue" @on-click="tabclick" class="tabs-fixed">
         <TabPane name="host" label="包含主机">
           <Row v-if="tabValue === 'host'">
-            <monitor-host :isProduct="true" ref="productHost"></monitor-host>
+            <host-list source="product" :isProduct="true" ref="productHost"></host-list>
           </Row>
         </TabPane>
-        <TabPane name="rule" label="包含用户">
-          <Row v-if="tabValue === 'rule'">
-            <user-list :isProduct="true"></user-list>
+        <TabPane name="user" label="包含用户">
+          <Row v-if="tabValue === 'user'">
+            <user-list source="product"></user-list>
           </Row>
         </TabPane>
       </Tabs>
@@ -31,13 +31,13 @@
 <script>
 // import _ from 'lodash';
 // import bus from '../../libs/bus';
-import monitorHost from '../monitor/monitor-host';
-import userList from '../manage/user-list';
+import hostList from '../../components/monitor/host-list';
+import userList from '../../components/manage/user-list';
 
 export default {
   name: 'productDetail',
   components: {
-    monitorHost,
+    hostList,
     userList,
   },
   props: {},
@@ -51,27 +51,28 @@ export default {
   methods: {
     backTo() {
       this.$router.push({
-        path: '/admin/product/productlist',
+        path: '/admin/product/list',
       });
     },
     // 设置详情信息
     getDetailData() {
       const productItem = localStorage.getItem('productItem');
       this.productItem = JSON.parse(productItem);
+      const type = localStorage.getItem('productItem_type');
+      if (type) {
+        this.tabValue = type;
+      }
     },
-    tabclick() {},
+    tabclick(name) {
+      localStorage.setItem('productItem_type', name);
+    },
   },
   computed: {
   },
   mounted() {
     this.getDetailData();
-    // console.log(this.$route.params.strategyId);
-    // if (this.$route.params.strategyId) {
-    //   this.getDetailData();
-    // }
   },
   beforeDestroy() {
-    // localStorage.removeItem('eruleInfo');
   },
 };
 

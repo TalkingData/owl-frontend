@@ -48,14 +48,12 @@ import {
   getHostOutPro,
   addHostInPro,
 } from '../../models/service';
-import simpleTable from '../charts/simple-table';
 import paging from '../page/paging';
 
 export default {
   name: 'createHostGroup',
   props: {},
   components: {
-    simpleTable,
     paging,
   },
   data() {
@@ -158,7 +156,7 @@ export default {
       this.initFilter();
     },
     initFilter() {
-      if (this.msgInfo === 'addProHost') {
+      if (this.msgInfo === 'addprohost') {
         this.getHostOutPro(this.filter);
       } else if (this.msgInfo === 'addgrouphost') {
         this.getHostOutGroup(this.filter);
@@ -210,7 +208,7 @@ export default {
       this.filter.query = '';
       this.searchName = '';
       // 产品线添加主机
-      if (msg === 'addProHost') {
+      if (msg === 'addprohost') {
         this.modalTitle = '产品线添加主机';
         this.isEdit = true;
         this.$refs.hostPage.init();
@@ -295,7 +293,7 @@ export default {
       this.errorMsg = '';
       if (this.msgInfo === 'addgrouphost') { // 添加主机
         this.addHostInGroup(); // 主机组
-      } else if (this.msgInfo === 'addProHost') {
+      } else if (this.msgInfo === 'addprohost') {
         this.addHostInPro(); // 产品线
       } else {
         this.$refs.nameForm.validate((valid) => {
@@ -415,7 +413,7 @@ export default {
   },
   computed: {
     width() {
-      if (this.msgInfo === 'addgrouphost' || this.msgInfo === 'addProHost') {
+      if (this.msgInfo === 'addgrouphost' || this.msgInfo === 'addprohost') {
         return 80;
       }
       return 720;
