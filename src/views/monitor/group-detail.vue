@@ -11,7 +11,7 @@
       </div>
     </div>
     <div class="common-detail-margin">
-      <Tabs :animated="false" :value="tabValue" @on-click="tabclick" class="tabs-fixed">
+      <Tabs :animated="false" v-model="tabValue" @on-click="tabclick" class="tabs-fixed">
         <TabPane name="host" label="包含主机">
           <Row>
             <host-list source="group" ref="host"></host-list>
@@ -28,15 +28,10 @@
           </Row>
         </TabPane>
       </Tabs>
-      <div class="common-detail-body">
-      </div>
     </div>
   </div>
 </template>
 <script>
-// import _ from 'lodash';
-// import bus from '../../libs/bus';
-// import Util from '../../libs/utils';
 import pluginList from '../../components/admin/plugin/plugin-list';
 import groupDetailStrategy from '../../components/monitor/group-detail-strategy';
 import hostList from '../../components/monitor/host-list';
@@ -59,7 +54,7 @@ export default {
   methods: {
     backTo() {
       this.$router.push({
-        path: `/monitor/monitorgroup/${this.productId}`,
+        path: `/monitor/group/${this.productId}`,
       });
     },
     // 设置详情信息
@@ -69,8 +64,14 @@ export default {
       }
       const groupItem = localStorage.getItem('groupItem');
       this.groupItem = JSON.parse(groupItem);
+      const tabName = localStorage.getItem('group_detail_tab');
+      if (tabName) {
+        this.tabValue = tabName;
+      }
     },
-    tabclick() {},
+    tabclick(name) {
+      localStorage.setItem('group_detail_tab', name);
+    },
   },
   computed: {
     groupId() {

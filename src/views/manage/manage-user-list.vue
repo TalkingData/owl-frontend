@@ -8,7 +8,6 @@
   </div>
 </template>
 <script>
-// import bus from '../../libs/bus';
 import userList from '../../components/manage/user-list';
 
 export default {

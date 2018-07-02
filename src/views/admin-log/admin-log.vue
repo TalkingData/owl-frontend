@@ -23,7 +23,6 @@
               :data="dataList" 
               :columns="columns"
               no-data-text="暂无数据"
-              @on-row-click="viewDetail"
               @on-sort-change="handleSort"
             ></Table>
           </paging>
@@ -219,7 +218,6 @@ export default {
     initFilter() {
       this.$refs.page.init();
       this.filter.page = 1;
-      // this.filter.page_size = 10;
       this.getData(this.filter);
     },
     // 获取表格内容数据
@@ -264,14 +262,12 @@ export default {
     search: _.debounce(function() { // 输入框筛选
       this.$refs.page.init();
       this.filter.page = 1;
-      // this.filter.page_size = 10;
       this.filter.query = this.searchName;
       this.getData(this.filter);
     }, 300),
     // 刷新
     reload() {
       this.$refs.calendar.reload();
-      // this.getData(this.filter);
     },
     getResult(result) {
       if (result) return '成功';
@@ -296,17 +292,8 @@ export default {
   },
   mounted() {
     this.initTime();
-    // bus.$on('on-date-change', (time) => {
-    //   // this.filter.start_time = `${time[0]} 00:00:00`;
-    //   // this.filter.end_time = `${time[1]} 00:00:00`;
-    //   this.filter.start_time = `${time[0]}:00`;
-    //   this.filter.end_time = `${time[1]}:59`;
-    //   this.filter.page = 1;
-    //   this.getData(this.filter);
-    // });
   },
   beforeDestroy() {
-    // bus.$off('on-date-change');
   },
 };
 

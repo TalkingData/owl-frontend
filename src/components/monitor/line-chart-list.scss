@@ -4,5 +4,10 @@
     box-sizing: border-box;
     margin-bottom: 10px;
     float:left;
+    &.hover {
+      .highcharts-crosshair {
+        visibility: visible;
+      }
+    }
   }
 }

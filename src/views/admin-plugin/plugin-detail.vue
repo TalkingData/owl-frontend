@@ -135,7 +135,7 @@ export default {
   methods: {
     backTo() {
       this.$router.push({
-        path: '/admin/plugin/pluginlist',
+        path: '/admin/plugin/list',
       });
     },
     // 全选
@@ -162,7 +162,6 @@ export default {
     initFilter() {
       this.$refs.userGroupList.init();
       this.filter.page = 1;
-      // this.filter.page_size = 10;
       this.getData(this.filter);
     },
     // 刷新

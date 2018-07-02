@@ -6,7 +6,7 @@
   <div class="brule event-detail">
     <div class="brule-top clearfix">
       <div class="float-left">
-        <span title="返回到预警报警页" @click="backTo" class="brule-top-title">告警列表</span>
+        <span title="返回到预警报警页" @click="backTo" class="brule-top-title">返回上级</span>
         <span>&gt;{{eventItem.strategy_name || '告警详情'}}</span>
       </div>
       <div class="float-right">
@@ -25,12 +25,10 @@
       </div>
     </div>
     <div class="add-more-alarm clearfix">
-      <!-- <Page :total="total" show-total :page-size="filter.page_size" :current.sync="filter.page" @on-change="pageChange"></Page> -->
       <Button size="large" type="primary" @click="loadMore" icon="plus" :disabled="addDisabled">加载更多</Button>
     </div>
     <Modal v-model="showResultModal" title="处理记录" width="720px;" class="event-process-modal">
       <div class="event-process">
-        <!-- <div class="event-process-title">处理记录</div> -->
         <step-vertical-square ref="eventProcsss" :steps="eventProcessStep" v-if="eventProcess.length > 0">
           <Row v-for="(item, index) in eventProcess" 
           :key="index" 
@@ -50,9 +48,6 @@
   </div>
 </template>
 <script>
-// import _ from 'lodash';
-// import bus from '../../libs/bus';
-// import Util from '../../libs/utils';
 import { getEventInfo, getEventRecods } from '../../models/service';
 import stepVerticalSquare from '../../components/step/step-vertical-square';
 import stepVertical from '../../components/step/step-vertical';
@@ -101,9 +96,10 @@ export default {
   },
   methods: {
     backTo() {
-      this.$router.push({
-        path: `/alarm/eventlist/${this.productId}`,
-      });
+      this.$router.go(-1);
+      // this.$router.push({
+      //   path: `/alarm/event/list/${this.productId}`,
+      // });
     },
     // 查看告警结果
     showResult() {
@@ -117,23 +113,6 @@ export default {
     // 设置步骤状态
     setStepStatus(index, status) {
       this.$refs.stepsLoop.doneStep(index, status);
-    },
-    // 将后台拿到的“k1=v1,k2=v2...”转为[{key:k1,value:v1},{key:k2,value:v2}....]
-    proTags(data) {
-      const dou = data.indexOf(',');
-      const tmp = [];
-      if (dou === -1) {
-        const set = data.split('=');
-        tmp.push({ key: set[0], value: set[1] });
-      } else {
-        const mid = data.split(',');
-        const mlen = mid.length;
-        for (let j = 0; j < mlen; j += 1) {
-          const set = mid[j].split('=');
-          tmp.push({ key: set[0], value: set[1] });
-        }
-      }
-      return tmp;
     },
     // 更多
     loadMore() {

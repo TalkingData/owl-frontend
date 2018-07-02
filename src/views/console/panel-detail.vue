@@ -33,8 +33,6 @@
         </div>
       </div>
       <div class="table-list">
-        <!-- <div class="table-list-header clearfix  mb-10">
-        </div> -->
         <div class="box-content">
           <chart-list 
           @on-edit-chart="editData"
@@ -101,7 +99,6 @@ export default {
     // 刷新
     reload() {
       this.$refs.calendar.reload();
-      // this.getData(this.filter);
     },
     // 获取数据,用在子页面
     getData(params) {
@@ -187,8 +184,12 @@ export default {
   },
   mounted() {
     this.getDetailData();
+    bus.$on('on-shrink-change', () => {
+      this.$refs.chartList.refreshData();
+    });
   },
   beforeDestroy() {
+    bus.$off('on-shrink-change');
   },
 };
 

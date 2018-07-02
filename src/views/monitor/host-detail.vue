@@ -8,7 +8,7 @@
       <div class="common-detail-top common-detail-top-fixed">
         <Row class="common-detail-top-item">
           <div class="float-left">
-            <span title="返回到上级页面" @click="backTo" class="common-detail-top-title">主机列表&gt;</span>
+            <span title="返回到上级页面" @click="backTo" class="common-detail-top-title">返回上级&gt;</span>
             <span>&nbsp;主机名称 : {{hostItemInfo.hostname || '主机详情'}}</span>
           </div>
           <div class="float-right">
@@ -219,17 +219,12 @@ export default {
   },
   mounted() {
     this.getDetailData();
-    // eslint-disable-next-line
-    // window.onresize = function() {
-    //   const width = document.getElementsByClassName('main-list-content')[0].offsetWidth;
-    //   document.getElementsByClassName('common-detail-top-fixed')[0].style.width
-    //   = `${width}px`;
-    //   console.log(width);
-    // };
+    bus.$on('on-shrink-change', () => {
+      this.$refs.chartList.refreshData();
+    });
   },
   beforeDestroy() {
-    // document.getElementsByClassName('common-detail-top-fixed')[0].style.width = 'auto';
-    // window.onresize = null;
+    bus.$off('on-shrink-change');
   },
 };
 

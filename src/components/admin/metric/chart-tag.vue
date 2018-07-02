@@ -71,7 +71,6 @@ export default {
         tagSets: [],
       },
       metricLoading: false,
-      // metricList: [], // metric列表
       valuedataList: [], // tag标签值列表
       target: null, // 获取到的数据
       tagSet: null, // 根据你metric获取的tags信息

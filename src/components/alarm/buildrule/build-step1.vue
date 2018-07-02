@@ -42,9 +42,7 @@
         :metric-list="metricList"
         @on-delete-block="subblock" 
         @sub-save-ok="sub_ok"
-        @on-vertify-success="getRuleBlockData"
-        @recall-data-up="recall_data1"
-        @recall-data-down="recall_data2"></rule-item>
+        @on-vertify-success="getRuleBlockData"></rule-item>
       </div>
     </div>
     <Row>
@@ -144,39 +142,6 @@ export default {
         this.stepFlag = true;
       } else {
         this.stepFlag = false;
-      }
-    },
-    // 交换,在第一步中点击了“交换”事件，兑换规则块位置
-    changePri(index) {
-      this.time = 0;
-      this.$refs.ruleBlock.forEach((item) => {
-        item.call_data(index);
-      });
-    },
-    // 第一步中点击“交换规则块所需要的操作”
-    recall_data1(data, rank) {
-      this.time += 1;
-      this.data1 = data;
-      this.rank1 = rank;
-      if (this.time === 2) {
-        this.time = 0;
-        this.$refs.ruleBlock.forEach((item) => {
-          item.set_data(this.data1, this.rank1);
-          item.set_data(this.data2, this.rank2);
-        });
-      }
-    },
-    // 第一步中点击“交换规则块所需要的操作”
-    recall_data2(data, rank) {
-      this.time += 1;
-      this.data2 = data;
-      this.rank2 = rank;
-      if (this.time === 2) {
-        this.time = 0;
-        this.$refs.ruleBlock.forEach((item) => {
-          item.set_data(this.data1, this.rank1);
-          item.set_data(this.data2, this.rank2);
-        });
       }
     },
     // 增加

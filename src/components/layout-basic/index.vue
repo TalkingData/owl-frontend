@@ -37,6 +37,7 @@ import { Button, Icon } from 'iview';
 import globalMenu from '../global-menu/global-menu';
 // import tfooter from '../global-footer';
 import theader from '../header';
+import bus from '../../libs/bus';
 
 export default {
   components: {
@@ -115,6 +116,9 @@ export default {
     toggleClick(value) {
       // this.shrink = !this.shrink;
       this.shrink = value;
+      setTimeout(() => {
+        bus.$emit('on-shrink-change');
+      }, 400);
     },
     // 路由切换
     handleSubmenuChange() {

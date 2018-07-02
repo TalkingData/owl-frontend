@@ -236,8 +236,6 @@ export default {
     },
     // 刷新
     reload() {
-      // this.searchName = '';
-      // this.initFilter();
       this.getData();
     },
     // 获取数据
@@ -278,7 +276,6 @@ export default {
         }
       });
     },
-    // 模板操作----------------------------------------------------
     // 批量删除
     removeData() {
       if (this.selectedData.length) {

@@ -27,7 +27,6 @@
               @on-select-all="selectAll"
               @on-selection-change="selectItem"
             ></Table>
-            <!-- @on-row-click="viewDetail" -->
           </paging>
         </div>
       </div>
@@ -304,7 +303,6 @@ export default {
     initFilter() {
       this.$refs.page.init();
       this.filter.page = 1;
-      // this.filter.page_size = 10;
     },
     // 获取表格内容数据
     getData() {
@@ -377,8 +375,6 @@ export default {
     }, 300),
     // 刷新
     reload() {
-      // this.searchName = '';
-      // this.initFilter();
       this.getData();
     },
   },

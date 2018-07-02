@@ -91,7 +91,6 @@ export default {
     },
     // eslint-disable-next-line
     search: _.debounce(function() { // 输入框筛选
-      // this.filter.page = 1;
       this.filter.query = this.searchName;
       this.initFilter();
     }, 300),
@@ -126,7 +125,6 @@ export default {
     initFilter() {
       this.$refs.ruleList.init();
       this.filter.page = 1;
-      // this.filter.page_size = 10;
       this.getData(this.filter);
     },
     pageInfoChange(filter) {

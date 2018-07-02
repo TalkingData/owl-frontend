@@ -88,14 +88,14 @@ const menu = [
     // component: Layout,
     children: [
       {
-        path: 'monitorhost/:productId',
+        path: 'host/:productId',
         title: '主机列表',
         name: 'monitor_host',
         // eslint-disable-next-line
         component: (resolve) => require(['../views/monitor/monitor-host.vue'], resolve),
       },
       {
-        path: 'hostdetail/:hostId/:productId',
+        path: 'host/detail/:hostId/:productId',
         title: '主机详情',
         name: 'hostdetail',
         isSubPage: true,
@@ -113,14 +113,14 @@ const menu = [
         component: (resolve) => require(['../views/monitor/host-plugin.vue'], resolve),
       },
       {
-        path: 'monitorgroup/:productId',
+        path: 'group/:productId',
         title: '主机组列表',
         name: 'monitor_group',
         // eslint-disable-next-line
         component: (resolve) => require(['../views/monitor/monitor-group.vue'], resolve),
       },
       {
-        path: 'groupdetail/:groupId/:productId',
+        path: 'group/detail/:groupId/:productId',
         title: '主机组详情',
         name: 'groupdetail',
         isSubPage: true,
@@ -155,7 +155,7 @@ const menu = [
     title: '报警管理',
     children: [
       {
-        path: 'strategylist/:productId',
+        path: 'strategy/list/:productId',
         title: '策略列表',
         name: 'strategylist',
         // eslint-disable-next-line
@@ -198,14 +198,14 @@ const menu = [
         component: (resolve) => require(['../views/alarm/build-strategy.vue'], resolve),
       },
       {
-        path: 'eventlist/:productId',
+        path: 'event/list/:productId',
         title: '报警事件',
         name: 'eventlist',
         // eslint-disable-next-line
         component: (resolve) => require(['../views/alarm/alarm-event-list.vue'], resolve),
       },
       {
-        path: 'eventlistby/:strategyId/:status/:productId',
+        path: 'event/listby/:strategyId/:status/:productId',
         title: '报警事件',
         name: 'eventlistBy',
         isSubPage: true,
@@ -214,7 +214,7 @@ const menu = [
         component: (resolve) => require(['../views/alarm/alarm-event-list.vue'], resolve),
       },
       {
-        path: 'event/:eventId/:productId',
+        path: 'event/detail/:eventId/:productId',
         title: '告警详情',
         name: 'eventDetail',
         isSubPage: true,
@@ -231,21 +231,21 @@ const menu = [
     title: '用户管理',
     children: [
       {
-        path: 'userlist/:productId',
+        path: 'user/list/:productId',
         title: '用户列表',
         name: 'userlist',
         // eslint-disable-next-line
         component: (resolve) => require(['../views/manage/manage-user-list.vue'], resolve),
       },
       {
-        path: 'usergroup/:productId',
+        path: 'user/group/list/:productId',
         title: '用户组列表',
         name: 'usergroup',
         // eslint-disable-next-line
         component: (resolve) => require(['../views/manage/user-group-list.vue'], resolve),
       },
       {
-        path: 'usergroupdetail/:usergroupId/:productId',
+        path: 'user/group/detail/:usergroupId/:productId',
         title: '用户组详情',
         name: 'usergroupdetail',
         isSubPage: true,
@@ -281,7 +281,7 @@ const adminMenu = [
         component: (resolve) => require(['../views/admin-product/product-detail.vue'], resolve),
       },
       {
-        path: 'hostdetail/:hostId/:productId',
+        path: 'host/detail/:hostId/:productId',
         title: '主机详情',
         name: 'pro_hostdetail',
         isSubPage: true,
@@ -307,14 +307,14 @@ const adminMenu = [
     title: '主机管理',
     children: [
       {
-        path: 'hostlist',
+        path: 'host/list',
         title: '主机列表',
         name: 'admin_monitor_host',
         // eslint-disable-next-line
         component: (resolve) => require(['../views/admin-monitor/product-host.vue'], resolve),
       },
       {
-        path: 'hostdetail/:hostId',
+        path: 'host/detail/:hostId',
         title: '主机详情',
         name: 'admin_monitor_hostdetail',
         isSubPage: true,
@@ -340,21 +340,21 @@ const adminMenu = [
     title: '插件管理',
     children: [
       {
-        path: 'pluginlist',
+        path: 'list',
         title: '插件列表',
         name: 'admin_plugin_list',
         // eslint-disable-next-line
         component: (resolve) => require(['../views/admin-plugin/admin-plugin-list.vue'], resolve),
       },
-      {
-        path: 'plugindetail/:pluginId',
-        title: '插件详情',
-        name: 'admin_plugin_detail',
-        isSubPage: true,
-        parentPage: 'admin_plugin_list',
-        // eslint-disable-next-line
-        component: (resolve) => require(['../views/admin-plugin/plugin-detail.vue'], resolve),
-      },
+      // {
+      //   path: 'plugindetail/:pluginId',
+      //   title: '插件详情',
+      //   name: 'admin_plugin_detail',
+      //   isSubPage: true,
+      //   parentPage: 'admin_plugin_list',
+      //   // eslint-disable-next-line
+      //   component: (resolve) => require(['../views/admin-plugin/plugin-detail.vue'], resolve),
+      // },
     ],
   },
   {
@@ -364,7 +364,7 @@ const adminMenu = [
     title: '告警介质',
     children: [
       {
-        path: 'scriptlist',
+        path: 'list',
         title: '脚本列表',
         name: 'admin_script_list',
         // eslint-disable-next-line
@@ -445,7 +445,7 @@ const adminMenu = [
     title: '用户管理',
     children: [
       {
-        path: 'userlist',
+        path: 'user/list',
         title: '用户列表',
         name: 'admin_user_list',
         // eslint-disable-next-line
@@ -460,7 +460,7 @@ const adminMenu = [
     title: '日志管理',
     children: [
       {
-        path: 'loglist',
+        path: 'list',
         title: '日志列表',
         name: 'admin_log_list',
         // eslint-disable-next-line

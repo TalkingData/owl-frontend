@@ -4,7 +4,6 @@
 <template>
   <div>
     <div class="chartBox" v-for="(item, index) in dataList" :key="item.id">
-      <!-- <div>{{item.title}}</div> -->
       <line-chart-block 
       ref="editChart" 
       @on-refresh-data="refreshChart"
@@ -18,12 +17,9 @@
 </template>
 <script>
 import axios from 'axios';
-import highstock from 'highcharts/highstock';
 // import bus from '../../libs/bus';
 import { getPanelCharts, getQueryChart } from '../../models/service';
 import lineChartBlock from './line-chart-block';
-
-require('highcharts/modules/no-data-to-display')(highstock);
 
 export default {
   name: 'chartList',
@@ -99,7 +95,6 @@ export default {
       if (len === 0) {
         this.$nextTick(() => {
           this.$refs.editChart[index].setData(chartItem, [], this.filter.panelId, this.filter);
-          // this.$refs.editChart[index].$emit('null_data', chartItem.id, chartItem);
         });
       } else {
         this.$nextTick(() => {
@@ -157,6 +152,13 @@ export default {
             } else {
               this.$refs.editChart[index].setData(chartItem, [], this.filter.panelId, this.filter);
             }
+          }).catch((error) => {
+            if (error) {
+              this.$Message.warning({
+                content: '请稍后刷新',
+                duration: 3,
+              });
+            }
           });
         });
       }
@@ -188,30 +190,10 @@ export default {
         this.$emit('on-edit-chart', chart);
       }
     },
-    // 设置时间,进行自动刷新
-    setTimer(interval, panelId) {
-      this.panelId = panelId;
-      this.getData(panelId);
-      // clearInterval(this.timer);
-      // if (interval === 0) {
-      //   this.dataList = [];
-      //   this.refreshData();
-      // } else {
-      //   this.timer = setInterval(this.refreshAuto, interval);
-      // }
-    },
   },
   mounted() {
-    // 设置时间
-    this.$on('set_timer', (interval, panelId) => {
-      this.setTimer(interval, panelId);
-    });
-    this.$on('clear_timer', () => {
-      clearInterval(this.timer);
-    });
   },
   beforeDestroy() {
-    this.$off('set_timer');
   },
 };
 

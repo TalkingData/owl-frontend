@@ -88,7 +88,7 @@
 </template>
 <script>
 import axios from 'axios';
-// import bus from '../../../libs/bus';
+import bus from '../../../libs/bus';
 import { addCharts, getSuggestMetric, getPanels, addPanels } from '../../../models/service';
 import chartTag from './chart-tag';
 
@@ -472,10 +472,13 @@ export default {
     },
   },
   mounted() {
-    // 默认打开
     this.initOpen();
+    bus.$on('on-shrink-change', () => {
+      this.preview();
+    });
   },
   beforeDestroy() {
+    bus.$off('on-shrink-change');
   },
 };
 

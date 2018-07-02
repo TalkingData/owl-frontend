@@ -355,7 +355,6 @@ export default {
     initFilter() {
       this.$refs.page.init();
       this.filter.page = 1;
-      // this.filter.page_size = 10;
       this.getData(this.filter);
     },
     // 获取表格内容数据

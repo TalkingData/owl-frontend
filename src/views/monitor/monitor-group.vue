@@ -10,9 +10,6 @@
           <Button type="primary" icon="plus" @click="createData">创建主机组</Button>
         </div>
         <div class="float-right">
-          <!-- <Select v-model="dataStatus" style="width:100px;">
-            <Option v-for="status in statusList" :key="status.label" :label="status.label" :value="status.value">{{status.label}}</Option>
-          </Select> -->
           <Input style="width:200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
           <Button @click="reload">
             <Icon size="18" type="refresh"></Icon>
@@ -24,7 +21,7 @@
           <paging :total="total" @on-page-info-change="pageInfoChange" ref="page">
             <Table slot="listTable" size="small" border
             ref="tablelist"
-            :data="dataList" 
+            :data="dataList"
             :columns="columns"
             no-data-text="暂无数据"
             @on-select-all="selectAll"
@@ -48,7 +45,6 @@
 <script>
 import _ from 'lodash';
 import axios from 'axios';
-// import bus from '../../libs/bus';
 import { getHostGroups, delHostGroup } from '../../models/service';
 import createHostGroup from '../../components/monitor/create-host-group';
 import paging from '../../components/page/paging';
@@ -70,7 +66,6 @@ export default {
       },
       total: 0, // 总数
       selectedData: [], // 选中数据
-      statusList: [], // 筛选
       dataStatus: '',
       searchName: '', // 搜索名称
       deleteShowData: [],
@@ -102,17 +97,60 @@ export default {
           key: 'description',
           sortable: 'custom',
         }, {
+          title: '主机',
+          key: 'host_cnt',
+          width: 80,
+          render: (h, params) => h('a', {
+            attrs: {
+              title: '查看主机组主机',
+              // eslint-disable-next-line
+              href: 'javascript:;',
+            },
+            on: {
+              click: () => {
+                this.viewDetail(params.row, 'host');
+              },
+            },
+          }, params.row.host_cnt || '0'),
+        }, {
+          title: '策略',
+          key: 'strategy_cnt',
+          width: 80,
+          render: (h, params) => h('a', {
+            attrs: {
+              title: '查看主机组策略',
+              // eslint-disable-next-line
+              href: 'javascript:;',
+            },
+            on: {
+              click: () => {
+                this.viewDetail(params.row, 'rule');
+              },
+            },
+          }, params.row.strategy_cnt || '0'),
+        }, {
+          title: '插件',
+          key: 'plugin_cnt',
+          width: 80,
+          render: (h, params) => h('a', {
+            attrs: {
+              title: '查看主机组插件',
+              // eslint-disable-next-line
+              href: 'javascript:;',
+            },
+            on: {
+              click: () => {
+                this.viewDetail(params.row, 'plugin');
+              },
+            },
+          }, params.row.plugin_cnt || '0'),
+        }, {
           title: '创建人',
           key: 'creator',
           sortable: 'custom',
         }, {
           title: '创建时间',
           key: 'create_at',
-          sortable: 'custom',
-          width: 180,
-        }, {
-          title: '最近更新时间',
-          key: 'update_at',
           sortable: 'custom',
           width: 180,
         }, {
@@ -250,17 +288,21 @@ export default {
       }
     },
     // 查看详情
-    viewDetail(item) {
+    viewDetail(item, name) {
       localStorage.setItem('groupItem', JSON.stringify(item));
+      if (name) {
+        localStorage.setItem('group_detail_tab', name);
+      } else {
+        localStorage.removeItem('group_detail_tab');
+      }
       this.$router.push({
-        path: `/monitor/groupdetail/${item.id}/${this.filter.productId}`,
+        path: `/monitor/group/detail/${item.id}/${this.filter.productId}`,
       });
     },
     // 初始化过滤条件
     initFilter() {
       this.$refs.page.init();
       this.filter.page = 1;
-      // this.filter.page_size = 10;
       this.getData(this.filter);
     },
     // 获取表格内容数据

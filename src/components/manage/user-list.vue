@@ -148,7 +148,6 @@ export default {
     };
   },
   methods: {
-    doNothing() {},
     // 添加数据
     createData() {
       let productInfo = '';
@@ -347,10 +346,6 @@ export default {
         isRemove: false,
         isCorrelate: false,
       };
-    },
-    // 路径
-    path() {
-      return this.$route.path;
     },
   },
   watch: {

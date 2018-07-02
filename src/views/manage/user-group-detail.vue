@@ -38,7 +38,7 @@ export default {
   methods: {
     backTo() {
       this.$router.push({
-        path: `/manage/usergroup/${this.$route.params.productId}`,
+        path: `/manage/user/group/list/${this.$route.params.productId}`,
       });
     },
     // 初始化获取数据

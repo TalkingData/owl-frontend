@@ -8,12 +8,16 @@
         <div class="float-left">
           <Button :disabled="!disableObj.isRemove" 
           v-if="source === 'product' || source === 'group' || source === 'admin'"
-          @click="removeData('multiple')" type="primary" icon="minus">{{deleteWord}}</Button>
+          @click="removeData('multiple')" type="primary" icon="minus">{{sourceObj.deleteWord}}</Button>
           <Button @click="addHost" 
           v-if="source === 'product' || source === 'group'"
           type="primary" icon="plus">添加主机</Button>
+          <Button :disabled="!disableObj.isRemove || !unDistribute" 
+          type="primary"
+          v-if="unDistribute && (source === 'admin' || source === 'monitor')" @click="appendHost">{{sourceObj.text}}</Button>
         </div>
         <div class="float-right">
+          <Checkbox v-if="source === 'admin' || source === 'monitor'" v-model="unDistribute" @on-change="checkHost">未{{sourceObj.text}}</Checkbox>
           <Input style="width:200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
           <Button @click="reload">
             <Icon size="18" type="refresh"></Icon>
@@ -35,8 +39,28 @@
       </div>
     </div>
     <create-host-group ref="addHost" @on-create-success="addSuccess"></create-host-group>
-    <Modal :title="deleteWord" v-model="removeModal">
-      <Alert type="warning" show-icon>确定要{{deleteWord}}：<span v-for="(item,index) in deleteShowData" :key="item.id"><span v-if="index">，</span>{{item.hostname}}</span>&nbsp;吗？</Alert>
+    <Modal :title="actionObj.title" v-model="removeModal">
+      <Form :model="appendInfo" v-if="msgInfo === 'appendpro' || msgInfo === 'appendgroup'" ref="appendForm" :label-width="80">
+        <Form-item prop="productId" v-if="msgInfo === 'appendpro'"
+        :rules="{required: true, type: 'number', message: '请选择产品线', trigger: 'change'}" label="产品线">
+          <Select v-model="appendInfo.productId">
+            <Option v-for="(item, index) in productList"
+            :key="index"
+            :value="item.id"
+            :label="item.name">{{item.name}}</Option>
+          </Select>
+        </Form-item>
+        <Form-item prop="groupId" v-if="msgInfo === 'appendgroup'"
+        :rules="{required: true, type: 'number', message: '请选择主机组', trigger: 'change'}" label="主机组">
+          <Select v-model="appendInfo.groupId">
+            <Option v-for="(item, index) in groupList"
+            :key="index"
+            :value="item.id"
+            :label="item.name">{{item.name}}</Option>
+          </Select>
+        </Form-item>
+      </Form>
+      <Alert type="warning" show-icon>确定要{{actionObj.title}}：<span v-for="(item,index) in deleteShowData" :key="item.id"><span v-if="index">，</span>{{item.hostname}}</span>&nbsp;吗？</Alert>
       <div slot="footer">
         <Button @click="deleteConfirm" type="primary">确定</Button>
         <Button @click="deleteCancel">取消</Button>
@@ -47,7 +71,6 @@
 <script>
 import _ from 'lodash';
 import axios from 'axios';
-// import Cookies from 'js-cookie';
 // import bus from '../../libs/bus';
 import {
   getHostOfPro,
@@ -56,6 +79,10 @@ import {
   removeHostInGroup,
   getAllHosts,
   deleteHost,
+  getAllProducts,
+  addHostInPro,
+  getHostGroups,
+  addHostInGroup,
 } from '../../models/service';
 import paging from '../page/paging';
 import createHostGroup from './create-host-group';
@@ -81,6 +108,7 @@ export default {
   data() {
     return {
       dataList: [], // 表格数据,主机列表
+      unDistribute: false, // 未分配主机
       filter: {
         page_size: 10,
         page: 1,
@@ -88,6 +116,11 @@ export default {
         order: '',
       },
       columns: [
+        {
+          type: 'selection',
+          width: 60,
+          align: 'center',
+        },
         {
           title: '主机名称',
           key: 'hostname',
@@ -155,15 +188,9 @@ export default {
           }, params.row.plugin_cnt),
         }, {
           title: '主机组',
-          render: (h, params) => h('div', [params.row.host_groups ? h('div', params.row.host_groups.map((item, gIndex) => h('span', {
-            style: {
-            },
-            // nativeOn: {
-            //   click: (event) => {
-            //     event.stopPropagation();
-            //     // this.viewGroup(params.row, item);
-            //   },
-            // },
+          renderHeader: h => h('span', this.source === 'admin' ? '产品线' : '主机组'),
+          render: (h, params) => h('div', [this.source !== 'admin' && params.row.host_groups ? h('div', params.row.host_groups.map((item, gIndex) => h('span', {
+          }, gIndex === 0 ? item.name : `, ${item.name}`))) : '', this.source === 'admin' && params.row.products ? h('div', params.row.products.map((item, gIndex) => h('span', {
           }, gIndex === 0 ? item.name : `, ${item.name}`))) : '']),
         },
       ],
@@ -176,17 +203,24 @@ export default {
       searchName: '', // 搜索名称
       removeModal: false,
       deleteShowData: [], // 展示要移除的数据
+      appendInfo: {
+        productId: '',
+        groupId: '',
+      },
+      productList: [],
+      groupList: [],
+      msgInfo: '',
     };
   },
   methods: {
     initColumn() {
       // source === 'product' || source === 'group' || source === 'admin'
       if (this.source !== 'monitor') {
-        this.columns.unshift({
-          type: 'selection',
-          width: 60,
-          align: 'center',
-        });
+        // this.columns.unshift({
+        //   type: 'selection',
+        //   width: 60,
+        //   align: 'center',
+        // });
         this.columns.push({
           title: '操作',
           align: 'right',
@@ -241,6 +275,21 @@ export default {
         this.$refs.addHost.editInit(this.groupItem, 'addgrouphost');
       }
     },
+    // 将主机添加到产品线
+    appendHost() {
+      if (this.source === 'admin') {
+        this.getAllProducts();
+        this.msgInfo = 'appendpro';
+      } else if (this.source === 'monitor') {
+        this.getHostGroups();
+        this.msgInfo = 'appendgroup';
+      }
+      this.removeModal = true;
+      this.deleteShowData = this.selectedData.map((item) => {
+        const host = Object.assign({}, item);
+        return host;
+      });
+    },
     // 添加出击回调
     addSuccess(msg, data) {
       if (data.code === 200) {
@@ -250,6 +299,7 @@ export default {
     },
     // 移除主机
     removeData(obj) {
+      this.msgInfo = 'delete';
       if (obj === 'multiple') { // 移除多个
         this.deleteShowData = this.selectedData.map((item) => {
           const host = Object.assign({}, item);
@@ -262,14 +312,28 @@ export default {
     },
     // 移除主机确认
     deleteConfirm() {
-      this.removeModal = false;
       if (this.deleteShowData.length) {
-        if (this.source === 'product') {
-          this.removeHostInPro();
-        } else if (this.source === 'group') {
-          this.removeHostInGroup();
-        } else if (this.source === 'admin') {
-          this.deleteHost();
+        if (this.msgInfo === 'delete') {
+          this.removeModal = false;
+          if (this.source === 'product') {
+            this.removeHostInPro();
+          } else if (this.source === 'group') {
+            this.removeHostInGroup();
+          } else if (this.source === 'admin') {
+            this.deleteHost();
+          }
+        } else if (this.msgInfo === 'appendpro') {
+          this.$refs.appendForm.validate((valid) => {
+            if (valid) {
+              this.addHostInPro();
+            }
+          });
+        } else if (this.msgInfo === 'appendgroup') {
+          this.$refs.appendForm.validate((valid) => {
+            if (valid) {
+              this.addHostInGroup();
+            }
+          });
         }
       }
     },
@@ -349,11 +413,11 @@ export default {
       }
       if (this.source === 'product') {
         this.$router.push({
-          path: `/admin/product/hostdetail/${item.id}/${this.filter.productId}`,
+          path: `/admin/product/host/detail/${item.id}/${this.filter.productId}`,
         });
       } else if (this.source === 'monitor') {
         this.$router.push({
-          path: `/monitor/hostdetail/${item.id}/${this.filter.productId}`,
+          path: `/monitor/host/detail/${item.id}/${this.filter.productId}`,
         });
       } else if (this.source === 'group') {
         this.$router.push({
@@ -361,7 +425,7 @@ export default {
         });
       } else if (this.source === 'admin') {
         this.$router.push({
-          path: `/admin/monitor/hostdetail/${item.id}`,
+          path: `/admin/monitor/host/detail/${item.id}`,
         });
       }
     },
@@ -369,7 +433,7 @@ export default {
       localStorage.setItem('groupItem', JSON.stringify(group));
       // 需要使用产品线id，产品线id需要从group中获取
       this.$router.push({
-        path: `/monitor/groupdetail/${group.id}/${this.filter.productId}`,
+        path: `/monitor/groupd/etail/${group.id}/${this.filter.productId}`,
       });
     },
     viewPlugin(item) {
@@ -436,7 +500,6 @@ export default {
     initFilter() {
       this.$refs.page.init();
       this.filter.page = 1;
-      // this.filter.page_size = 10;
       this.getData(this.filter);
     },
     // 翻页
@@ -450,6 +513,21 @@ export default {
       const order = value.order === 'normal' ? '' : `${value.key}|${value.order}`;
       this.filter.order = order;
       this.initFilter();
+    },
+    // 选择未分配主机
+    checkHost(value) {
+      if (value) {
+        if (this.source === 'admin') {
+          this.filter.no_product = true;
+        } else if (this.source === 'monitor') {
+          this.filter.no_group = true;
+        }
+        this.initFilter();
+      } else {
+        delete this.filter.no_product;
+        delete this.filter.no_group;
+        this.initFilter();
+      }
     },
     // 查看主机组
     groupToStr(arr) {
@@ -476,8 +554,6 @@ export default {
     }, 300),
     // 刷新
     reload() {
-      // this.filter.query = '';
-      // this.filter.page = 1;
       this.getData(this.filter);
     },
     // 初始化
@@ -493,6 +569,76 @@ export default {
         this.filter.groupId = this.groupId;
       }
       this.getData(this.filter);
+    },
+    // 给产品线添加主机
+    addHostInPro() {
+      const arr = this.selectedData.map(item => item.id);
+      const params = {
+        productId: this.appendInfo.productId,
+        ids: arr,
+      };
+      if (this.selectedData.length > 0) {
+        addHostInPro(params).then((res) => {
+          if (res.status === 200) {
+            this.selectedData = [];
+            this.deleteShowData = [];
+            this.$Message.success('主机分配成功');
+            this.appendInfo.productId = '';
+            this.removeModal = false;
+            this.initFilter();
+          }
+        });
+      } else {
+        this.$Message.warning('未选择主机');
+      }
+    },
+    // 给主机组添加主机
+    addHostInGroup() {
+      const arr = this.selectedData.map(item => item.id);
+      const params = {
+        productId: this.filter.productId,
+        groupId: this.appendInfo.groupId,
+        ids: arr,
+      };
+      if (this.selectedData.length > 0) {
+        addHostInGroup(params).then((res) => {
+          if (res.status === 200) {
+            this.selectedData = [];
+            this.deleteShowData = [];
+            this.$Message.success('主机分组成功');
+            this.appendInfo.groupId = '';
+            this.removeModal = false;
+            this.initFilter();
+          }
+        });
+      } else {
+        this.$Message.warning('未选择主机');
+      }
+    },
+    // 获取全部产品线
+    getAllProducts() {
+      getAllProducts({
+        paging: false,
+      }).then((res) => {
+        if (res.status === 200) {
+          this.productList = res.data.products;
+        } else {
+          this.productList = [];
+        }
+      });
+    },
+    // 获取主机组
+    getHostGroups() {
+      getHostGroups({
+        productId: this.filter.productId,
+        paging: false,
+      }).then((res) => {
+        if (res.status === 200) {
+          this.groupList = res.data.host_groups;
+        } else {
+          this.groupList = [];
+        }
+      });
     },
     getDuration(time) {
       if (time) {
@@ -579,6 +725,7 @@ export default {
       const obj = {
         deleteWord: '',
         deleteIcon: '',
+        text: '',
       };
       if (this.source === 'product' || this.source === 'group') {
         obj.deleteWord = '移除';
@@ -586,14 +733,31 @@ export default {
       } else if (this.source === 'admin') {
         obj.deleteWord = '删除';
         obj.deleteIcon = 'trash-a';
+        obj.text = '分配主机';
+      } else if (this.source === 'monitor') {
+        obj.text = '分组主机';
       }
       return obj;
     },
-    deleteWord() {
-      if (this.source === 'admin') {
-        return '删除主机';
+    actionObj() {
+      const obj = {
+        title: '',
+        text: '',
+      };
+      if (this.msgInfo === 'delete') {
+        if (this.source === 'admin') {
+          obj.title = '删除主机';
+        } else {
+          obj.title = '移除主机';
+        }
+      } else if (this.msgInfo === 'appendpro') {
+        obj.title = '分配主机';
+        obj.text = '分配';
+      } else if (this.msgInfo === 'appendgroup') {
+        obj.title = '分组主机';
+        obj.text = '分组';
       }
-      return '移除主机';
+      return obj;
     },
     tableHeight() {
       if (this.dataList.length) {

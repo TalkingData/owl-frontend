@@ -113,22 +113,6 @@
             <Option v-for="item in userGroups" :key="item.id" :label="item.name" :value="item.id">
               {{item.name}}
             </Option>
-            <!-- <Row v-for="item in userGroups" :key="item.id">
-              <div class="float-left">
-                <Option :key="item.id" :label="item.name" :value="item.id">
-                  {{item.name}}
-                </Option>
-              </div>
-              <div class="float-right">
-                <Poptip placement="bottom-end" width="300">
-                  <Icon type="information-circled" size="16"></Icon>
-                  <div slot="title">用户组详情</div>
-                  <div slot="content">
-                    <div v-for="user in item.users" :key="user.id">{{user.username}}</div>
-                  </div>
-                </Poptip>
-              </div>
-            </Row> -->
           </Select>
         </Form-item>
       </Row>
@@ -246,17 +230,6 @@ export default {
             this.$emit('on-vertify-success', params, this.num);
           }
         });
-      }
-    },
-    // 加载数据,交换或者其他情况加载数据
-    set_data(data, rank) {
-      if (rank === this.num) {
-        this.data = data;
-        // if (this.tags === '') {
-        //   this.data.tags = [];
-        // } else {
-        //   this.proTags(this.tags);
-        // }
       }
     },
   },

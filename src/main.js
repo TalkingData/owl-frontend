@@ -6,7 +6,6 @@ import 'normalize.css';
 import 'iview/dist/styles/iview.css';
 import App from './App';
 import router from './router';
-import store from './store';
 
 Vue.use(iView);
 Vue.config.productionTip = false;
@@ -17,7 +16,6 @@ new Vue({
   router,
   template: '<App/>',
   components: { App },
-  store,
 });
 // eslint-disable-next-line
 Date.prototype.setStart = function() {

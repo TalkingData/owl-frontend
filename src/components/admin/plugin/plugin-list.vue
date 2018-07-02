@@ -91,7 +91,7 @@ export default {
           title: '插件名称',
           key: 'name',
           width: 180,
-          render: (h, params) => h('span', params.row.name || params.row.hostname),
+          render: (h, params) => h('span', params.row.name),
           // render: (h, params) => h('a', {
           //   attrs: {
           //     title: params.row.name,
@@ -103,7 +103,7 @@ export default {
           //       this.viewDetail(params.row);
           //     },
           //   },
-          // }, params.row.name || params.row.hostname),
+          // }, params.row.name),
         }, {
           title: '执行参数',
           key: 'args',
@@ -287,15 +287,11 @@ export default {
     // 查看详情
     viewDetail(item) {
       localStorage.setItem('pluginItem', JSON.stringify(item));
-      // this.$router.push({
-      //   path: `/admin/plugin/plugindetail/${item.id}`,
-      // });
     },
     // 初始化过滤条件
     initFilter() {
       this.$refs.page.init();
       this.filter.page = 1;
-      // this.filter.page_size = 10;
       this.getData(this.filter);
     },
     // 获取表格内容数据
@@ -350,7 +346,6 @@ export default {
     handleSort(value) {
       const order = value.order === 'normal' ? '' : `${value.key}|${value.order}`;
       this.filter.order = order;
-      // this.filter.order = value;
       this.initFilter();
     },
     doNothing() {},
@@ -374,8 +369,6 @@ export default {
     // 刷新
     reload() {
       this.getData(this.filter);
-      // this.filter.query = '';
-      // this.filter.page = 1;
     },
     // 初始化
     getDetailData() {
@@ -396,7 +389,6 @@ export default {
   },
   mounted() {
     this.getDetailData();
-    // this.getData(this.filter);
   },
 };
 

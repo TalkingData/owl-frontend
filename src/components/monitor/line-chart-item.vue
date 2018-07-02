@@ -5,15 +5,6 @@
   <div class="line-chart-item">
     <div class="edit">
       <div class="list-icon" v-if="firstShow">
-       <!--  <span @click="refreshChart" title="刷新" class="set-icon" v-if="showSetting">
-          <Icon type="refresh"></Icon>
-        </span>
-        <span @click="editChart" title="编辑" class="set-icon" v-if="showSetting">
-          <Icon type="compose"></Icon>
-        </span>
-        <span @click="removeChart" title="删除" class="set-icon" v-if="showSetting">
-          <Icon type="trash-a"></Icon>
-        </span> -->
         <span @click="showAllScreen" title="全屏" class="set-icon">
           <Icon type="arrow-expand"></Icon>
         </span>
@@ -152,13 +143,6 @@ export default {
           end: this.filter.end_time,
         })];
       }
-      // 一个图表
-      // getQueryChart({
-      //   metric: this.data.metric,
-      //   tags: this.data.tags,
-      //   start: this.filter.start_time,
-      //   end: this.filter.end_time,
-      // })
       axios.all(axiosArr).then((response) => {
         const series = [];
         if (response.length > 0) {
@@ -195,6 +179,13 @@ export default {
             }
           });
           this.initChart(this.data, series, this.$refs.screenShowArea, 'screen');
+        }
+      }).catch((error) => {
+        if (error) {
+          this.$Message.warning({
+            content: '请稍后刷新',
+            duration: 3,
+          });
         }
       });
     },
@@ -272,12 +263,7 @@ export default {
             month: '%Y-%m',
             year: '%Y',
           },
-          // showFirstLabel: true,
-          // showLastLabel: true,
           ordinal: false,
-          // events: {
-          //   setExtremes: this.syncExtremes(),
-          // },
         },
         navigator: {
           height: 20,

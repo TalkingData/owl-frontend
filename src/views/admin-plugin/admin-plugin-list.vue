@@ -80,7 +80,7 @@ export default {
           title: '插件名称',
           key: 'name',
           width: 150,
-          render: (h, params) => h('span', params.row.name || params.row.hostname),
+          render: (h, params) => h('span', params.row.name),
           // render: (h, params) => h('a', {
           //   attrs: {
           //     title: params.row.name,
@@ -92,7 +92,7 @@ export default {
           //       this.viewDetail(params.row);
           //     },
           //   },
-          // }, params.row.name || params.row.hostname),
+          // }, params.row.name),
         }, {
           title: '执行参数',
           key: 'args',
@@ -115,6 +115,7 @@ export default {
         }, {
           title: '操作',
           align: 'right',
+          width: 100,
           render: (h, params) => h('div', [h('Tooltip', {
             props: {
               content: '编辑',
@@ -187,7 +188,6 @@ export default {
         this.reload();
         if (msg === 'create') { // 创建成功后跳转到插件详情页
           this.$Message.success('创建成功');
-          this.viewDetail(data.plugin);
         } else if (msg === 'editPlugin') {
           this.$Message.success('编辑成功');
         }
@@ -254,7 +254,6 @@ export default {
     initFilter() {
       this.$refs.page.init();
       this.filter.page = 1;
-      // this.filter.page_size = 10;
       this.getData(this.filter);
     },
     // 获取表格内容数据
@@ -287,7 +286,6 @@ export default {
     handleSort(value) {
       const order = value.order === 'normal' ? '' : `${value.key}|${value.order}`;
       this.filter.order = order;
-      // this.filter.order = value;
       this.initFilter();
     },
     doNothing() {},
@@ -311,8 +309,6 @@ export default {
     // 刷新
     reload() {
       this.getData(this.filter);
-      // this.filter.query = '';
-      // this.filter.page = 1;
     },
   },
   mounted() {

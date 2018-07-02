@@ -3,12 +3,7 @@
 </style>
 <template>
   <div class="line-chart-block">
-    <!-- <div class='null'>暂无数据</div> -->
     <div class="edit">
-      <!-- <span @click="showTool" class="show-icon">
-        <Icon type="gear-b"></Icon>
-      </span> -->
-      <!-- v-if="toolbox" -->
       <div class="list-icon" v-if="firstShow">
         <span @click="refreshChart" title="刷新" class="set-icon" v-if="showSetting">
           <Icon type="refresh"></Icon>
@@ -24,7 +19,6 @@
         </span>
       </div>
     </div>
-    <!-- <div class="line-area" :id="editChartId"></div> -->
     <div class="line-area" ref="lineChartArea"></div>
     <Modal title="查看" v-model="screenModal" width="96%" class="line-chart-block-modal">
       <Row>
@@ -38,7 +32,6 @@
 </template>
 <script>
 import axios from 'axios';
-// import highcharts from 'highcharts';
 import highstock from 'highcharts/highstock';
 import bus from '../../libs/bus';
 import calendarSelect from '../page/calendar-select';
@@ -228,6 +221,13 @@ export default {
           });
           this.initChart(this.data, series, this.$refs.screenShowArea, 'screen');
         }
+      }).catch((error) => {
+        if (error) {
+          this.$Message.warning({
+            content: '请稍后刷新',
+            duration: 3,
+          });
+        }
       });
     },
     // chartSite用于区分是全屏显示还是局部显示
@@ -270,9 +270,6 @@ export default {
           height: chartInfo.height || 400,
         },
         loading: {
-          // labelStyle: {
-          //   color: '#fff',
-          // },
           style: {
             backgroundColor: '#ffffff',
             opacity: 0.7,
@@ -297,10 +294,6 @@ export default {
           },
           type: 'datetime',
           labels: {
-            // eslint-disable-next-line
-            // formatter: function() {
-            //   return bus.timeFormate(this.value, 'yyyy-MM-dd');
-            // },
           },
           dateTimeLabelFormats: {
             millisecond: '%Y-%m-%d<br/>%H:%M:%S',
@@ -312,8 +305,6 @@ export default {
             month: '%Y-%m',
             year: '%Y',
           },
-          // showFirstLabel: true,
-          // showLastLabel: true,
           ordinal: false,
         },
         navigator: {
@@ -321,10 +312,6 @@ export default {
           xAxis: {
             type: 'datetime',
             labels: {
-              // eslint-disable-next-line
-              // formatter: function() {
-              //   return bus.timeFormate(this.value, 'yyyy-MM-dd');
-              // },
             },
             dateTimeLabelFormats: {
               millisecond: '%Y-%m-%d<br/>%H:%M:%S',
@@ -512,7 +499,6 @@ export default {
         this.highchartStore.showLoading();
       }
     },
-    nullData() {},
     // 获取格式
     getNumStr(num) {
       if (num >= 1000) {
@@ -583,10 +569,6 @@ export default {
   },
   mounted() {
     this.firstLoad = false;
-    // 查看时无数据
-    this.$on('null_data', (chart, data, message) => {
-      this.nullData(chart, data, message);
-    });
   },
   beforeDestroy() {},
 };

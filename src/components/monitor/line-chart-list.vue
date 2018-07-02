@@ -21,15 +21,10 @@
 </template>
 <script>
 import axios from 'axios';
-// import $ from 'jquery';
-// import highcharts from 'highcharts';
-import highstock from 'highcharts/highstock';
 // import bus from '../../libs/bus';
 import { getQueryChart, getMetricByHost } from '../../models/service';
 import lineChartItem from './line-chart-item';
 import paging from '../page/paging';
-
-require('highcharts/modules/no-data-to-display')(highstock);
 
 export default {
   name: 'lineChartList',
@@ -183,7 +178,7 @@ export default {
       const chartItem = chartInfo;
       const index = pos; // 指标
       // this.setSize(chartItem.span, index); // 设置该图表宽度
-      this.setSize(6, index); // 设置该图表宽度
+      this.setSize(6, index); // 设置该图表宽度为6
       // 没有数据的设置提示信息暂无数据
       this.$nextTick(() => {
         // 设置请求组
@@ -248,6 +243,13 @@ export default {
           } else {
             this.$refs.editChart[index].setData(chartItem, [], this.filter);
           }
+        }).catch((error) => {
+          if (error) {
+            this.$Message.warning({
+              content: '请稍后刷新',
+              duration: 3,
+            });
+          }
         });
       });
     },
@@ -289,12 +291,17 @@ export default {
         const extremes = sourceXAxis.getExtremes();
         const targetList = this.$refs.editChart; // 所有图表
         targetList.forEach((chart, index) => { // 循环所有图表
+          const targetEle = chart; // 目标图表元素
+          // 所有容器添加hover效果，展示crosshair,修复最后一个图不展示crosshair问题
+          const targetBox = document.getElementsByClassName('chartBox')[index];
+          if (!targetBox.classList.contains('hover')) {
+            targetBox.classList.add('hover');
+          }
           if (index !== count) {
-            const targetEle = chart; // 目标图表元素
             // 目标容器
-            const targetBox = document.getElementsByClassName('chartBox')[index];
             const targetChart = targetEle.highchartStore; // highcharts图表
             if (targetChart) {
+              // 设置目标事件的弹出框不显示
               targetChart.pointer.chart.tooltip.options.enabled = false;
               const sourceOffset = {
                 top: sourceBox.offsetTop,
@@ -352,6 +359,11 @@ export default {
       }
       const targetList = this.$refs.editChart; // 所有图表
       targetList.forEach((chart, index) => {
+        // 目标容器,取消所有图表hover,隐藏crosshair
+        const targetBox = document.getElementsByClassName('chartBox')[index];
+        if (targetBox.classList.contains('hover')) {
+          targetBox.classList.remove('hover');
+        }
         if (index !== count) {
           const targetEle = chart;
           const targetChart = targetEle.highchartStore;

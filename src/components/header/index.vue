@@ -91,7 +91,6 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import md5 from 'md5';
 import { Icon, Button, Badge, Row, Dropdown, DropdownMenu, DropdownItem } from 'iview';
-// import { mapState, mapMutations } from 'vuex';
 import bus from '../../libs/bus';
 import Util from '../../libs/utils';
 import { updateUser, getUserInfo } from '../../models/service';
@@ -267,7 +266,7 @@ export default {
     // 获取用户信息
     getUserInfo() {
       getUserInfo().then((response) => {
-        if (response.status === 200) {
+        if (response.status === 200 && response.data.code === 200) {
           this.userInfo = response.data.result;
           this.role = md5(response.data.result.role);
           Cookies.set('owl_role', md5(response.data.result.role), { expires: 1 });

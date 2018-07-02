@@ -9,7 +9,7 @@
         <span>报警详情</span>
       </div>
       <Row v-for="(item, index) in data.trigger_events" :key="index">
-        <rule-block :data="item"></rule-block>
+        <event-rule-block :data="item"></event-rule-block>
       </Row>
       <Row class="event-detail-item">
         <Col span="2">
@@ -72,15 +72,13 @@
   </div>
 </template>
 <script>
-// import _ from 'lodash';
 // import bus from '../../../libs/bus';
-// import { getScripts } from '../../models/service';
-import ruleBlock from './buildrule/rule-block';
+import eventRuleBlock from './event-rule-block';
 
 export default {
   name: 'eventDetail',
   components: {
-    ruleBlock,
+    eventRuleBlock,
   },
   props: {
     data: {

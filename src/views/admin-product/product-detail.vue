@@ -29,8 +29,6 @@
   </div>
 </template>
 <script>
-// import _ from 'lodash';
-// import bus from '../../libs/bus';
 import hostList from '../../components/monitor/host-list';
 import userList from '../../components/manage/user-list';
 

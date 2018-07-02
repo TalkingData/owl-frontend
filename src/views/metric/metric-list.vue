@@ -7,9 +7,6 @@
       <div class="common-detail-top clearfix mb-10">
         <div class="float-right">
           <Input style="width:200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
-          <!-- <Button @click="reload">
-            <Icon size="18" type="refresh"></Icon>
-          </Button> -->
         </div>
       </div>
       <div class="table-list">
@@ -53,9 +50,6 @@
 </template>
 <script>
 import _ from 'lodash';
-// import md5 from 'md5';
-// import Cookies from 'js-cookie';
-// import bus from '../../libs/bus';
 import {
   getSuggestMetric,
   getSuggestTags,
@@ -192,7 +186,6 @@ export default {
     initFilter() {
       this.$refs.page.init();
       this.filter.page = 1;
-      // this.filter.page_size = 10;
     },
     // 翻页
     pageInfoChange(filter) {
@@ -231,11 +224,6 @@ export default {
       this.total = this.allDataList.length;
       this.dataList = this.allDataList.slice(0, this.filter.page_size);
     }, 300),
-    // 刷新
-    reload() {
-      // this.initFilter();
-      // this.getData(this.filter);
-    },
     // 滚动条复位
     refresh_scroll() {
       window.scrollTo(0, 0);

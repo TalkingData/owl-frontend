@@ -90,7 +90,7 @@ export default {
   methods: {
     backTo() {
       this.$router.push({
-        path: `/alarm/strategylist/${this.productId}`,
+        path: `/alarm/strategy/list/${this.productId}`,
       });
     },
     // 启用编辑策略
@@ -194,18 +194,31 @@ export default {
     proTags(data) {
       const dou = data.indexOf(',');
       const tmp = [];
-      if (data) {
-        if (dou === -1) {
-          const set = data.split('=');
-          tmp.push({ key: set[0], value: set[1] });
-        } else {
-          const mid = data.split(',');
-          const mlen = mid.length;
-          for (let j = 0; j < mlen; j += 1) {
-            const set = mid[j].split('=');
-            tmp.push({ key: set[0], value: set[1] });
-          }
+      if (dou === -1) {
+        const set = data.split('=');
+        if (set.length > 1) {
+          const valueArr = set[1].split('|');
+          valueArr.forEach((keyV) => {
+            tmp.push({
+              key: set[0],
+              value: keyV,
+            });
+          });
         }
+      } else {
+        const mid = data.split(','); // ['key=v1','key=v2',....]
+        mid.forEach((item) => {
+          const setInner = item.split('=');
+          if (setInner.length > 1) {
+            const valueArr = setInner[1].split('|');
+            valueArr.forEach((keyV) => {
+              tmp.push({
+                key: setInner[0],
+                value: keyV,
+              });
+            });
+          }
+        });
       }
       return tmp;
     },

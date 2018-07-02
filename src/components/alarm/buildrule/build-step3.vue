@@ -170,9 +170,6 @@ export default {
     }
     this.getScripts();
     this.getUserGroups(this.productId);
-    // if (this.$route.params.strategyId) {
-    //   this.setDataList();
-    // }
   },
   beforeDestroy() {},
 };

@@ -143,7 +143,6 @@ export default {
     };
   },
   methods: {
-    doNothing() {},
     // 创建数据
     createData() {
       this.$refs.createUserGroup.createInit('create');
@@ -212,14 +211,13 @@ export default {
     viewDetail(item) {
       localStorage.setItem('userGroupItem', JSON.stringify(item));
       this.$router.push({
-        path: `/manage/usergroupdetail/${item.id}/${this.filter.productId}`,
+        path: `/manage/user/group/detail/${item.id}/${this.filter.productId}`,
       });
     },
     // eslint-disable-next-line
     search: _.debounce(function() {
       this.filter.query = this.searchName;
       this.initFilter();
-      // this.getData(this.filter);
     }, 300),
     // 刷新
     reload() {
@@ -279,10 +277,6 @@ export default {
       return {
         isRemove: false,
       };
-    },
-    // 路径
-    path() {
-      return this.$route.path;
     },
   },
   watch: {

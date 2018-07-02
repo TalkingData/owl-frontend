@@ -251,6 +251,12 @@ export default {
     },
     selectInterval(val) {
       if (val) {
+        const start = new Date(this.confirmDate[1]);
+        const now = new Date();
+        const interval = Math.floor((now.getTime() - start.getTime()) / 1000);
+        if (interval >= 60) {
+          this.getIntervalData(interval);
+        }
         this.intervalTimer = setInterval(() => {
           this.getIntervalData(this.interval);
         }, val * 1000);

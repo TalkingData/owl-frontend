@@ -278,7 +278,6 @@ export default {
     initFilter() {
       this.$refs.page.init();
       this.filter.page = 1;
-      // this.filter.page_size = 10;
       this.getData(this.filter);
     },
     // 获取表格内容数据
@@ -324,12 +323,9 @@ export default {
     search: _.debounce(function() { // 输入框筛选
       this.filter.query = this.searchName;
       this.initFilter();
-      // this.getData(this.filter);
     }, 300),
     // 刷新
     reload() {
-      // this.filter.query = '';
-      // this.filter.page = 1;
       this.getData(this.filter);
     },
   },

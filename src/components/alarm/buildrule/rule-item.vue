@@ -223,7 +223,8 @@ export default {
         if (res.status === 200) {
           this.tagSet = res.data.tag_set;
           if (res.data.code === 200) {
-            this.tagKeyList = Object.keys(res.data.tag_set);
+            const arr = Object.keys(res.data.tag_set);
+            this.tagKeyList = arr.filter(t => t !== 'host');
           }
         } else {
           this.tagKeyList = [];
@@ -300,12 +301,20 @@ export default {
         }
       });
     },
+    // 展开tag增加
     showAddtag() {
       this.widthInput = 200;
       this.tagValueList = [];
       this.addTagFlag = true;
       this.tagAddInfo.key = '';
       this.tagAddInfo.value = '';
+      if (this.data.metric) {
+        const params = {
+          metric: this.data.metric,
+        };
+        if (this.productId) params.product_id = this.productId;
+        this.getSuggestTags(params);
+      }
     },
     cancelAddTag() {
       this.widthInput = 200;
@@ -323,36 +332,24 @@ export default {
     // tags字符串拼接
     linkStr() {
       let tagstr = '';
-      const len = this.data.tags.length;
-      for (let i = 0; i < len; i += 1) {
-        const unit = this.data.tags[i];
-        if (unit.key !== '') {
-          if (i !== 0) {
-            tagstr = `${tagstr},${unit.key}=${unit.value}`;
-          } else {
-            tagstr = `${unit.key}=${unit.value}`;
-          }
+      const tagObj = {};
+      this.data.tags.forEach((unit) => {
+        if (!tagObj[unit.key]) {
+          tagObj[unit.key] = [];
+          tagObj[unit.key].push(unit.value);
+        } else if (tagObj[unit.key].indexOf(unit.value) < 0) {
+          tagObj[unit.key].push(unit.value);
         }
-      }
+      });
+      Object.keys(tagObj).forEach((item, index) => {
+        if (index === 0) {
+          tagstr += `${item}=${tagObj[item].join('|')}`;
+        } else {
+          tagstr += `,${item}=${tagObj[item].join('|')}`;
+        }
+      });
       this.tags = tagstr;
       return tagstr;
-    },
-    // 将后台拿到的“k1=v1,k2=v2...”转为[{key:k1,value:v1},{key:k2,value:v2}....]
-    proTags(data) {
-      const dou = data.indexOf(',');
-      const tmp = [];
-      if (dou === -1) {
-        const set = data.split('=');
-        tmp.push({ key: set[0], value: set[1] });
-      } else {
-        const mid = data.split(',');
-        const mlen = mid.length;
-        for (let j = 0; j < mlen; j += 1) {
-          const set = mid[j].split('=');
-          tmp.push({ key: set[0], value: set[1] });
-        }
-      }
-      this.data.tags = tmp;
     },
     // 触发验证,验证填写内容
     vertifyRuleBlock(index) {
@@ -369,31 +366,6 @@ export default {
             this.$emit('on-vertify-success', params, this.num);
           }
         });
-      }
-    },
-    // 响应交换规则块事件
-    call_data(rank) {
-      // 上方数据
-      if (rank === this.num + 1) {
-        this.linkStr();
-        this.$emit('recall-data-up', this.data, rank);
-        this.flag = 1;
-      } else if (rank === this.num) {
-        // 下方数据
-        this.linkStr();
-        this.flag = -1;
-        this.$emit('recall-data-down', this.data, rank - 1);
-      }
-    },
-    // 加载数据,交换或者其他情况加载数据
-    set_data(data, rank) {
-      if (rank === this.num) {
-        this.data = data;
-        // if (this.tags === '') {
-        //   this.data.tags = [];
-        // } else {
-        //   this.proTags(this.tags);
-        // }
       }
     },
   },

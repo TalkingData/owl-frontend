@@ -284,7 +284,7 @@ export default {
     // 打开告警列表页
     openAlarmList(strategy) {
       this.$router.push({
-        path: `/alarm/eventlistby/${strategy.id}/1/${this.filter.productId}`,
+        path: `/alarm/event/listby/${strategy.id}/1/${this.filter.productId}`,
       });
     },
     // 新建策略
@@ -334,7 +334,6 @@ export default {
     initFilter() {
       this.$refs.ruleList.init();
       this.filter.page = 1;
-      // this.filter.page_size = 10;
       this.getData(this.filter);
     },
     // 刷新

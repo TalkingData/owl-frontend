@@ -243,7 +243,7 @@ export default {
     viewDetail(item) {
       localStorage.setItem('eventItem', JSON.stringify(item));
       this.$router.push({
-        path: `/alarm/event/${item.id}/${this.filter.productId}`,
+        path: `/alarm/event/detail/${item.id}/${this.filter.productId}`,
       });
     },
     // eslint-disable-next-line
