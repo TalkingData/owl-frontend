@@ -1,9 +1,9 @@
 <template>
   <div>
-    <Modal :width="720" v-model="showModal" :title="modalTitle" @on-cancel="cancel">
+    <Modal :width="720" v-model="showModal" :title="modalTitle" :mask-closable="false" @on-cancel="cancel">
       <Form ref="nameForm" :model="pluginInfo" :label-width="80">
         <Form-item prop="id" label="插件" :rules="{ required: true, type: 'number', message: '插件名不能为空', trigger: 'change'}">
-          <Select v-model="pluginInfo.id"
+          <Select ref="pluginSelect" v-model="pluginInfo.id"
           filterable 
           remote
           not-found-text=""
@@ -105,6 +105,9 @@ export default {
     },
     // 编辑与创建
     editInit(msg, group, proId, plugin) {
+      if (this.$refs.nameForm) {
+        this.$refs.nameForm.resetFields();
+      }
       this.msgInfo = msg;
       this.errorMsg = '';
       if (msg === 'groupadd') { // 主机组添加插件
@@ -162,6 +165,9 @@ export default {
       this.errorMsg = '';
       this.showModal = false;
       this.dataList = [];
+      // if (this.$refs.pluginSelect) {
+      //   this.$refs.pluginSelect.reset();
+      // }
       this.initInfo();
       this.showAllFlag = false;
     },
@@ -198,7 +204,8 @@ export default {
         if (res.status === 200) {
           if (res.data.code === 200) {
             this.$emit('on-create-success', this.msgInfo, res.data);
-            this.showModal = false;
+            this.cancel();
+            // this.showModal = false;
           } else {
             this.errorMsg = '请重试';
           }
@@ -215,7 +222,8 @@ export default {
         if (res.status === 200) {
           if (res.data.code === 200) {
             this.$emit('on-create-success', this.msgInfo, res.data);
-            this.showModal = false;
+            // this.showModal = false;
+            this.cancel();
           } else {
             this.errorMsg = '请重试';
           }

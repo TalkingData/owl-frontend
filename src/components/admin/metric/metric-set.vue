@@ -62,7 +62,7 @@
         </Row>
       </Form>
     </div>
-    <Modal v-model="createModal" :title="createModalTitle">
+    <Modal v-model="createModal" :title="createModalTitle" :mask-closable="false" @on-cancel="cancel">
       <Form :model="chartSaveInfo" ref="chartSaveInfo">
         <Form-item :label-width="80" label="图表名称" prop="title" :rules="{ required: true, type: 'string', message: '请输入图表名称', trigger: 'change' }">
           <Input style="width: 360px;" v-model="chartSaveInfo.title"></Input>
@@ -71,7 +71,7 @@
           <Input style="width: 360px;" v-model="chartSaveInfo.name"></Input>
         </Form-item>
         <Form-item v-if="!isCreatePanel" :label-width="80" label="选择看板" prop="panelId" :rules="{ required: true, type: 'number', message: '请选择看板', trigger: 'change' }">
-          <Select style="width: 360px;" v-model="chartSaveInfo.panelId" filterable>
+          <Select ref="panelSelect" style="width: 360px;" v-model="chartSaveInfo.panelId" filterable>
             <Option v-for="(item, index) in panelList" 
             :key="index"
             :value="item.id"
@@ -80,7 +80,7 @@
         </Form-item>
       </Form>
       <div slot="footer">
-        <Button @click="createModal = false">取消</Button>
+        <Button @click="cancel">取消</Button>
         <Button type="primary" @click="createConfirm">保存</Button>
       </div>
     </Modal>
@@ -181,9 +181,25 @@ export default {
       this.isCreatePanel = false; // 选择看板
       this.createModalTitle = '选择看板并添加图表';
       this.createModal = true;
+      this.panelList = [];
+      // if (this.$refs.panelSelect) {
+      //   this.$refs.panelSelect.reset();
+      // }
       this.getPanels({
         productId: this.productId,
       });
+    },
+    // 取消创建modal
+    cancel() {
+      this.panelList = [];
+      this.chartSaveInfo.panelId = ''; // 选择panel
+      if (this.$refs.chartSaveInfo) {
+        this.$refs.chartSaveInfo.resetFields();
+      }
+      if (this.$refs.panelSelect) {
+        this.$refs.panelSelect.setQuery('');
+      }
+      this.createModal = false;
     },
     // 重置已选择的看板
     initSaveInfo() {
@@ -346,6 +362,9 @@ export default {
                 this.$router.push({
                   path: `/console/panel/detail/${this.panelId}/${this.productId}`,
                 });
+              },
+              onCancel: () => {
+                this.cancel();
               },
             });
           } else {

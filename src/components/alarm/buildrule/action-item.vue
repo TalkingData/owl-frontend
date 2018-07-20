@@ -109,7 +109,9 @@
           multiple filterable 
           v-model="data.user_groups" 
           placeholder="请选择人员组"
-          :disabled="viewDisable">
+          :disabled="viewDisable"
+          @click.native="openGroup"
+          @on-open-change="openGroup">
             <Option v-for="item in userGroups" :key="item.id" :label="item.name" :value="item.id">
               {{item.name}}
             </Option>
@@ -232,6 +234,11 @@ export default {
         });
       }
     },
+    openGroup(val) {
+      if (val) {
+        this.$emit('on-open-change');
+      }
+    },
   },
   computed: {
     // disabledMinuteEnd: {
@@ -248,6 +255,15 @@ export default {
     // },
   },
   watch: {
+    userGroups(valArray) {
+      if (this.data.user_groups.length > 0) {
+        const arr = this.data.user_groups.filter((idItem) => {
+          const obj = valArray.find(item => idItem === item.id);
+          return !!obj;
+        });
+        this.data.user_groups = arr;
+      }
+    },
   },
   mounted() {
     this.data.alarm_template = this.atext;

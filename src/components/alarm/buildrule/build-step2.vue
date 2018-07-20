@@ -17,7 +17,9 @@
             multiple 
             placeholder="请选择主机组" 
             :disabled="viewDisable"
-            @on-change="selectGroup">
+            @on-change="selectGroup"
+            @click.native="openGroup"
+            @on-open-change="openGroup">
               <Option v-for="(item, index) in groupArr" :value="item.id" :key="index">{{ item.name }}</Option>
             </Select>
           </Form-item>
@@ -144,15 +146,27 @@ export default {
       this.hostArrLabel = this.strategyInfo.exclude_hosts.map(item => item.hostname);
     },
     // 获取主机组
-    getHostGroups(product) {
+    getHostGroups(product, msg) {
       getHostGroups({
         paging: false,
         productId: product,
       }).then((res) => {
         if (res.status === 200) {
           this.groupArr = res.data.host_groups;
+          if (msg && msg === 'open') {
+            const arr = this.groupHost.desGroups.filter((idItem) => {
+              const obj = this.groupArr.find(item => idItem === item.id);
+              return !!obj;
+            });
+            this.groupHost.desGroups = arr;
+          }
         }
       });
+    },
+    openGroup(val) {
+      if (val) {
+        this.getHostGroups(this.productId, 'open');
+      }
     },
     // 获取主机列表
     getHost(params) {
@@ -196,7 +210,7 @@ export default {
     if (this.$route.params.productId) {
       this.productId = parseInt(this.$route.params.productId, 10);
     }
-    this.getHostGroups(this.productId);
+    this.getHostGroups(this.productId, 'default');
   },
   beforeDestroy() {},
 };

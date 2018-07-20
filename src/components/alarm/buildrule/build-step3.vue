@@ -12,7 +12,8 @@
       :script-list="scriptList"
        @on-delete-block="subblock"
        @sub-save-ok="sub_ok"
-       @on-vertify-success="getRuleBlockData"></action-item>
+       @on-vertify-success="getRuleBlockData"
+       @on-open-change="openUserGroup"></action-item>
     </Row>
     <Row class="mt-10">
       <Button type="primary" icon="plus" @click="addblock" :disabled="viewDisable">添加告警方式</Button>
@@ -158,6 +159,10 @@ export default {
           this.userGroups = res.data.user_groups;
         }
       });
+    },
+    // 重新获取用户组
+    openUserGroup() {
+      this.getUserGroups(this.productId);
     },
   },
   computed: {
