@@ -21,7 +21,7 @@
     "highcharts-custom-events": "^2.0.20",
     "iview": "2.14.3",
     "js-cookie": "^2.1.4",
-    "lodash": "4.17.4",
+    "lodash": "^4.17.4",
     "md5": "^2.2.1",
     "normalize.css": "^5.0.0",
     "vue": "^2.5.13",
