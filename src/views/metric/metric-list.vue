@@ -84,6 +84,7 @@ export default {
         {
           title: '指标名称',
           key: 'name',
+          minWidth: 200,
         },
       ],
     };
@@ -206,13 +207,14 @@ export default {
     search: _.debounce(function() { // 输入框筛选
       this.showTagModal = false;
       this.initFilter();
-      this.filter.query = this.searchName;
+      const query = this.searchName.trim();
+      this.filter.query = query;
       // this.getData(this.filter);
-      if (this.searchName) {
+      if (query) {
         this.allDataList = this.saveDataList.filter((item) => {
           const obj = item;
           obj.checked = false;
-          return obj.name.indexOf(this.searchName) > -1;
+          return obj.name.indexOf(query) > -1;
         });
       } else {
         this.allDataList = this.saveDataList.map((item) => {

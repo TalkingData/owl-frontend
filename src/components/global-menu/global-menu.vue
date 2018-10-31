@@ -10,6 +10,7 @@
     :menu-list="menuList" 
     :open-names="openNames" 
     @on-change="handleChange"
+    @on-open-change="openMenu"
     ></sidebar-menu>
     <sidebar-menu-shrink v-show="shrink" 
     :menu-theme="theme" 
@@ -89,6 +90,9 @@ export default {
         });
       }
       this.$emit('on-change', nameValue);
+    },
+    openMenu(arrs) {
+      this.$emit('on-open-change', arrs);
     },
   },
 };

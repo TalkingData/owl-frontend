@@ -64,10 +64,6 @@ export default {
       }
       const groupItem = localStorage.getItem('groupItem');
       this.groupItem = JSON.parse(groupItem);
-      const tabName = localStorage.getItem('group_detail_tab');
-      if (tabName) {
-        this.tabValue = tabName;
-      }
     },
     tabclick(name) {
       localStorage.setItem('group_detail_tab', name);
@@ -85,6 +81,12 @@ export default {
       this.$refs.strategy.getDetailData();
       this.$refs.plugin.getDetailData();
     },
+  },
+  created() {
+    const tabName = localStorage.getItem('group_detail_tab');
+    if (tabName) {
+      this.tabValue = tabName;
+    }
   },
   mounted() {
     this.getDetailData();

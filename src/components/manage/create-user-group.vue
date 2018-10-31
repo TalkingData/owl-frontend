@@ -1,13 +1,13 @@
 <template>
   <div>
-    <Modal :width="width" v-model="showModal" :title="modalTitle">
+    <Modal :width="width" v-model="showModal" :title="modalTitle" @on-cancel="cancel">
       <Form ref="nameForm" :model="groupInfo" :label-width="80" v-if="!isEdit">
-        <Form-item prop="name" label="用户组名" :rules="{ required: true, type: 'string', message: '用户组名不能为空', trigger: 'change'}">
+        <FormItem prop="name" label="用户组名" :rules="{ required: true, type: 'string', message: '用户组名不能为空', trigger: 'change'}">
           <Input v-model="groupInfo.name" :readonly="isEdit" placeholder="请输入用户组名"></Input>
-        </Form-item>
-        <Form-item prop="description" label="描述">
+        </FormItem>
+        <FormItem prop="description" label="描述">
           <Input v-model="groupInfo.description" :readonly="isEdit" placeholder="请输入用户组描述"></Input>
-        </Form-item>
+        </FormItem>
         <Alert v-if="errorMsg" type="warning" show-icon>{{errorMsg}}</Alert>
       </Form>
       <div class="select-transfer" v-show="isEdit">
@@ -75,14 +75,17 @@ export default {
         title: '名称',
         key: 'username',
         sortable: 'custom',
+        minWidth: 160,
       }, {
         title: '邮箱',
         key: 'mail',
         sortable: 'custom',
+        minWidth: 160,
       }, {
         title: '角色',
         key: 'role',
         sortable: 'custom',
+        minWidth: 140,
         render: (h, params) => h('span', {}, this.getRoleStr(params.row.role)),
       }],
       showModal: false,
@@ -191,7 +194,7 @@ export default {
     search: _.debounce(function() { // 输入框筛选
       this.filter.page = 1;
       this.$refs.userPage.init();
-      this.filter.query = this.searchName;
+      this.filter.query = this.searchName.trim();
       this.initFilter();
     }, 300),
     // 获取用户组外用户列表
@@ -245,6 +248,9 @@ export default {
       this.dataList = [];
       this.selectData = [];
       this.showAllFlag = false;
+      if (this.$refs.nameForm) {
+        this.$refs.nameForm.resetFields();
+      }
       // this.filter.order = '';
     },
     // 弹窗确认
@@ -275,7 +281,8 @@ export default {
           if (res.data.code === 200) {
             // 添加成功后触发回调
             this.$emit('on-create-success', this.msgInfo, res.data);
-            this.showModal = false;
+            // this.showModal = false;
+            this.cancel();
           } else {
             this.errorMsg = res.data.message || '该名称已存在';
           }
@@ -295,7 +302,8 @@ export default {
         if (res.status === 200) {
           if (res.data.code === 200) {
             this.$emit('on-create-success', this.msgInfo, res.data);
-            this.showModal = false;
+            // this.showModal = false;
+            this.cancel();
           } else {
             this.errorMsg = res.data.message || '该名称已存在';
           }

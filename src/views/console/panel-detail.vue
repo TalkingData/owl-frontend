@@ -56,8 +56,8 @@ import _ from 'lodash';
 import bus from '../../libs/bus';
 import { deleteCharts } from '../../models/service';
 import paging from '../../components/page/paging';
-import chartAdd from '../../components/board/chart-add';
-import chartList from '../../components/dashboard/chart-list';
+import chartAdd from '../../components/console/chart-add';
+import chartList from '../../components/charts/chart-list';
 import calendarSelect from '../../components/page/calendar-select';
 
 export default {
@@ -93,7 +93,7 @@ export default {
     },
     // eslint-disable-next-line
     search: _.debounce(function() {
-      this.filter.query = this.searchName;
+      this.filter.query = this.searchName.trim();
       this.getData(this.filter);
     }, 1000),
     // 刷新

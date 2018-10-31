@@ -8,7 +8,6 @@
         <chart-tag ref="chartTag" 
         :product-id="productId"
         :metric-list="metricList"
-        @on-delete-target="deleteTarget" 
         @on-add-target-success="getTarget"
         @on-change-condition="getCondition"
         ></chart-tag>
@@ -29,25 +28,25 @@
       <Form :model="chartInfo" ref="chartInfo" v-show="isSave">
         <Row>
           <div class="common-float-left">
-            <Form-item :label-width="80" label="图宽" prop="span"
+            <FormItem :label-width="80" label="图宽" prop="span"
             :rules="{ required: true, type: 'number', message: '请选择图表宽度', trigger: 'change' }">
               <Select style="width:100px;" v-model="chartInfo.span" transfer>
                 <Option v-for="item in spanList" :key="item" :label="'span-' + item" :value="item">
                   span-{{item}}
                 </Option>
               </Select>
-            </Form-item>
+            </FormItem>
           </div>
           <div class="common-float-left">
-            <Form-item :label-width="80" label="图高" prop="height"
+            <FormItem :label-width="80" label="图高" prop="height"
             :rules="{ required: true, type: 'number', message: '请输入图表高度', trigger: 'change' }">
               <InputNumber :min="10" v-model="chartInfo.height" style="width: 100px" placeholder="请输入图表高度"></InputNumber>px
-            </Form-item>
+            </FormItem>
           </div>
         </Row>
         <Row>
           <div class="common-float-left">
-            <Form-item :label-width="80" label="类型" prop="type"
+            <FormItem :label-width="80" label="类型" prop="type"
               :rules="{ required: true, type: 'number', message: '请选择图表类型', trigger: 'change' }">
               <Select transfer style="width:100px;" v-model="chartInfo.type">
                 <Option v-for="item in typeList" 
@@ -57,27 +56,29 @@
                   {{item.name}}
                 </Option>
               </Select>
-            </Form-item>
+            </FormItem>
           </div>
         </Row>
       </Form>
     </div>
     <Modal v-model="createModal" :title="createModalTitle" :mask-closable="false" @on-cancel="cancel">
       <Form :model="chartSaveInfo" ref="chartSaveInfo">
-        <Form-item :label-width="80" label="图表名称" prop="title" :rules="{ required: true, type: 'string', message: '请输入图表名称', trigger: 'change' }">
+        <FormItem :label-width="80" label="图表名称" prop="title" :rules="{ required: true, type: 'string', message: '请输入图表名称', trigger: 'change' }">
           <Input style="width: 360px;" v-model="chartSaveInfo.title"></Input>
-        </Form-item>
-        <Form-item v-if="isCreatePanel" :label-width="80" label="看板名称" prop="name" :rules="{ required: true, type: 'string', message: '请输入看板名称', trigger: 'change' }">
+        </FormItem>
+        <FormItem v-if="isCreatePanel" :label-width="80" label="看板名称" prop="name" :rules="{ required: true, type: 'string', message: '请输入看板名称', trigger: 'change' }">
           <Input style="width: 360px;" v-model="chartSaveInfo.name"></Input>
-        </Form-item>
-        <Form-item v-if="!isCreatePanel" :label-width="80" label="选择看板" prop="panelId" :rules="{ required: true, type: 'number', message: '请选择看板', trigger: 'change' }">
-          <Select ref="panelSelect" style="width: 360px;" v-model="chartSaveInfo.panelId" filterable>
+        </FormItem>
+        <FormItem v-else :label-width="80" label="选择看板" prop="panelId" :rules="{ required: true, type: 'number', message: '请选择看板', trigger: 'change' }">
+          <Select ref="panelSelect" style="width: 360px;" v-model="chartSaveInfo.panelId" 
+          @on-change="panelSelect"
+          filterable>
             <Option v-for="(item, index) in panelList" 
             :key="index"
             :value="item.id"
             :label="item.name">{{item.name}}</Option>
           </Select>
-        </Form-item>
+        </FormItem>
       </Form>
       <div slot="footer">
         <Button @click="cancel">取消</Button>
@@ -88,8 +89,8 @@
 </template>
 <script>
 import axios from 'axios';
-import bus from '../../../libs/bus';
-import { addCharts, getSuggestMetric, getPanels, addPanels } from '../../../models/service';
+import bus from '../../libs/bus';
+import { addCharts, getSuggestMetric, getPanels, addPanels } from '../../models/service';
 import chartTag from './chart-tag';
 
 export default {
@@ -101,6 +102,7 @@ export default {
   },
   data() {
     return {
+      total: 0,
       loading: false, // 加载中
       chartModal: false, // 展示弹出框
       // 新建信息
@@ -133,7 +135,7 @@ export default {
       chartSaveInfo: {
         title: '', // 图表名称
         name: '', // panel名称
-        panelId: 0, // 选择以后panelId
+        panelId: '', // 选择以后panelId
       }, // 保存看板
       isCreatePanel: false,
       createModalTitle: '',
@@ -141,6 +143,7 @@ export default {
       metricInfo: {}, // 保存从chartTag中获取的
       createChartList: [], // 创建多个图表的图表信息
       seriesData: [], // 查询图表后生成的series信息,用于生成多个图表时提供图表title
+      panelItem: {}, // 保存看板信息
     };
   },
   computed: {
@@ -185,19 +188,18 @@ export default {
       // if (this.$refs.panelSelect) {
       //   this.$refs.panelSelect.reset();
       // }
-      this.getPanels({
-        productId: this.productId,
-      });
+      this.getPanels();
     },
     // 取消创建modal
     cancel() {
       this.panelList = [];
       this.chartSaveInfo.panelId = ''; // 选择panel
+      this.chartSaveInfo.name = ''; // panel名称创建
       if (this.$refs.chartSaveInfo) {
         this.$refs.chartSaveInfo.resetFields();
       }
       if (this.$refs.panelSelect) {
-        this.$refs.panelSelect.setQuery('');
+        this.$refs.panelSelect.reset();
       }
       this.createModal = false;
     },
@@ -244,7 +246,7 @@ export default {
           // 保存图表到看板
           const params = Object.assign({}, this.chartInfo);
           params.metric = this.elementTarget.metric;
-          params.tags = this.tagsToString(this.elementTarget.tagSets);
+          params.tags = this.tagsToString(this.elementTarget.tagList);
           this.metricInfo = params;
           this.saveDisabled = false; // 查询成功以后,可以进行保存操作
           // 将参数返回,进行查询
@@ -277,11 +279,23 @@ export default {
       }).then((res) => {
         if (res.status === 200 && res.data.code === 200) {
           this.panelId = res.data.panel.id;
+          this.panelItem = res.data.panel;
+          localStorage.setItem('panelItem', JSON.stringify(res.data.panel));
           this.getOptions();
         } else {
           this.$Message.warning('创建看板失败');
         }
       });
+    },
+    // 选择看板
+    panelSelect(id) {
+      if (id) {
+        const panel = this.panelList.find(p => p.id === id);
+        if (panel) {
+          this.panelItem = panel;
+          localStorage.setItem('panelItem', JSON.stringify(panel));
+        }
+      }
     },
     // 生成图表的时候,使用该函数,汇总创建图表参数
     getOptions() {
@@ -307,13 +321,10 @@ export default {
             tagsArr.forEach((tag) => {
               if (tag !== 'uuid') {
                 host += `${tag}=${queryItem.tags[tag]}, `;
-              }
-              const tagTemp = `${tag}:${queryItem.tags[tag]}`;
-              if (this.elementTarget.tagSets.indexOf(tagTemp) > -1) {
                 if (tagStr) {
-                  tagStr += `,${tagTemp.replace(/:/g, '=')}`;
+                  tagStr += `,${tag}=${queryItem.tags[tag]}`;
                 } else {
-                  tagStr += tagTemp.replace(/:/g, '=');
+                  tagStr += `${tag}=${queryItem.tags[tag]}`;
                 }
               }
             });
@@ -332,7 +343,7 @@ export default {
         } else if (this.chartCount === 'single') {
           params.title = this.chartSaveInfo.title;
           const elements = [];
-          const tagStr = this.tagsToString(this.elementTarget.tagSets);
+          const tagStr = this.tagsToString(this.elementTarget.tagList);
           elements.push({
             metric: this.elementTarget.metric,
             tags: tagStr,
@@ -354,10 +365,9 @@ export default {
             this.elementTarget = {};
             this.saveDisabled = true; // 创建成功后,不能再次创建
             // this.initInfo();
-            // this.$emit('on-create-success', 'create', res.data);
             this.$Modal.confirm({
               title: '创建成功',
-              content: `是否前去查看创建的图表${res.data.chart.title}`,
+              content: `是否前去看板：${this.panelItem.name}，查看创建的图表`,
               onOk: () => {
                 this.$router.push({
                   path: `/console/panel/detail/${this.panelId}/${this.productId}`,
@@ -396,7 +406,7 @@ export default {
             this.createChartList = [];
             this.$Modal.confirm({
               title: '创建成功',
-              content: '是否前去查看创建的图表',
+              content: `是否前去看板：${this.panelItem.name}，查看创建的图表`,
               onOk: () => {
                 this.$router.push({
                   path: `/console/panel/detail/${this.panelId}/${this.productId}`,
@@ -410,11 +420,13 @@ export default {
       }
     },
     // 获取看板列表
-    getPanels(params) {
-      const obj = Object.assign({}, params);
-      if (!obj.query) delete obj.query;
-      getPanels(obj).then((res) => {
-        if (res.status === 200) {
+    getPanels() {
+      const params = {
+        productId: this.productId,
+        paging: false,
+      };
+      getPanels(params).then((res) => {
+        if (res.status === 200 && res.data.total > 0) {
           this.total = res.data.total;
           this.panelList = res.data.panels;
         } else {
@@ -423,14 +435,9 @@ export default {
         }
       });
     },
-    // 增加指标
+    // 增加指标,tarNum
     addTarget() {
-      // tarNum
       this.elements.push(1);
-    },
-    // 删除指标
-    deleteTarget(index) {
-      this.elements.splice(index, 1);
     },
     // 获取metric列表
     getSuggestMetric(id) {
@@ -470,21 +477,11 @@ export default {
     },
     tagsToString(arr) {
       let str = '';
-      const tagObj = {};
-      arr.forEach((item) => {
-        const tagItem = item.split(':');
-        if (!tagObj[tagItem[0]]) {
-          tagObj[tagItem[0]] = [];
-          tagObj[tagItem[0]].push(tagItem[1]);
-        } else {
-          tagObj[tagItem[0]].push(tagItem[1]);
-        }
-      });
-      Object.keys(tagObj).forEach((item, index) => {
+      arr.forEach((item, index) => {
         if (index === 0) {
-          str += `${item}=${tagObj[item].join('|')}`;
+          str += `${item.name}=${item.value.join('|')}`;
         } else {
-          str += `,${item}=${tagObj[item].join('|')}`;
+          str += `,${item.name}=${item.value.join('|')}`;
         }
       });
       return str;

@@ -1,25 +1,25 @@
 <template>
   <div>
-    <Modal :width="width" v-model="showModal" :title="modalTitle">
+    <Modal :width="width" v-model="showModal" :title="modalTitle" @on-cancel="cancel">
       <Form ref="nameForm" :model="pluginInfo" :label-width="80" v-if="!isEdit">
-        <Form-item prop="name" label="插件名" :rules="{ required: true, type: 'string', message: '插件名不能为空', trigger: 'change'}">
+        <FormItem prop="name" label="插件名" :rules="{ required: true, type: 'string', message: '插件名不能为空', trigger: 'change'}">
           <Input v-model="pluginInfo.name" :readonly="isEdit" placeholder="请输入插件名"></Input>
-        </Form-item>
-        <Form-item prop="path" label="插件路径" :rules="{ required: true, type: 'string', message: '插件路径不能为空', trigger: 'change'}">
+        </FormItem>
+        <FormItem prop="path" label="插件路径" :rules="{ required: true, type: 'string', message: '插件路径不能为空', trigger: 'change'}">
           <Input v-model="pluginInfo.path" :readonly="isEdit" placeholder="请输入插件路径"></Input>
-        </Form-item>
-        <Form-item prop="args" label="执行参数">
+        </FormItem>
+        <FormItem prop="args" label="执行参数">
           <Input v-model="pluginInfo.args" :readonly="isEdit" placeholder="请输入执行参数"></Input>
-        </Form-item>
-        <Form-item prop="interval" label="执行间隔" :rules="{ required: true, type: 'number', message: '执行间隔不能为空', trigger: 'change'}">
-          <InputNumber :min="1" v-model="pluginInfo.interval" :readonly="isEdit" placeholder="请输入执行间隔"></InputNumber>
-        </Form-item>
-        <Form-item prop="timeout" label="超时时间" :rules="{ required: true, type: 'number', message: '超时时间不能为空', trigger: 'change'}">
-          <InputNumber :min="1" v-model="pluginInfo.timeout" :readonly="isEdit" placeholder="请输入超时时间"></InputNumber>
-        </Form-item>
-        <Form-item prop="checksum" label="校验和" :rules="{ required: true, type: 'string', message: '校验和不能为空', trigger: 'change'}">
+        </FormItem>
+        <FormItem prop="interval" label="执行间隔" :rules="{ required: true, type: 'number', message: '执行间隔不能为空', trigger: 'change'}">
+          <InputNumber style="width: 180px;" :min="1" v-model="pluginInfo.interval" :readonly="isEdit" placeholder="请输入执行间隔"></InputNumber>
+        </FormItem>
+        <FormItem prop="timeout" label="超时时间" :rules="{ required: true, type: 'number', message: '超时时间不能为空', trigger: 'change'}">
+          <InputNumber style="width: 180px;" :min="1" v-model="pluginInfo.timeout" :readonly="isEdit" placeholder="请输入超时时间"></InputNumber>
+        </FormItem>
+        <FormItem prop="checksum" label="校验和" :rules="{ required: true, type: 'string', message: '校验和不能为空', trigger: 'change'}">
           <Input v-model="pluginInfo.checksum" :readonly="isEdit" placeholder="请输入校验和"></Input>
-        </Form-item>
+        </FormItem>
         <Alert type="warning" show-icon v-if="errorMsg">{{errorMsg}}</Alert>
       </Form>
       <div class="select-transfer" v-show="isEdit">
@@ -283,10 +283,12 @@ export default {
     cancel() {
       this.errorMsg = '';
       this.showModal = false;
-      this.pluginInfo.name = '';
+      // this.pluginInfo.name = '';
+      this.initInfo();
       this.dataList = [];
       this.selectData = [];
       this.showAllFlag = false;
+      this.$refs.nameForm.resetFields();
     },
     // 弹窗确认
     confirmSave() {
@@ -312,7 +314,8 @@ export default {
         if (res.status === 200) {
           if (res.data.code === 200) {
             this.$emit('on-create-success', this.msgInfo, res.data);
-            this.showModal = false;
+            // this.showModal = false;
+            this.cancel();
           } else {
             this.errorMsg = '该名称已经存在，请修改';
           }
@@ -329,7 +332,8 @@ export default {
         if (res.status === 200) {
           if (res.data.code === 200) {
             this.$emit('on-create-success', this.msgInfo, res.data);
-            this.showModal = false;
+            // this.showModal = false;
+            this.cancel();
           } else {
             this.errorMsg = '该名称已经存在，请修改';
           }

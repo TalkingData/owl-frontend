@@ -25,7 +25,13 @@ const otherRouter = [
   },
   {
     path: '/index',
-    name: 'login-index',
+    name: 'login_index',
+    // eslint-disable-next-line
+    component: (resolve) => require(['../views/login/login-index.vue'], resolve),
+  },
+  {
+    path: '/index/:loginId',
+    name: 'login_timeout',
     // eslint-disable-next-line
     component: (resolve) => require(['../views/login/login-index.vue'], resolve),
   },

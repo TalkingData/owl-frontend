@@ -93,6 +93,7 @@ export default {
           title: '策略名称',
           key: 'name',
           sortable: 'custom',
+          minWidth: 200,
           render: (h, params) => h('a', {
             attrs: {
               title: '查看策略',
@@ -105,6 +106,18 @@ export default {
               },
             },
           }, params.row.name),
+        }, {
+          title: '是否启用',
+          width: 140,
+          key: 'enable',
+          render: (h, params) => h('Tag', {
+            props: {
+              color: params.row.enable ? 'green' : 'red',
+            },
+            style: {
+              cursor: 'default',
+            },
+          }, params.row.enable ? '启用' : '禁用'),
         }, {
           title: '状态',
           width: 200,
@@ -183,9 +196,11 @@ export default {
         }, {
           title: '创建者',
           key: 'user_name',
+          minWidth: 160,
         }, {
           title: '操作',
           align: 'right',
+          width: 160,
           render: (h, params) => h('div', [h('Tooltip', {
             props: {
               content: '编辑',
@@ -295,7 +310,7 @@ export default {
     },
     // eslint-disable-next-line
     search: _.debounce(function() {
-      this.filter.query = this.searchName;
+      this.filter.query = this.searchName.trim();
       this.initFilter();
     }, 300), // 搜索
     // 全选
@@ -306,8 +321,9 @@ export default {
     selectItem(item) {
       this.selectedData = item;
     },
-    rowClassName(item) {
-      return item.enable === 0 ? 'show-ivu-row disabled' : 'show-ivu-row';
+    rowClassName() {
+      return 'show-ivu-row';
+      // return item.enable === 0 ? 'show-ivu-row disabled' : 'show-ivu-row';
     },
     // 翻页
     pageInfoChange(filter) {

@@ -8,11 +8,12 @@
       <global-menu
         :shrink="shrink"
         @on-change="handleSubmenuChange"
+        @on-open-change="openMenu"
         :theme="menuTheme"
         :before-push="beforePush"
         :open-names="openedSubmenuArr"
         :menu-list="menuList">
-        <div slot="top" class="logo-con" @click="gotoProduct" title="返回产品页">
+        <div slot="top" class="logo-con" :style="{width: shrink?'60px':'200px'}" @click="gotoProduct" title="返回产品页">
           <img v-show="!shrink" :src="logo" key="max-logo" />
           <img v-show="shrink" :src="logoMini" key="min-logo" />
         </div>
@@ -86,13 +87,18 @@ export default {
     openedSubmenuArr: {
       get() {
         const routeName = this.$route.name;
+        // 将展开的次级菜单加入到展开数组内
+        const menuStr = localStorage.getItem('menuArray');
         let arr = [];
+        if (menuStr) {
+          arr = JSON.parse(menuStr);
+        }
         if (this.menus.length > 0) {
           for (let i = 0; i < this.menus.length; i += 1) {
             const temp = this.menus[i];
             const child = temp.children.find(n => n.name === routeName);
-            if (child) {
-              arr = [temp.name];
+            if (child && arr.indexOf(temp.name) === -1) {
+              arr.push(temp.name);
               return arr;
             }
           }
@@ -122,6 +128,10 @@ export default {
     },
     // 路由切换
     handleSubmenuChange() {
+    },
+    // 打开关闭次级菜单
+    openMenu(arrs) {
+      localStorage.setItem('menuArray', JSON.stringify(arrs));
     },
     // eslint-disable-next-line
     beforePush(name) { // 权限校验,暂时全部通过

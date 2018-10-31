@@ -170,6 +170,15 @@ export const getAllHosts = schema.get('/hosts', {});
 export const deleteHost = schema.delete('/hosts/{hostId}', {
   hostId: { type: String, required: true, urlOnly: true },
 });
+// 静音接口/api/v1/hosts/host_id/mute?mute_time=xxxx-xx-xx xx:xx:xx
+export const muteHost = schema.put('/hosts/{hostId}/mute?mute_time={muteTime}', {
+  hostId: { type: String, required: true, urlOnly: true },
+  muteTime: { type: String, required: true, urlOnly: true },
+});
+// 取消静音： /api/v1/hosts/host_id/unmute
+export const unmuteHost = schema.put('/hosts/{hostId}/unmute', {
+  hostId: { type: String, required: true, urlOnly: true },
+});
 // 创建主机组
 export const addHostGroups = schema.post('/products/{productId}/host_groups', {
   productId: { type: Number, required: true, urlOnly: true },

@@ -1,13 +1,13 @@
 <template>
   <div>
-    <Modal :width="width" v-model="showModal" :title="modalTitle">
+    <Modal :width="width" v-model="showModal" :title="modalTitle" @on-cancel="cancel">
       <Form ref="nameForm" :model="groupInfo" :label-width="80" v-if="!isEdit">
-        <Form-item prop="name" label="主机组名" :rules="{ required: true, type: 'string', message: '主机组名不能为空', trigger: 'change'}">
+        <FormItem prop="name" label="主机组名" :rules="{ required: true, type: 'string', message: '主机组名不能为空', trigger: 'change'}">
           <Input v-model="groupInfo.name" :readonly="isEdit" placeholder="请输入主机组名"></Input>
-        </Form-item>
-        <Form-item prop="description" label="描述">
+        </FormItem>
+        <FormItem prop="description" label="描述">
           <Input v-model="groupInfo.description" :readonly="isEdit" placeholder="请输入主机组描述"></Input>
-        </Form-item>
+        </FormItem>
         <Alert type="warning" show-icon v-if="errorMsg">{{errorMsg}}</Alert>
       </Form>
       <div class="select-transfer" v-show="isEdit">
@@ -279,13 +279,18 @@ export default {
     cancel() {
       this.filter.page = 1;
       this.filter.page_size = 10;
-      this.$refs.hostPage.init();
+      if (this.$refs.hostPage) {
+        this.$refs.hostPage.init();
+      }
       this.errorMsg = '';
       this.showModal = false;
       this.groupInfo.name = '';
       this.dataList = [];
       this.selectData = [];
       this.showAllFlag = false;
+      if (this.$refs.nameForm) {
+        this.$refs.nameForm.resetFields();
+      }
       // this.filter.order = '';
     },
     // 弹窗确认
@@ -315,7 +320,8 @@ export default {
         if (res.status === 200) {
           if (res.data.code === 200) {
             this.$emit('on-create-success', this.msgInfo, res.data);
-            this.showModal = false;
+            // this.showModal = false;
+            this.cancel();
           } else {
             this.errorMsg = '该名称已经存在，请修改';
           }
@@ -335,7 +341,8 @@ export default {
         if (res.status === 200) {
           if (res.data.code === 200) {
             this.$emit('on-create-success', this.msgInfo, res.data);
-            this.showModal = false;
+            // this.showModal = false;
+            this.cancel();
           } else {
             this.errorMsg = '该名称已经存在，请修改';
           }

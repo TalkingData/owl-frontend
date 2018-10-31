@@ -98,7 +98,7 @@ export default {
           title: '规则名称',
           key: 'strategy_name',
           sortable: 'custom',
-          width: 150,
+          minWidth: 150,
           render: (h, params) => h('a', {
             attrs: {
               title: '查看告警',
@@ -115,6 +115,7 @@ export default {
           title: '告警设备',
           key: 'host_name',
           sortable: 'custom',
+          minWidth: 140,
         }, {
           title: 'IP地址',
           key: 'ip',
@@ -155,22 +156,24 @@ export default {
         }, {
           title: '操作',
           align: 'right',
+          width: 140,
           render: (h, params) => h('div', [h('Poptip', {
             props: {
               placement: 'left',
-              value: params.row.muteVisible,
+              // value: params.row.muteVisible,
+              trigger: 'hover',
             },
           }, [h('Icon', {
             props: {
               size: 18,
               type: 'android-volume-up',
             },
-            nativeOn: {
-              click: (event) => {
-                event.stopPropagation();
-                this.showMute(params.index);
-              },
-            },
+            // nativeOn: {
+            //   click: (event) => {
+            //     event.stopPropagation();
+            //     this.showMute(params.index);
+            //   },
+            // },
           }), h('div', {
             slot: 'content',
           }, [h('Button', {
@@ -248,7 +251,7 @@ export default {
     },
     // eslint-disable-next-line
     search: _.debounce(function() {
-      this.filter.query = this.searchName;
+      this.filter.query = this.searchName.trim();
       this.initFilter();
     }, 300), // 搜索
     removeData() {}, // 删除

@@ -31,19 +31,19 @@
         </div>
       </div>
     </div>
-    <Modal v-model="addModal" :title="modalTitle">
+    <Modal v-model="addModal" :title="modalTitle" @on-cancel="addCancel">
       <Form :model="addInfo" ref="addInfo">
-        <Form-item :label-width="80" label="名称" prop="name" :rules="{ required: true, type: 'string', trigger: 'change', message: '请输入脚本名称'}">
+        <FormItem :label-width="80" label="名称" prop="name" :rules="{ required: true, type: 'string', trigger: 'change', message: '请输入脚本名称'}">
           <Input v-model="addInfo.name" placeholder="请输入脚本名称"></Input>
-        </Form-item>
+        </FormItem>
         <!-- :rules="{ required: true, type: 'string', trigger: 'change', message: '请输入脚本文件路径'}" -->
-        <Form-item :label-width="80" label="文件路径" prop="file_path" :rules="pathRules">
+        <FormItem :label-width="80" label="文件路径" prop="file_path" :rules="pathRules">
           <Input v-model="addInfo.file_path" placeholder="请输入脚本文件路径"></Input>
-        </Form-item>
+        </FormItem>
         <Alert type="warning" show-icon v-if="errorMsg">{{errorMsg}}</Alert>
       </Form>
       <div slot="footer">
-        <Button @click="addModal = false">取消</Button>
+        <Button @click="addCancel">取消</Button>
         <Button @click="addConfirm" type="primary">保存</Button>
       </div>
     </Modal>
@@ -109,13 +109,15 @@ export default {
         }, {
           title: '脚本名称',
           key: 'name',
-          width: 180,
+          width: 200,
         }, {
           title: '文件路径',
           key: 'file_path',
+          minWidth: 180,
         }, {
           title: '操作',
           align: 'right',
+          width: 180,
           render: (h, params) => h('div', [h('Tooltip', {
             props: {
               content: '编辑',
@@ -195,6 +197,15 @@ export default {
       this.addInfo.file_path = item.file_path;
       this.editInfo = item;
     },
+    // 取消
+    addCancel() {
+      this.addInfo = {
+        name: '',
+        file_path: '',
+      };
+      this.addModal = false;
+      this.$refs.addInfo.resetFields();
+    },
     // 添加脚本
     addConfirm() {
       this.errorMsg = '';
@@ -208,7 +219,8 @@ export default {
               if (res.status === 200) {
                 if (res.data.code === 200) {
                   this.$Message.success('创建成功');
-                  this.addModal = false;
+                  // this.addModal = false;
+                  this.addCancel();
                   this.getData();
                 } else {
                   this.errorMsg = res.data.message || '该名称已存在';
@@ -226,7 +238,8 @@ export default {
               if (res.status === 200) {
                 if (res.data.code === 200) {
                   this.$Message.success('修改成功');
-                  this.addModal = false;
+                  // this.addModal = false;
+                  this.addCancel();
                   this.getData();
                 } else {
                   this.errorMsg = res.data.message || '该名称已存在';
@@ -296,8 +309,8 @@ export default {
       }
     },
     // 查看详情
-    viewDetail(item) {
-      localStorage.setItem('scriptItem', JSON.stringify(item));
+    viewDetail() {
+      // localStorage.setItem('scriptItem', JSON.stringify(item));
     },
     // 初始化过滤条件
     initFilter() {
@@ -313,11 +326,12 @@ export default {
       getScripts().then((res) => {
         if (res.status === 200) {
           this.saveDataList = res.data.scripts;
-          if (this.searchName !== '') {
+          const query = this.searchName.trim();
+          if (query !== '') {
             this.allDataList = this.saveDataList.filter((item) => {
               const obj = item;
-              return obj.name.indexOf(this.searchName) > -1 ||
-               obj.file_path.indexOf(this.searchName) > -1;
+              return obj.name.indexOf(query) > -1 ||
+               obj.file_path.indexOf(query) > -1;
             });
           } else {
             this.allDataList = res.data.scripts;
@@ -356,13 +370,14 @@ export default {
     search: _.debounce(function() { // 输入框筛选
       this.initFilter();
       this.checkAll = false;
-      this.filter.query = this.searchName;
+      const query = this.searchName.trim();
+      this.filter.query = query;
       // this.getData(this.filter);
-      if (this.searchName) {
+      if (query) {
         this.allDataList = this.saveDataList.filter((item) => {
           const obj = item;
-          return obj.name.indexOf(this.searchName) > -1 ||
-           obj.file_path.indexOf(this.searchName) > -1;
+          return obj.name.indexOf(query) > -1 ||
+           obj.file_path.indexOf(query) > -1;
         });
       } else {
         this.allDataList = this.saveDataList.map((item) => {

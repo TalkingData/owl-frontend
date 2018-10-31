@@ -36,8 +36,8 @@
     <Modal title="移除插件" v-model="removeModal">
       <Alert type="warning" show-icon>确定要移除插件：<span v-for="(item,index) in deleteShowData" :key="item.id"><span v-if="index">，</span>{{item.name}}</span>&nbsp;吗？</Alert>
       <div slot="footer">
-        <Button @click="deleteConfirm" type="primary">确定</Button>
         <Button @click="deleteCancel">取消</Button>
+        <Button @click="deleteConfirm" type="primary">确定</Button>
       </div>
     </Modal>
   </div>
@@ -90,7 +90,7 @@ export default {
         }, {
           title: '插件名称',
           key: 'name',
-          width: 180,
+          width: 200,
           render: (h, params) => h('span', params.row.name),
           // render: (h, params) => h('a', {
           //   attrs: {
@@ -363,7 +363,7 @@ export default {
     // eslint-disable-next-line
     search: _.debounce(function() { // 输入框筛选
       this.filter.page = 1;
-      this.filter.query = this.searchName;
+      this.filter.query = this.searchName.trim();
       this.getData(this.filter);
     }, 300),
     // 刷新

@@ -27,6 +27,10 @@ export default new Vue({
       },
       backtoRulelist: '', // 返回策略列表页信息
       role: md5(1),
+      // 创建图表信息
+      chartAddInfo: {
+        metricTarget: [],
+      },
     };
   },
   methods: {

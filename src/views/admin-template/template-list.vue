@@ -75,6 +75,7 @@ export default {
         }, {
           title: '模板名称',
           key: 'name',
+          minWidth: 160,
           render: (h, params) => h('a', {
             attrs: {
               title: '查看模板',
@@ -90,9 +91,11 @@ export default {
         }, {
           title: '描述',
           key: 'description',
+          minWidth: 160,
         }, {
           title: '操作',
           align: 'right',
+          width: 180,
           render: (h, params) => h('div', [h('Tooltip', {
             props: {
               content: '编辑',
@@ -178,13 +181,14 @@ export default {
     // eslint-disable-next-line
     search: _.debounce(function() {
       this.initFilter();
-      this.filter.query = this.searchName;
+      const query = this.searchName.trim();
+      this.filter.query = query;
       // this.getData(this.filter);
-      if (this.searchName !== '') {
+      if (query !== '') {
         this.allDataList = this.saveDataList.filter((item) => {
           const obj = item;
-          return obj.name.indexOf(this.searchName) > -1 ||
-           obj.description.indexOf(this.searchName) > -1;
+          return obj.name.indexOf(query) > -1 ||
+           obj.description.indexOf(query) > -1;
         });
       } else {
         this.allDataList = this.saveDataList.map((item) => {
@@ -246,11 +250,12 @@ export default {
       getTemplates().then((res) => {
         if (res.status === 200 && res.data.templates) {
           this.saveDataList = res.data.templates;
-          if (this.searchName !== '') {
+          const query = this.searchName.trim();
+          if (query !== '') {
             this.allDataList = this.saveDataList.filter((item) => {
               const obj = item;
-              return obj.name.indexOf(this.searchName) > -1 ||
-               obj.description.indexOf(this.searchName) > -1;
+              return obj.name.indexOf(query) > -1 ||
+               obj.description.indexOf(query) > -1;
             });
           } else {
             this.allDataList = res.data.templates;

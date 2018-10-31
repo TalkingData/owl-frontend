@@ -40,7 +40,7 @@ import paging from '../../components/page/paging';
 import calendarSelect from '../../components/page/calendar-select';
 
 export default {
-  name: 'monitorGroup',
+  name: 'adminLog',
   components: {
     paging,
     calendarSelect,
@@ -54,23 +54,8 @@ export default {
       },
       total: 0, // 总数
       selectedData: [], // 选中数据
-      statusList: [], // 筛选
-      dataStatus: '',
       searchName: '', // 搜索名称
       deleteShowData: [],
-      removeModal: false,
-      modalTitle: '',
-      // 编辑与添加
-      addModal: false,
-      // 添加日志信息
-      addInfo: {
-        name: '',
-        file_path: '',
-      },
-      editInfo: {},
-      actionType: '',
-      errorMsg: '',
-      visibleBody: false,
       columns: [
         {
           title: 'IP',
@@ -81,7 +66,7 @@ export default {
           title: 'API',
           key: 'api',
           ellipsis: true,
-          width: 200,
+          minWidth: 180,
           render: (h, params) => h('div', {
             attrs: {
               class: 'width-limit',
@@ -137,14 +122,16 @@ export default {
         }, {
           title: '操作结果',
           key: 'result',
-          width: 120,
+          width: 100,
           render: (h, params) => h('span', this.getResult(params.row.result)),
         }, {
           title: '操作人',
           key: 'operator',
+          minWidth: 120,
         }, {
           title: '操作时间',
           key: 'time',
+          minWidth: 120,
         },
       ],
     };
@@ -262,7 +249,7 @@ export default {
     search: _.debounce(function() { // 输入框筛选
       this.$refs.page.init();
       this.filter.page = 1;
-      this.filter.query = this.searchName;
+      this.filter.query = this.searchName.trim();
       this.getData(this.filter);
     }, 300),
     // 刷新

@@ -3,21 +3,17 @@
 </style>
 <template>
   <div>
-    <Modal width="830" class="chart-add" :title="chartTitle" v-model="chartModal" @on-cancel="close">
-      <!-- <div class="search-data">
-        <Button size="small" icon="chevron-left" type="primary" @click="backChart()"></Button>
-        <span class="search-data-title">为图表添加指标</span>
-      </div> -->
+    <Modal width="900" class="chart-add" :title="chartTitle" v-model="chartModal" @on-cancel="close">
       <div class="data-body scroll" id='data-body'>
         <Form :model="chartInfo" ref="chartInfo">
           <Row>
             <div class="common-float-left">
-              <Form-item :label-width="80" label="图表名称" prop="title" :rules="{ required: true, type: 'string', message: '请输入图表名称', trigger: 'change' }">
+              <FormItem :label-width="80" label="图表名称" prop="title" :rules="{ required: true, type: 'string', message: '请输入图表名称', trigger: 'change' }">
                 <Input style="width: 360px;" v-model="chartInfo.title"></Input>
-              </Form-item>
+              </FormItem>
             </div>
             <div class="common-float-left">
-              <Form-item :label-width="80" label="类型" prop="type"
+              <FormItem :label-width="80" label="类型" prop="type"
               :rules="{ required: true, type: 'number', message: '请选择图表类型', trigger: 'change' }">
                 <Select transfer style="width:100px;" v-model="chartInfo.type">
                   <Option v-for="item in typeList" 
@@ -27,25 +23,25 @@
                     {{item.name}}
                   </Option>
                 </Select>
-              </Form-item>
+              </FormItem>
             </div>
           </Row>
           <Row>
             <div class="common-float-left">
-              <Form-item :label-width="80" label="图宽" prop="span"
+              <FormItem :label-width="80" label="图宽" prop="span"
               :rules="{ required: true, type: 'number', message: '请选择图表宽度', trigger: 'change' }">
                 <Select style="width:100px;" v-model="chartInfo.span" transfer>
                   <Option v-for="item in spanList" :key="item" :label="'span-' + item" :value="item">
                     span-{{item}}
                   </Option>
                 </Select>
-              </Form-item>
+              </FormItem>
             </div>
             <div class="common-float-left">
-              <Form-item :label-width="80" label="图高" prop="height"
+              <FormItem :label-width="80" label="图高" prop="height"
               :rules="{ required: true, type: 'number', message: '请输入图表高度', trigger: 'change' }">
                 <InputNumber :min="10" v-model="chartInfo.height" style="width: 100px" placeholder="请输入图表高度"></InputNumber>px
-              </Form-item>
+              </FormItem>
             </div>
           </Row>
         </Form>
@@ -54,7 +50,9 @@
           :product-id="productId"
           :pointer="index" 
           :metric-list="metricList"
+          :count-total="elements.length"
           @on-delete-target="deleteTarget" 
+          @sub-save-ok="subOk"
           @on-add-target-success="getTarget"
           ></chart-tag>
         </Row>
@@ -94,7 +92,7 @@ export default {
       },
       chartId: 0,
       elements: [1], // 指标部分 tarNum
-      elementTarget: [],
+      elementTarget: [], // 本地保存数据
       // 宽度列表
       spanList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
       typeList: [{
@@ -109,6 +107,8 @@ export default {
       productId: 0,
       panelId: 0,
       metricList: [], // metric列表
+      deleteIndex: '', // 要删除的指标模块
+      subCount: 0, // subSave保存data到bus计数器
     };
   },
   computed: {
@@ -126,8 +126,6 @@ export default {
       this.initInfo(); // 初始化图表信息
       this.chartModal = true;
       this.initOpen(); // 获取metric, productId数据
-      // this.elementTarget = []; // 初始化清空参数
-      // this.elements = [1];
     },
     // 编辑chart时使用, set_tdata
     editData(data, panelId, productId) {
@@ -145,6 +143,7 @@ export default {
       this.getSuggestMetric(this.productId);
       // 指标
       this.elements = [];
+      bus.chartAddInfo.metricTarget = [];
       data.elements.forEach((item, index) => {
         this.elements.push(index);
       });
@@ -156,7 +155,7 @@ export default {
         });
       });
     },
-    // 默认打开
+    // 创建时打开,用于清空chart-tag数据
     initOpen() {
       bus.$emit('clear_history');
       if (this.$route.params.productId) {
@@ -165,12 +164,11 @@ export default {
       this.getSuggestMetric(this.productId);
     },
     close() {
-      this.elementTarget = []; // 初始化清空参数
       this.initInfo();
       this.chartModal = false;
       this.isedit = false;
       bus.$emit('clear_history'); // 清除charttag中内容
-      // bus.$emit('add_close');
+      this.$refs.chartInfo.resetFields();
     },
     // 初始化信息
     initInfo() {
@@ -180,6 +178,7 @@ export default {
       this.chartInfo.height = 400;
       this.elements = [1];
       this.elementTarget = [];
+      bus.chartAddInfo.metricTarget = [];
     },
     // 生成图表
     confirmAdd() {
@@ -205,9 +204,8 @@ export default {
           };
           const elements = [];
           this.elementTarget.forEach((elem) => {
-            const tagStr = this.tagsToString(elem.tagSets);
+            const tagStr = this.tagsToString(elem.tagList);
             elements.push({
-              // name: elem.name,
               metric: elem.metric,
               tags: tagStr,
             });
@@ -230,12 +228,9 @@ export default {
         if (res.status === 200) {
           if (res.data.code === 200) {
             this.chartModal = false;
-            this.elementTarget = [];
             this.initInfo();
+            this.$refs.chartInfo.resetFields();
             this.$emit('on-create-success', 'create', res.data);
-            // 新建图表
-            // bus.$emit('chart_id', res.data.chart);
-            // bus.$emit('clear_history');
           } else {
             this.$Mesaage.error(res.code.message);
           }
@@ -249,50 +244,52 @@ export default {
       updateCharts(obj).then((res) => {
         if (res.status === 200) {
           this.chartModal = false;
-          this.elementTarget = [];
           this.initInfo();
+          this.$refs.chartInfo.resetFields();
           this.$emit('on-create-success', 'update', res.data);
-          // 更新已有图表
-          // bus.$emit('update_relate', res.data.chart);
-          // bus.$emit('clear_history');
         }
       });
     },
+    // 格式化tag
     tagsToString(arr) {
       let str = '';
-      const tagObj = {};
-      arr.forEach((item) => {
-        const tagItem = item.split(':');
-        if (!tagObj[tagItem[0]]) {
-          tagObj[tagItem[0]] = [];
-          tagObj[tagItem[0]].push(tagItem[1]);
-        } else {
-          tagObj[tagItem[0]].push(tagItem[1]);
-        }
-      });
-      Object.keys(tagObj).forEach((item, index) => {
+      arr.forEach((item, index) => {
         if (index === 0) {
-          str += `${item}=${tagObj[item].join('|')}`;
+          str += `${item.name}=${item.value.join('|')}`;
         } else {
-          str += `,${item}=${tagObj[item].join('|')}`;
+          str += `,${item.name}=${item.value.join('|')}`;
         }
       });
       return str;
     },
-    // 退回看板添加
-    backChart() {
-      this.chartModal = false;
-      bus.$emit('back-to-add-chart');
-      // bus.$emit('back_add');
-    },
-    // 增加指标
+    // 增加指标,tarNum
     addTarget() {
-      // tarNum
       this.elements.push(1);
     },
-    // 删除指标
+    // 删除指标,第一步, 新方法
     deleteTarget(index) {
-      this.elements.splice(index, 1);
+      this.deleteIndex = index;
+      this.$refs.chartTag.forEach((item) => {
+        // 子组件保存内容到bus
+        item.subSave();
+      });
+    },
+    // subSave保存成功后回调,第二步
+    subOk() {
+      // 每个模块均有返回,当全部模块返回完成时,将sub计数器重置
+      this.subCount += 1;
+      if (this.subCount === this.elements.length) {
+        this.subCount = 0;
+        // 保存完成,进行删除操作
+        this.elements.splice(this.deleteIndex, 1);
+        this.elementTarget.splice(this.deleteIndex, 1);
+        bus.chartAddInfo.metricTarget.splice(this.deleteIndex, 1);
+        this.$nextTick(() => {
+          this.$refs.chartTag.forEach((item, index) => {
+            item.setSubdata(index); // 将数据从bus重新赋值
+          });
+        });
+      }
     },
     // 获取metric列表
     getSuggestMetric(id) {
@@ -323,17 +320,8 @@ export default {
     },
   },
   mounted() {
-    // 创建
-    bus.$on('create_data', (panelId) => {
-      this.createData(panelId);
-    });
-    // 编辑chart时使用, set_tdata
-    this.$on('on-edit-chart-data', (data) => {
-      this.editData(data);
-    });
   },
   beforeDestroy() {
-    bus.$off('create_data');
   },
 };
 

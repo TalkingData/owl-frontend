@@ -25,10 +25,21 @@
     width:100%;
     height: auto;
     // padding: 10px;
+    .error-info-text {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      line-height: 1;
+      padding-top: 6px;
+      color: #ed3f14;
+    }
   }
   .metric-main {
     .float-left {
       display: inline-block;
+    }
+    .info-word {
+      color: #2d8cf0;
     }
   }
   .metric-block {

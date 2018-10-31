@@ -16,20 +16,21 @@
           </Col>
           <Col span="21" class="metric-main">
             <div class="float-left">
-              <Form-item prop="metric" :rules="{required: true, type: 'string', trigger: 'change', message: '请添加metric'}">
-                <AutoComplete
-                  v-model="data.metric"
-                  :data="metricList"
-                  :filter-method="metricSearch"
-                  placeholder="metric必填"
-                  :disabled="viewDisable"
-                  @on-search="selectMetric"
-                  @on-select="selectMetric"
-                  ></AutoComplete>
-                </Form-item>
+              <FormItem prop="metric" :rules="{required: true, type: 'string', trigger: 'change', message: '请添加metric'}">
+                <Select ref="metricSelect" v-model="data.metric" 
+                style="width: 200px;"
+                placeholder="metric必填"
+                :disabled="viewDisable"
+                filterable transfer 
+                @on-change="selectMetric">
+                  <Option v-for="(item, index) in metricShowList.arr" :key="item + index"
+                  :value="item">{{item}}</Option>
+                </Select>
+                <span v-if="metricShowList.text" class="error-info-text">{{metricShowList.text}}</span>
+              </FormItem>
             </div>
             <div class="float-left ml-10">
-              <Form-item label="计算规则" :label-width="80">
+              <FormItem label="计算规则" :label-width="80">
                 <div class="float-left">
                   <Select style="width:100px;" v-model="data.method" :disabled="viewDisable">
                     <Option v-for="item in methodArr" :key="item.value" :value="item.value" :label="item.label">{{item.label}}</Option>
@@ -38,78 +39,41 @@
                   v-if="data.method=='top'||data.method=='bottom'||data.method=='last'||data.method=='ratio'" 
                   :min="0" 
                   v-model="data.number"
-                  :disabled="viewDisable"></InputNumber>
+                  :readonly="viewDisable"></InputNumber>
                   <span class="character">—</span>
                   <Select style="width:80px;" v-model="data.symbol" :disabled="viewDisable">
                     <Option v-for="item in symbolArr" :key="item" :value="item" :label="item">{{item}}</Option>
                   </Select>
                   <span class="character">—</span>
-                  <InputNumber v-model="data.threshold" placeholder="threshold" :disabled="viewDisable"></InputNumber>
-                  <!-- <span>{{data.threshold}}</span> -->
+                  <InputNumber v-model="data.threshold" placeholder="threshold" :readonly="viewDisable"></InputNumber>
+                  <span class="info-word">{{bytesToSize(data.threshold)}}</span>
                 </div>
                 <!-- <div class="float-left ml-10">
                   <Input v-model="data.description" style="width:100px" placeholder="备注"></Input>
                 </div> -->
-              </Form-item>
-            </div>
-            <div class="float-left metric-block ml-10 mr-10">
-              tags:
-            </div>
-            <div class="float-left metric-block mr-10" v-for="(tag, index) in data.tags" :key="index">
-              <div class="tag-block">
-                <span>{{tag.key}}</span>:
-                <span>{{tag.value}}</span>
-                <Icon type="ios-close-empty" size="14" @click.native.stop="removetag(index)" :disabled="viewDisable"></Icon>
-                <!-- <i class="ivu-icon ivu-icon-ios-close-empty"></i> -->
-              </div>
-            </div>
-            <div class="float-left metric-block mr-10" v-if="data.tags.length === 0">暂无</div>
-            <div class="float-left pt-2" v-if="!addTagFlag">
-              <Button icon="plus" @click="showAddtag" :disabled="viewDisable"></Button>
+              </FormItem>
             </div>
           </Col>
           <Col span="2">
             <div class="float-right">
-              <Button icon="ios-trash" v-show="num > 0" @click="deleteBlock" :disabled="viewDisable"></Button>
+              <Button icon="ios-trash" v-show="allNum > 1" @click="deleteBlock" :disabled="viewDisable"></Button>
             </div>
           </Col>
         </Row>
-      </Form>
-      <Form :model="tagAddInfo" ref="tagAddInfo" v-if="addTagFlag">
-        <Row class="view-tag-item">
-          <div class="float-left float-item mr-10">
-            tag
-          </div>
-          <div class="float-left">
-            <Form-item prop="key" :rules="{required: true, type: 'string', trigger: 'change', message: 'key不能为空'}">
-              <AutoComplete v-model="tagAddInfo.key"
-                :data="tagKeyList"
-                :filter-method="metricSearch"
-                placeholder="key"
-                @on-search="selectKey"
-                @on-select="selectKey"
-                style="width: 200px;"
-                ></AutoComplete>
-            </Form-item>
-          </div>
-          <div class="float-left float-item pl-10 pr-10">
-            =
-          </div>
-          <div class="float-left">
-            <Form-item prop="value" :rules="{required: true, type: 'string', trigger: 'change', message: 'value不能为空'}">
-              <AutoComplete
-                v-model="tagAddInfo.value"
-                :style="inputStyle"
-                placeholder="value"
-                @on-search="selectValue"
-                @on-select="selectValue">
-                <Option v-for="(item, index) in tagValueList" :value="item" :key="index">{{ item }}</Option>
-              </AutoComplete>
-            </Form-item>
-          </div>
-          <div class="float-left ml-10 pt-2">
-            <Button type="primary" icon="plus" @click="addtag">保存</Button>
-            <Button class="ml-10" @click="cancelAddTag">取消</Button>
+        <Row v-if="data.tagList.length > 0" v-for="(item, index) in data.tagList" :key="'ss' + index">
+          <div class="float-left mr-10">
+            <FormItem :key="index" :label="item.name" :label-width="80" :prop="'tagList.' + index + '.value'" :rules="{ required: true, type: 'array', min: 1, message: '请选择tag值'}">
+              <Select v-model="item.value" ref="tagSelect"
+              placeholder="请选择tag值"
+              :disabled="viewDisable"
+              multiple 
+              filterable 
+              transfer
+              not-found-text="">
+                <Option v-for="(op, j) in item.list" :key="op + j"
+                :value="op">{{op}}</Option>
+              </Select>
+            </FormItem>
           </div>
         </Row>
       </Form>
@@ -117,7 +81,7 @@
   </div>
 </template>
 <script>
-import _ from 'lodash';
+// import _ from 'lodash';
 import bus from '../../../libs/bus';
 import { getSuggestTags } from '../../../models/service';
 
@@ -139,6 +103,11 @@ export default {
       type: Array,
       default: () => [],
     },
+    // 该模块总数
+    allNum: {
+      type: Number,
+      default: 1,
+    },
   },
   data() {
     return {
@@ -146,7 +115,8 @@ export default {
       data: {
         productId: '',
         metric: '', // 名称
-        tags: [],
+        tags: '',
+        tagList: [], // 用于动态选择tag
         method: 'max',
         number: 0, // 数量
         symbol: '==',
@@ -154,16 +124,8 @@ export default {
         description: '', // 备注
         index: '',
       },
-      // 增加tag信息
-      tagAddInfo: {
-        key: '',
-        value: '',
-      },
-      addTagFlag: false,
-      tags: '', // 组装好的标签
+      setDataFlag: false, // 初始化编辑
       tagSet: null, // 保存获取的可选tag对象
-      tagKeyList: [],
-      tagValueList: [],
       // 函数数组
       methodArr: [{
         value: 'max',
@@ -199,13 +161,8 @@ export default {
     };
   },
   methods: {
-    // 搜索metric项
-    metricSearch(value, option) {
-      return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
-    },
-    // 搜索metric
-    // eslint-disable-next-line
-    selectMetric: _.debounce(function() {
+    // 选择metric
+    selectMetric() {
       if (this.data.metric) {
         const params = {
           metric: this.data.metric,
@@ -213,143 +170,98 @@ export default {
         if (this.productId) params.product_id = this.productId;
         this.getSuggestTags(params);
       } else {
-        this.tagKeyList = [];
-        this.tagValueList = [];
+        this.data.tagList = [];
       }
-    }, 300),
-    // 搜索特定key下的value
+    },
+    // 搜索特定metric下的tag
     getSuggestTags(params) {
       getSuggestTags(params).then((res) => {
-        if (res.status === 200) {
+        this.data.tagList = [];
+        if (res.status === 200 && res.data && res.data.code === 200) {
           this.tagSet = res.data.tag_set;
-          if (res.data.code === 200) {
-            const arr = Object.keys(res.data.tag_set);
-            this.tagKeyList = arr.filter(t => t !== 'host');
+          const keyList = Object.keys(res.data.tag_set);
+          keyList.forEach((item) => {
+            if (item !== 'uuid' && item !== 'host') { // 滤除uuid
+              const tagObj = {
+                name: item,
+                list: this.tagSet[item],
+                value: [],
+              };
+              this.data.tagList.push(tagObj);
+            }
+          });
+          // 初始化编辑时将tags赋值给表单
+          if (this.setDataFlag) {
+            this.proTags(this.data.tags);
+            this.setDataFlag = false; // 再次修改时，不需要此步骤
           }
         } else {
-          this.tagKeyList = [];
+          this.data.tagList = [];
         }
       });
-    },
-    // 搜索tag中的key
-    // eslint-disable-next-line
-    selectKey: _.debounce(function() {
-      if (this.tagAddInfo.key) {
-        if (this.tagSet) {
-          this.tagValueList = this.tagSet[this.tagAddInfo.key];
-        } else {
-          this.tagValueList = [];
-        }
-      } else {
-        this.tagValueList = [];
-      }
-    }, 300),
-    // eslint-disable-next-line
-    selectValue: _.debounce(function() {
-      if (this.tagAddInfo.value) {
-        const width = this.getWidth(this.tagAddInfo.value);
-        this.widthInput = width + 20;
-      } else {
-        this.widthInput = 200;
-      }
-    }, 300),
-    // 获取文本宽度
-    getWidth(str) {
-      const sensor = document.createElement('pre');
-      sensor.innerHTML = str;
-      sensor.style.display = 'inline-block';
-      sensor.style.width = 'auto';
-      sensor.style.visibility = 'hidden';
-      sensor.style.height = 0;
-      sensor.style.position = 'relative';
-      sensor.style['z-index'] = -10;
-      document.body.appendChild(sensor);
-      const width = sensor.offsetWidth;
-      document.body.removeChild(sensor);
-      return width;
     },
     // 删除block
     deleteBlock() {
       this.$emit('on-delete-block', this.num);
     },
     // on-delete-block回调，删除时保存所有规则块的数据
-    sub_save() {
-      this.linkStr();
+    subSave() {
+      this.tagsToString();
       this.data.index = this.title;
-      bus.buildRuleInfo.triggers[this.num] = this.data;
+      bus.buildRuleInfo.triggers[this.num] = Object.assign({}, this.data);
       this.$emit('sub-save-ok');
     },
     // 重新赋值,sub-save-ok回调
-    set_sudata(index) {
+    setSudata(index) {
       if (index === this.num) {
-        this.data = bus.buildRuleInfo.triggers[this.num];
+        this.data = Object.assign({}, bus.buildRuleInfo.triggers[this.num]);
       }
     },
-    // 添加tag
-    addtag() {
-      this.$refs.tagAddInfo.validate((valid) => {
-        if (valid) {
-          this.widthInput = 200;
-          this.data.tags.push({
-            key: this.tagAddInfo.key,
-            value: this.tagAddInfo.value,
-          });
-          this.addTagFlag = false;
-          this.tagValueList = [];
-          this.tagAddInfo.key = '';
-          this.tagAddInfo.value = '';
-        }
-      });
-    },
-    // 展开tag增加
-    showAddtag() {
-      this.widthInput = 200;
-      this.tagValueList = [];
-      this.addTagFlag = true;
-      this.tagAddInfo.key = '';
-      this.tagAddInfo.value = '';
-      if (this.data.metric) {
-        const params = {
-          metric: this.data.metric,
-        };
-        if (this.productId) params.product_id = this.productId;
-        this.getSuggestTags(params);
+    // 编辑已有策略时，先填充数据
+    setMdata(index) {
+      this.setDataFlag = true;
+      if (index === this.num) {
+        this.data = Object.assign({}, bus.buildRuleInfo.triggers[this.num]);
       }
-    },
-    cancelAddTag() {
-      this.widthInput = 200;
-      this.addTagFlag = false;
-      this.tagValueList = [];
-      this.tagAddInfo.key = '';
-      this.tagAddInfo.value = '';
-    },
-    // 删除tag
-    removetag(index) {
-      if (!this.viewDisable) {
-        this.data.tags.splice(index, 1);
-      }
+      this.selectMetric(); // 获取tag
     },
     // tags字符串拼接
-    linkStr() {
-      let tagstr = '';
-      const tagObj = {};
-      this.data.tags.forEach((unit) => {
-        if (!tagObj[unit.key]) {
-          tagObj[unit.key] = [];
-          tagObj[unit.key].push(unit.value);
-        } else if (tagObj[unit.key].indexOf(unit.value) < 0) {
-          tagObj[unit.key].push(unit.value);
-        }
-      });
-      Object.keys(tagObj).forEach((item, index) => {
+    tagsToString() {
+      let str = '';
+      this.data.tagList.forEach((item, index) => {
         if (index === 0) {
-          tagstr += `${item}=${tagObj[item].join('|')}`;
+          str += `${item.name}=${item.value.join('|')}`;
         } else {
-          tagstr += `,${item}=${tagObj[item].join('|')}`;
+          str += `,${item.name}=${item.value.join('|')}`;
         }
       });
-      this.tags = tagstr;
-      return tagstr;
+      return str;
+    },
+    // 将tag添加到相应框内
+    proTags(data) {
+      if (data) {
+        const dou = data.indexOf(',');
+        // 只有一组tag
+        if (dou === -1) {
+          const set = data.split('=');
+          const tagValueArr = set[1].indexOf('|') > -1 ? set[1].split('|') : [set[1]];
+          const tagIndex = this.data.tagList.findIndex(t => t.name === set[0]);
+          if (tagIndex > -1) {
+            this.data.tagList[tagIndex].value = tagValueArr;
+          }
+        } else { // 多组tag
+          const mid = data.split(','); // ['key=v1','key=v2|v3',....]
+          mid.forEach((item) => {
+            const setInner = item.split('=');
+            const innerValueArr = setInner[1].indexOf('|') > -1 ?
+            setInner[1].split('|') : [setInner[1]];
+            const tagIndex = this.data.tagList.findIndex(t => t.name === setInner[0]);
+            if (tagIndex > -1) {
+              this.data.tagList[tagIndex].value = innerValueArr;
+            }
+          });
+        }
+      }
     },
     // 触发验证,验证填写内容
     vertifyRuleBlock(index) {
@@ -357,7 +269,7 @@ export default {
         this.data.index = this.title;
         this.$refs.ruleItem.validate((valid) => {
           if (valid) {
-            const tagStr = this.linkStr();
+            const tagStr = this.tagsToString();
             const params = JSON.parse(JSON.stringify(this.data));
             params.tags = tagStr;
             // 当在不使用产品线的情况下,删除产品线id
@@ -368,18 +280,29 @@ export default {
         });
       }
     },
+    bytesToSize(bytes) {
+      if (!bytes) return '0';
+      const k = 1000; // or 1024
+      const sizes = ['', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return `${(bytes / (k ** i)).toFixed(2)} ${sizes[i]}`;
+    },
   },
   computed: {
     title() {
       return String.fromCharCode(this.num + 65);
     },
-    inputStyle: {
-      get() {
-        return `width: ${this.widthInput}px;`;
-      },
-      set(newValue) {
-        this.inputStyle = newValue;
-      },
+    // 将不在该产品线下的metric插入
+    metricShowList() {
+      const obj = {
+        arr: [...this.metricList],
+        text: '',
+      };
+      if (this.data.metric && this.metricList.indexOf(this.data.metric) === -1) {
+        obj.arr.unshift(this.data.metric);
+        obj.text = `metric：${this.data.metric}，不可用`;
+      }
+      return obj;
     },
   },
   watch: {

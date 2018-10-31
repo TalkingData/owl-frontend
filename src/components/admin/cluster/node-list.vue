@@ -58,12 +58,15 @@ export default {
         {
           title: '主机名称',
           key: 'hostname',
+          minWidth: 160,
         }, {
           title: '地址',
           key: 'ip',
+          minWidth: 160,
         }, {
           title: '最近更新时间',
           key: 'update',
+          minWidth: 160,
         },
       ],
     };
@@ -76,11 +79,12 @@ export default {
           const arr = Object.values(res.data.nodes);
           // this.total = arr.length;
           this.saveDataList = arr;
-          if (this.searchName !== '') {
+          const query = this.searchName.trim();
+          if (query !== '') {
             this.allDataList = this.saveDataList.filter((item) => {
               const obj = item;
-              return obj.hostname.indexOf(this.searchName) > -1 ||
-               obj.ip.indexOf(this.searchName) > -1;
+              return obj.hostname.indexOf(query) > -1 ||
+               obj.ip.indexOf(query) > -1;
             });
           } else {
             this.allDataList = arr;
@@ -103,13 +107,14 @@ export default {
     },
     // eslint-disable-next-line
     search: _.debounce(function() { // 输入框筛选
-      this.filter.query = this.searchName;
+      const query = this.searchName.trim();
+      this.filter.query = query;
       this.initFilter();
-      if (this.searchName !== '') {
+      if (query !== '') {
         this.allDataList = this.saveDataList.filter((item) => {
           const obj = item;
-          return obj.hostname.indexOf(this.searchName) > -1 ||
-           obj.ip.indexOf(this.searchName) > -1;
+          return obj.hostname.indexOf(query) > -1 ||
+           obj.ip.indexOf(query) > -1;
         });
       } else {
         this.allDataList = this.saveDataList.map((item) => {

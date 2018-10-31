@@ -81,7 +81,7 @@ http.interceptors.response.use((response) => {
         window.location.href = response.data.link;
       } else {
         router.push({
-          path: '/index',
+          path: '/index/timeout',
         });
       }
     }
@@ -92,7 +92,7 @@ http.interceptors.response.use((response) => {
       window.location.href = response.data.link;
     } else {
       router.push({
-        path: '/index',
+        path: '/index/timeout',
       });
     }
   }

@@ -15,18 +15,18 @@
           </div>
           <div class="float-left metric-block mr-5">方式</div>
           <div class="float-left">
-            <Form-item prop="script_id" :rules="{ required: true, type: 'number', trigger: 'change', message: '请选择告警方式'}">
+            <FormItem prop="script_id" :rules="{ required: true, type: 'number', trigger: 'change', message: '请选择告警方式'}">
               <Select v-model="data.script_id" style="width: 100px;" :disabled="viewDisable">
                 <Option v-for="type in scriptList" 
                 :value="type.id"
                 :key="type.id">{{type.name}}</Option>
               </Select>
-            </Form-item>
+            </FormItem>
           </div>
           <div class="float-left metric-block ml-10 mr-5">时间</div>
           <div class="float-left">
-            <Form-item prop="timeRange" :rules="{required: true, type: 'array', min: 2, trigger: 'change', message: '请选择起止时间'}">
-               <Time-picker 
+            <FormItem prop="timeRange" :rules="{required: true, type: 'array', min: 2, trigger: 'change', message: '请选择起止时间'}">
+               <TimePicker 
                 confirm 
                 type="timerange" 
                 placeholder="选择开始结束时间" 
@@ -36,21 +36,21 @@
                 v-model="data.timeRange"
                 @on-change="getTime"
                 @on-clear="getTime"
-                :disabled="viewDisable"
-                ></Time-picker>
-            </Form-item>
+                :readonly="viewDisable"
+                ></TimePicker>
+            </FormItem>
           </div>
           <div v-if="num > 0" class="float-left metric-block ml-10 mr-5">延迟(分钟)</div>
           <div v-if="num > 0" class="float-left">
-            <Form-item prop="time_period" :rules="{required: true, type: 'number', trigger: 'change', message: '请填写延迟时间'}">
-              <Input-number v-model="data.time_period" :min="0" :disabled="viewDisable">
-              </Input-number>
-            </Form-item>
+            <FormItem prop="time_period" :rules="{required: true, type: 'number', trigger: 'change', message: '请填写延迟时间'}">
+              <InputNumber v-model="data.time_period" :min="0" :readonly="viewDisable">
+              </InputNumber>
+            </FormItem>
           </div>
           <div class="float-left metric-block ml-10 mr-5" v-if="data.kind == 1">告警通知</div>
           <div class="float-left metric-block" v-if="data.kind == 1">
             <Poptip placement="top" width="300">
-              <Input v-model="data.alarm_subject" :disabled="viewDisable"></Input>
+              <Input v-model="data.alarm_subject" :readonly="viewDisable"></Input>
               <Row slot="title">
                 <div class="float-left">报警内容</div>
                 <div class="float-right">
@@ -64,7 +64,7 @@
                 </div>
               </Row>
               <div slot="content">
-                <Input v-model="data.alarm_template" :disabled="viewDisable" type="textarea" :autosize="{minRows: 2,maxRows: 15}"></Input>
+                <Input v-model="data.alarm_template" :readonly="viewDisable" type="textarea" :autosize="{minRows: 2,maxRows: 15}"></Input>
               </div>
             </Poptip>
           </div>
@@ -74,7 +74,7 @@
           <div class="float-left metric-block ml-10 mr-5" v-if="data.kind == 1 && data.type">恢复通知</div>
           <div class="float-left metric-block" v-if="data.kind == 1 && data.type">
             <Poptip placement="top" width="300">
-              <Input v-model="data.restore_subject" :disabled="viewDisable"></Input>
+              <Input v-model="data.restore_subject" :readonly="viewDisable"></Input>
               <Row slot="title">
                 <div class="float-left">恢复信息</div>
                 <div class="float-right">
@@ -91,20 +91,20 @@
                 <Input v-model="data.restore_template" 
                 type="textarea" 
                 :autosize="{minRows: 2,maxRows: 15}"
-                :disabled="viewDisable"></Input>
+                :readonly="viewDisable"></Input>
               </div>
             </Poptip>
           </div>
         </Col>
         <Col span="2">
           <div class="float-right">
-            <Button icon="ios-trash" v-show="num > 0" @click="deleteBlock" :disabled="viewDisable"></Button>
+            <Button icon="ios-trash" v-show="allNum > 1" @click="deleteBlock" :disabled="viewDisable"></Button>
           </div>
         </Col>
       </Row>
       <!-- // 1 通知，2 动作 -->
       <Row v-if="data.kind === 1">
-        <Form-item label="告警人员" :label-width="70" prop="user_groups" :rules="{required: true, type: 'array', min: 1, trigger: 'change', message: '请选择告警人员'}">
+        <FormItem label="告警人员" :label-width="70" prop="user_groups" :rules="{required: true, type: 'array', min: 1, trigger: 'change', message: '请选择告警人员'}">
           <Select class="show-x" 
           multiple filterable 
           v-model="data.user_groups" 
@@ -116,7 +116,7 @@
               {{item.name}}
             </Option>
           </Select>
-        </Form-item>
+        </FormItem>
       </Row>
     </Form>
   </div>
@@ -147,6 +147,10 @@ export default {
     scriptList: {
       type: Array,
       default: () => [],
+    },
+    allNum: {
+      type: Number,
+      default: 1,
     },
   },
   data() {

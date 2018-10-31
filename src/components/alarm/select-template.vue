@@ -54,10 +54,11 @@ export default {
       userColumn: [{
         title: '名称',
         key: 'name',
-        width: 200,
+        width: 300,
       }, {
         title: '描述',
         key: 'description',
+        minWidth: 200,
       }],
       // {
       //   title: '操作',

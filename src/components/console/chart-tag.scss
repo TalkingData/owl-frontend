@@ -1,0 +1,21 @@
+.chart-tag {
+	.without-bottom {
+		margin-bottom: 0;
+	}
+	.ivu-select-dropdown {
+		max-height: 100px;
+	}
+	.error-info-text {
+		position: absolute;
+    top: 100%;
+    left: 0;
+    line-height: 1;
+    padding-top: 6px;
+    color: #ed3f14;
+	}
+	.error-text {
+		color: #ed3f14;
+		line-height: 1.5;
+	}
+}
+// ivu-select-dropdown ivu-select-dropdown-transfer ivu-auto-complete

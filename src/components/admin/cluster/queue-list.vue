@@ -72,12 +72,15 @@ export default {
         {
           title: '队列名称',
           key: 'name',
+          minWidth: 160,
         }, {
           title: 'count',
           key: 'count',
+          minWidth: 160,
         }, {
           title: '操作',
           align: 'right',
+          minWidth: 160,
           render: (h, params) => h('div', [h('Tooltip', {
             props: {
               content: params.row.mute ? '开启' : '关闭',
@@ -129,10 +132,11 @@ export default {
         if (res.status === 200) {
           // this.total = res.data.queues.length;
           this.saveDataList = res.data.queues;
-          if (this.searchName !== '') {
+          const query = this.searchName.trim();
+          if (query !== '') {
             this.allDataList = this.saveDataList.filter((item) => {
               const obj = item;
-              return obj.name.toLowerCase().indexOf(this.searchName) > -1;
+              return obj.name.toLowerCase().indexOf(query) > -1;
             });
           } else {
             this.allDataList = res.data.queues;
@@ -168,11 +172,12 @@ export default {
     // eslint-disable-next-line
     search: _.debounce(function() { // 输入框筛选
       this.initFilter();
-      this.filter.query = this.searchName;
-      if (this.searchName !== '') {
+      const query = this.searchName.trim();
+      this.filter.query = query;
+      if (query !== '') {
         this.allDataList = this.saveDataList.filter((item) => {
           const obj = item;
-          return obj.name.toLowerCase().indexOf(this.searchName) > -1;
+          return obj.name.toLowerCase().indexOf(query) > -1;
         });
       } else {
         this.allDataList = this.saveDataList;

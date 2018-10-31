@@ -25,8 +25,8 @@
         :height="tableHeight"></Table>
       </paging>
       <div slot="footer">
-        <Button type="primary" @click="close">确认</Button>
         <Button @click="close">取消</Button>
+        <Button type="primary" @click="close">确认</Button>
       </div>
     </Modal>
   </div>

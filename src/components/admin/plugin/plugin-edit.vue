@@ -2,7 +2,7 @@
   <div>
     <Modal :width="720" v-model="showModal" :title="modalTitle" :mask-closable="false" @on-cancel="cancel">
       <Form ref="nameForm" :model="pluginInfo" :label-width="80">
-        <Form-item prop="id" label="插件" :rules="{ required: true, type: 'number', message: '插件名不能为空', trigger: 'change'}">
+        <FormItem prop="id" label="插件" :rules="{ required: true, type: 'number', message: '插件名不能为空', trigger: 'change'}">
           <Select ref="pluginSelect" v-model="pluginInfo.id"
           filterable 
           remote
@@ -17,16 +17,16 @@
             :label="item.name"
             >{{item.name}}</Option>
           </Select>
-        </Form-item>
-        <Form-item prop="args" label="执行参数">
+        </FormItem>
+        <FormItem prop="args" label="执行参数">
           <Input v-model="pluginInfo.args" placeholder="请输入执行参数"></Input>
-        </Form-item>
-        <Form-item prop="interval" label="执行间隔" :rules="{ required: true, type: 'number', message: '执行间隔不能为空', trigger: 'change'}">
-          <InputNumber :min="1" v-model="pluginInfo.interval" placeholder="请输入执行间隔"></InputNumber>
-        </Form-item>
-        <Form-item prop="timeout" label="超时时间" :rules="{ required: true, type: 'number', message: '超时时间不能为空', trigger: 'change'}">
-          <InputNumber :min="1" v-model="pluginInfo.timeout" placeholder="请输入超时时间"></InputNumber>
-        </Form-item>
+        </FormItem>
+        <FormItem prop="interval" label="执行间隔" :rules="{ required: true, type: 'number', message: '执行间隔不能为空', trigger: 'change'}">
+          <InputNumber style="width: 180px;" :min="1" v-model="pluginInfo.interval" placeholder="请输入执行间隔"></InputNumber>
+        </FormItem>
+        <FormItem prop="timeout" label="超时时间" :rules="{ required: true, type: 'number', message: '超时时间不能为空', trigger: 'change'}">
+          <InputNumber style="width: 180px;" :min="1" v-model="pluginInfo.timeout" placeholder="请输入超时时间"></InputNumber>
+        </FormItem>
         <Alert type="warning" show-icon v-if="errorMsg">{{errorMsg}}</Alert>
       </Form>
       <div slot="footer">
@@ -165,11 +165,14 @@ export default {
       this.errorMsg = '';
       this.showModal = false;
       this.dataList = [];
-      // if (this.$refs.pluginSelect) {
-      //   this.$refs.pluginSelect.reset();
-      // }
+      if (this.$refs.pluginSelect) {
+        this.$refs.pluginSelect.reset();
+      }
       this.initInfo();
       this.showAllFlag = false;
+      if (this.$refs.nameForm) {
+        this.$refs.nameForm.resetFields();
+      }
     },
     // 弹窗确认
     confirmSave() {
@@ -241,7 +244,8 @@ export default {
         if (res.status === 200) {
           if (res.data.code === 200) {
             this.$emit('on-create-success', this.msgInfo, res.data);
-            this.showModal = false;
+            // this.showModal = false;
+            this.cancel();
           } else {
             this.errorMsg = '请重试';
           }
@@ -258,7 +262,8 @@ export default {
         if (res.status === 200) {
           if (res.data.code === 200) {
             this.$emit('on-create-success', this.msgInfo, res.data);
-            this.showModal = false;
+            // this.showModal = false;
+            this.cancel();
           } else {
             this.errorMsg = '请重试';
           }

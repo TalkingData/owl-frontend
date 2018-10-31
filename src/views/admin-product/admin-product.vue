@@ -32,14 +32,14 @@
         </div>
       </div>
     </div>
-    <Modal v-model="addModal" :title="proTitle">
+    <Modal v-model="addModal" :title="proTitle" @on-cancel="cancel">
       <Form :model="addProInfo" ref="addProInfo">
-        <Form-item :label-width="80" label="名称" prop="name" :rules="{ required: true, type: 'string', trigger: 'change', message: '请输入产品线名称'}">
+        <FormItem :label-width="80" label="名称" prop="name" :rules="{ required: true, type: 'string', trigger: 'change', message: '请输入产品线名称'}">
           <Input v-model="addProInfo.name" placeholder="请输入产品线名称"></Input>
-        </Form-item>
-        <Form-item :label-width="80" label="描述" prop="description" :rules="{ required: true, type: 'string', trigger: 'change', message: '产品线描述不能为空'}">
+        </FormItem>
+        <FormItem :label-width="80" label="描述" prop="description" :rules="{ required: true, type: 'string', trigger: 'change', message: '产品线描述不能为空'}">
           <Input v-model="addProInfo.description" placeholder="请输入产品线描述"></Input>
-        </Form-item>
+        </FormItem>
         <Alert type="warning" show-icon v-if="errorMsg">{{errorMsg}}</Alert>
       </Form>
       <div slot="footer">
@@ -98,6 +98,7 @@ export default {
           title: '产品线名称',
           key: 'name',
           sortable: 'custom',
+          minWidth: 160,
           render: (h, params) => h('a', {
             attrs: {
               title: '查看产品线',
@@ -113,13 +114,16 @@ export default {
         }, {
           title: '描述',
           key: 'description',
+          minWidth: 160,
         }, {
           title: '创建人',
           key: 'creator',
           sortable: 'custom',
+          minWidth: 160,
         }, {
           title: '主机数',
           key: 'host_cnt',
+          width: 160,
           render: (h, params) => h('a', {
             attrs: {
               title: '查看产品线主机',
@@ -135,6 +139,7 @@ export default {
         }, {
           title: '用户数',
           key: 'user_cnt',
+          width: 160,
           render: (h, params) => h('a', {
             attrs: {
               title: '查看产品线用户',
@@ -150,6 +155,7 @@ export default {
         }, {
           title: '操作',
           align: 'right',
+          width: 90,
           render: (h, params) => h('div', [h('Tooltip', {
             props: {
               content: '编辑',
@@ -252,7 +258,8 @@ export default {
               if (res.data.code === 200) {
                 this.$Message.success('创建成功');
                 this.viewDetail(res.data.product);
-                this.addModal = false;
+                // this.addModal = false;
+                this.cancel();
                 this.getData(this.filter);
               } else {
                 this.errorMsg = res.data.message || '该名称已存在';
@@ -276,7 +283,8 @@ export default {
             if (res.status === 200) {
               if (res.data.code === 200) {
                 this.$Message.success('修改成功');
-                this.addModal = false;
+                // this.addModal = false;
+                this.cancel();
                 this.getData(this.filter);
               } else {
                 this.errorMsg = res.data.message || '该名称已存在';
@@ -292,6 +300,7 @@ export default {
       this.addModal = false;
       this.addProInfo.name = '';
       this.addProInfo.description = '';
+      this.$refs.addProInfo.resetFields();
     },
     // 滚动条复位
     refresh_scroll() {
@@ -396,7 +405,7 @@ export default {
     search: _.debounce(function() { // 输入框筛选
       this.filter.page = 1;
       this.$refs.page.init();
-      this.filter.query = this.searchName;
+      this.filter.query = this.searchName.trim();
       this.getData(this.filter);
     }, 300),
     // 刷新

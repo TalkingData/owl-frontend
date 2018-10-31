@@ -10,7 +10,7 @@
           <div class="mb-10">
             <span class="span-title">选择主机组</span>
           </div>
-          <Form-item prop="desGroups" :rules="{required: true, type: 'array', min: 1, trigger: 'change', message: '请选择主机组'}">
+          <FormItem prop="desGroups" :rules="{required: true, type: 'array', min: 1, trigger: 'change', message: '请选择主机组'}">
             <Select 
             v-model="groupHost.desGroups" 
             filterable 
@@ -22,13 +22,13 @@
             @on-open-change="openGroup">
               <Option v-for="(item, index) in groupArr" :value="item.id" :key="index">{{ item.name }}</Option>
             </Select>
-          </Form-item>
+          </FormItem>
         </Col>
         <Col span="12" class="pl-10">
           <div class="mb-10">
             <span class="span-title">排除主机</span>
           </div>
-          <Form-item prop="desHosts">
+          <FormItem prop="desHosts">
             <Select 
             @on-change="selectHost"
             v-model="groupHost.desHosts" 
@@ -44,7 +44,7 @@
             not-found-text="">
               <Option v-for="(item, index) in hostOptionList" :value="item.id" :label="item.hostname" :key="index">{{ item.hostname }}</Option>
             </Select>
-          </Form-item>
+          </FormItem>
         </Col>
       </Row>
     </Form>

@@ -5,7 +5,7 @@
 <template>
   <div class="calendar-select" :style="fontStyle">
     <div class="choose-date">
-      <Date-picker v-clickoutside="outside"
+      <DatePicker v-clickoutside="outside"
         class="data-picker-module"
         :open="dateOpenFlag"
         :options="date.datePickerOptions"
@@ -25,7 +25,7 @@
           </template>
           <Icon class="icon-btn" type="ios-arrow-down"></Icon>
         </a>
-      </Date-picker>
+      </DatePicker>
     </div>
     <div class="refresh-area" v-if="refresh">
       刷新周期

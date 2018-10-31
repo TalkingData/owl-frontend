@@ -5,9 +5,11 @@
 <template>
   <div class="build-step build-step3">
     <Row>
-      <action-item :view-disable="viewDisable" ref="ruleBlock" v-for="(item, index) in blockNumList" 
+      <action-item :view-disable="viewDisable" ref="ruleBlock" 
+      v-for="(item, index) in blockNumList" 
       :key="index"
       :num="index"
+      :all-num="blockNumList.length"
       :user-groups="userGroups"
       :script-list="scriptList"
        @on-delete-block="subblock"

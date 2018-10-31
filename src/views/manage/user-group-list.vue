@@ -37,8 +37,8 @@
     <Modal title="移除用户组" v-model="removeModal">
       <Alert type="warning" show-icon>确定要移除用户组：<span v-for="(item,index) in deleteShowData" :key="item.id"><span v-if="index">，</span>{{item.name}}</span>&nbsp;吗？</Alert>
       <div slot="footer">
-        <Button @click="deleteConfirm" type="primary">确定</Button>
         <Button @click="deleteCancel">取消</Button>
+        <Button @click="deleteConfirm" type="primary">确定</Button>
       </div>
     </Modal>
   </div>
@@ -81,7 +81,7 @@ export default {
           title: '用户组名称',
           key: 'name',
           sortable: 'custom',
-          width: 200,
+          minWidth: 200,
           render: (h, params) => h('a', {
             attrs: {
               title: '查看用户组',
@@ -98,6 +98,7 @@ export default {
           title: '描述',
           key: 'description',
           sortable: 'custom',
+          minWidth: 200,
         }, {
           title: '操作',
           align: 'right',
@@ -216,7 +217,7 @@ export default {
     },
     // eslint-disable-next-line
     search: _.debounce(function() {
-      this.filter.query = this.searchName;
+      this.filter.query = this.searchName.trim();
       this.initFilter();
     }, 300),
     // 刷新

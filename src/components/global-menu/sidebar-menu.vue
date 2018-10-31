@@ -4,7 +4,7 @@
 </style>
 <template>
   <!-- 采用了menu中name作为菜单的name,因此一级导航菜单在设置中,需要与path保持一致 -->
-  <i-menu ref="sideMenu" :active-name="activeName" :open-names="openNames" :theme="menuTheme" width="auto" @on-select="changeMenu">
+  <i-menu ref="sideMenu" :active-name="activeName" :open-names="openNames" :theme="menuTheme" width="auto" @on-select="changeMenu" @on-open-change="openMenu">
     <template v-for="item in simpleList">
       <i-menu-item v-if="item.children.length <= 1" :name="item.children[0].name" :key="'imenuitem' + item.path">
         <Icon :type="item.icon" :size="iconSize"></Icon>
@@ -51,8 +51,13 @@ export default {
     return {};
   },
   methods: {
+    // 导航变化
     changeMenu(active) {
       this.$emit('on-change', active);
+    },
+    // 次级导航展开
+    openMenu(arrs) {
+      this.$emit('on-open-change', arrs);
     },
     itemTitle(item) {
       if (typeof item.title === 'object') {

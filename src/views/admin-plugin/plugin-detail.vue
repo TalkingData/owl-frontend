@@ -88,7 +88,7 @@ export default {
         }, {
           title: '主机组名称',
           key: 'name',
-          width: 180,
+          minWidth: 180,
         }, {
           title: '所属产品线',
           key: 'product',
@@ -96,6 +96,7 @@ export default {
         }, {
           title: '创建者',
           key: 'creator',
+          width: 160,
         }, {
           title: '创建时间',
           key: 'create_at',
@@ -104,6 +105,7 @@ export default {
         }, {
           title: '描述',
           key: 'description',
+          minWidth: 150,
         }, {
           title: '操作',
           align: 'right',

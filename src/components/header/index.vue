@@ -38,40 +38,40 @@
       </Row>
     </div>
     <Modal :title="modalTitle" v-model="userInfoModal">
-      <Form v-if="!isResetPwd" :model="userInfo" ref="userUpdateInfo" :label-width="80" :rules="userInfoRules">
-        <Form-item prop="username" label="用户名">
+      <Form v-if="!isResetPwd" :model="userInfo" ref="userUpdateInfo" :label-width="90" :rules="userInfoRules">
+        <FormItem prop="username" label="用户名">
           <Input v-model="userInfo.username" disabled placeholder="请输入用户名"></Input>
-        </Form-item>
-        <Form-item prop="display_name" label="真实姓名" :rules="{required: true, type: 'string', trigger: 'change', message: '真实姓名不能为空'}">
+        </FormItem>
+        <FormItem prop="display_name" label="真实姓名" :rules="{required: true, type: 'string', trigger: 'change', message: '真实姓名不能为空'}">
           <Input v-model="userInfo.display_name" placeholder="请输入真实姓名"></Input>
-        </Form-item>
-        <Form-item prop="phone_number" label="手机号">
+        </FormItem>
+        <FormItem prop="phone_number" label="手机号">
           <Input v-model="userInfo.phone_number" :maxlength="11" placeholder="请输入手机号"></Input>
-        </Form-item>
-        <!-- <Form-item prop="email_address" label="邮箱">
+        </FormItem>
+        <!-- <FormItem prop="email_address" label="邮箱">
           <Input v-model="userInfo.email_address" placeholder="请输入邮箱"></Input>
-        </Form-item> -->
-        <Form-item prop="wechat" label="微信号">
-          <Input v-model="userInfo.wechat" placeholder="请输入微信号"></Input>
-        </Form-item>
+        </FormItem> -->
+        <FormItem prop="wechat" label="企业微信号">
+          <Input v-model="userInfo.wechat" placeholder="请输入企业微信号"></Input>
+        </FormItem>
       </Form>
       <Row v-if="isResetPwd">
         <div v-if="messageSuccess">
           <Alert type="success" show-icon>{{messageSuccess}}，{{timeInterval}}s</Alert>
         </div>
-        <Form :model="resetInfo" ref="resetInfo" :rules="resetRules" :label-width="80">
-          <Form-item label="用户名">
+        <Form :model="resetInfo" ref="resetForm" :label-width="80">
+          <FormItem label="用户名">
             <Input v-model="userInfo.username" disabled placeholder="请输入用户名"></Input>
-          </Form-item>
-          <Form-item prop="oldpwd" label="原始密码">
-            <Input ref="oldpwd" v-model="resetInfo.oldpwd" :type="oldInputType" autocomplete="off" placeholder="请输入原始密码"></Input>
-          </Form-item>
-          <Form-item prop="newpwd" label="新密码">
-            <Input v-model="resetInfo.newpwd" autocomplete="off" :type="newpwdInput" placeholder="请输入新密码"></Input>
-          </Form-item>
-          <Form-item prop="confirmpwd" label="确认密码">
-            <Input v-model="resetInfo.confirmpwd" autocomplete="off" :type="confirmpwdInput" placeholder="请再次输入密码"></Input>
-          </Form-item>
+          </FormItem>
+          <FormItem prop="oldpwd" label="原始密码" :rules="resetRules.oldpwd">
+            <Input ref="oldpwd" v-model="resetInfo.oldpwd" type="password" autocomplete="off" placeholder="请输入原始密码"></Input>
+          </FormItem>
+          <FormItem prop="newpwd" label="新密码" :rules="resetRules.newpwd">
+            <Input v-model="resetInfo.newpwd" autocomplete="off" type="password" placeholder="请输入新密码"></Input>
+          </FormItem>
+          <FormItem prop="confirmpwd" label="确认密码" :rules="resetRules.confirmpwd">
+            <Input v-model="resetInfo.confirmpwd" autocomplete="off" type="password" placeholder="请再次输入密码"></Input>
+          </FormItem>
         </Form>
       </Row>
       <div slot="footer" class="clearfix">
@@ -79,7 +79,7 @@
           <!-- <Button @click="resetPwd">{{resetWord}}</Button> -->
         </div>
         <div class="common-float-right">
-          <Button @click="userInfoModal = false">取消</Button>
+          <Button @click="cancelUser">取消</Button>
           <Button type="primary" @click="confirmUser">确认</Button>
         </div>
       </div>
@@ -145,11 +145,10 @@ export default {
           trigger: 'change',
           required: true,
         }],
-        wechat: [{
-          validator: Util.validateWechat,
-          trigger: 'change',
-          // required: true,
-        }],
+        // wechat: [{
+        //   validator: Util.validateWechat,
+        //   trigger: 'change',
+        // }],
       },
       resetRules: {
         oldpwd: [{
@@ -230,7 +229,7 @@ export default {
     // 确认
     confirmUser() {
       if (this.isResetPwd) {
-        this.$refs.resetInfo.validate((valid) => {
+        this.$refs.resetForm.validate((valid) => {
           if (valid) {
             this.messageSuccess = '';
             // this.userInfoModal = false;
@@ -246,6 +245,14 @@ export default {
         });
       }
     },
+    cancelUser() {
+      this.userInfoModal = false;
+      if (this.isResetPwd) {
+        this.$refs.resetForm.resetFields();
+      } else {
+        this.$refs.userUpdateInfo.resetFields();
+      }
+    },
     // 修改用户信息
     updateUser() {
       updateUser({
@@ -258,6 +265,8 @@ export default {
         if (res.status === 200 && res.data.code === 200) {
           this.$Message.success('修改成功');
           this.getUserInfo();
+          // 修改个人中心用户信息时,刷新用户管理页面
+          bus.$emit('on-update-user');
         } else {
           this.$Message.error('修改失败');
         }
@@ -270,6 +279,7 @@ export default {
           this.userInfo = response.data.result;
           this.role = md5(response.data.result.role);
           Cookies.set('owl_role', md5(response.data.result.role), { expires: 1 });
+          // 触发角色校验
           bus.$emit('on-role-info', this.role);
         }
       });
@@ -329,6 +339,10 @@ export default {
     },
   },
   mounted() {
+    // 修改个人信息
+    bus.$on('on-user-change', () => {
+      this.showUserInfo();
+    });
     this.getUserInfo();
     // 获取面包屑首位
     const infoStr = localStorage.getItem('productInfo');
@@ -338,6 +352,9 @@ export default {
         this.titleProduct = info.name;
       }
     }
+  },
+  beforeDestory() {
+    bus.$off('on-user-change');
   },
   computed: {
     titleRole() {

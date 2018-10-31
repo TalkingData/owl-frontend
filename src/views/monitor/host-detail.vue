@@ -38,13 +38,10 @@
         </div> -->
         <div class="box-content">
           <line-chart-list 
-          @on-edit-chart="editData"
           @on-remove-chart="removeData" ref="chartList"></line-chart-list>
         </div>
       </div>
     </div>
-    <!-- 添加chart -->
-    <chart-add ref="addChartModal" @on-create-success="createSuccess"></chart-add>
     <Modal title="移除图表" v-model="removeModal">
       <Alert type="warning" show-icon>确定要移除图表：<span>{{deleteObj.title}}&nbsp;吗？</span></Alert>
       <div slot="footer">
@@ -59,7 +56,6 @@ import _ from 'lodash';
 import bus from '../../libs/bus';
 import { deleteCharts } from '../../models/service';
 import paging from '../../components/page/paging';
-import chartAdd from '../../components/board/chart-add';
 import lineChartList from '../../components/monitor/line-chart-list';
 import calendarSelect from '../../components/page/calendar-select';
 
@@ -67,7 +63,6 @@ export default {
   name: 'hostMetric',
   components: {
     paging,
-    chartAdd,
     lineChartList,
     calendarSelect,
   },
@@ -111,7 +106,7 @@ export default {
     },
     // eslint-disable-next-line
     search: _.debounce(function() {
-      this.filter.query = this.searchName;
+      this.filter.query = this.searchName.trim();
       this.filter.load = 'init';
       this.getData(this.filter);
     }, 1000),
@@ -155,10 +150,6 @@ export default {
       this.getData(this.filter);
     },
     // 操作--------------------------------------------------------
-    // 创建数据
-    createData() {
-      this.$refs.addChartModal.createData(this.hostId);
-    },
     // 创建成功
     createSuccess(msg, data) {
       if (data && data.code === 200) {
@@ -170,10 +161,6 @@ export default {
         this.filter.load = 'refresh';
         this.getData(this.filter);
       }
-    },
-    // 编辑图表信息,打开编辑弹窗
-    editData(data) {
-      this.$refs.addChartModal.editData(data, this.hostId, this.filter.productId);
     },
     // 移除图表
     removeData(data) {

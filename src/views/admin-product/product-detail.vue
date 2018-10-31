@@ -56,16 +56,18 @@ export default {
     getDetailData() {
       const productItem = localStorage.getItem('productItem');
       this.productItem = JSON.parse(productItem);
-      const type = localStorage.getItem('productItem_type');
-      if (type) {
-        this.tabValue = type;
-      }
     },
     tabclick(name) {
       localStorage.setItem('productItem_type', name);
     },
   },
   computed: {
+  },
+  created() {
+    const type = localStorage.getItem('productItem_type');
+    if (type) {
+      this.tabValue = type;
+    }
   },
   mounted() {
     this.getDetailData();

@@ -6,32 +6,32 @@
   <div class="build-step build-step-one">
     <Form :model="strategyInfo" ref="strategyInfoTop">
       <Row class="subody-panel-filter" v-if="showDescription">
-        <Form-item label="描述" :label-width="70" prop="description" :rules="{required: true, type: 'string', trigger: 'change', message: '请填写描述'}">
-          <Input class="build-des" :title="strategyInfo.description" type="textarea" v-model="strategyInfo.description" :autosize="{minRows: 2}" :disabled="viewDisable"></Input>
-        </Form-item>
+        <FormItem label="描述" :label-width="70" prop="description" :rules="{required: true, type: 'string', trigger: 'change', message: '请填写描述'}">
+          <Input class="build-des" :title="strategyInfo.description" type="textarea" v-model="strategyInfo.description" :autosize="{minRows: 2}" :readonly="viewDisable"></Input>
+        </FormItem>
       </Row>
       <Row class="subody-panel-filter">
         <div class="float-left">
-          <Form-item :label="typeName + '名称'" :label-width="70" prop="name" :rules="{required: true, type: 'string', trigger: 'change', message: '请填写名称'}">
-            <Input :title="strategyInfo.name" type="text" v-model="strategyInfo.name" :disabled="viewDisable"></Input>
-          </Form-item>
+          <FormItem :label="typeName + '名称'" :label-width="70" prop="name" :rules="{required: true, type: 'string', trigger: 'change', message: '请填写名称'}">
+            <Input style="width:200px;" :title="strategyInfo.name" type="text" v-model="strategyInfo.name" :readonly="viewDisable"></Input>
+          </FormItem>
         </div>
         <div class="float-left ml-20">
-          <Form-item label="告警级别" :label-width="70">
+          <FormItem label="告警级别" :label-width="70">
             <Select style="width:100px;" v-model="strategyInfo.priority" :disabled="viewDisable">
               <Option v-for="item in levelList" :key="item.value" :value="item.value" :label="item.label">{{item.label}}</Option>
             </Select>
-          </Form-item>
+          </FormItem>
         </div>
         <div class="float-left ml-20">
-          <Form-item label="告警次数" :label-width="70">
-            <InputNumber :min="1" v-model="strategyInfo.alarm_count" :disabled="viewDisable"></InputNumber>
-          </Form-item>
+          <FormItem label="告警次数" :label-width="70">
+            <InputNumber :min="1" v-model="strategyInfo.alarm_count" :readonly="viewDisable"></InputNumber>
+          </FormItem>
         </div>
         <div class="float-left ml-20">
-          <Form-item label="追溯时间" :label-width="70" prop="cycle">
-            <InputNumber :min="1" v-model="strategyInfo.cycle" :rules="{required: true, type: 'number', trigger: 'change', message: '请填写追溯时间'}" :disabled="viewDisable"></InputNumber><span>分钟</span>
-          </Form-item>
+          <FormItem label="追溯时间" :label-width="70" prop="cycle">
+            <InputNumber :min="1" v-model="strategyInfo.cycle" :rules="{required: true, type: 'number', trigger: 'change', message: '请填写追溯时间'}" :readonly="viewDisable"></InputNumber><span>分钟</span>
+          </FormItem>
         </div>
       </Row>
     </Form>
@@ -40,8 +40,9 @@
         <rule-item  ref="ruleBlock" :num="index" :key="index" 
         :view-disable="viewDisable"
         :metric-list="metricList"
+        :all-num="blockNumList.length"
         @on-delete-block="subblock" 
-        @sub-save-ok="sub_ok"
+        @sub-save-ok="subOk"
         @on-vertify-success="getRuleBlockData"></rule-item>
       </div>
     </div>
@@ -52,7 +53,7 @@
         <Option value="OR">OR</Option>
         <!-- <Option value="自定义">自定义</Option> -->
       </Select>
-      <Input v-model="strategyInfo.expression" style="width: 200px;" :disabled="viewDisable"></Input>
+      <Input v-model="strategyInfo.expression" style="width: 200px;" :readonly="viewDisable"></Input>
       <span class="reminder-word ml-10">如需自定义，请输入正确格式。例:A&&(B||C)</span>
     </Row>
     <Row class="mt-10">
@@ -90,7 +91,7 @@ export default {
         cycle: 5, // 追溯时间
         logic: 'AND', // 逻辑关系
         expression: 'A', // 自定义
-        triggers: [], // 对应模块ruleBlock
+        triggers: [], // 对应模块ruleItem
       },
     },
   },
@@ -117,7 +118,7 @@ export default {
       data2: {}, // 存储下边数据
       rank2: 0,
       index: -1, // 要删除的block, 标识想要删除的规则块
-      sub: 0, // sub_save保存data到bus计数器
+      sub: 0, // subSave保存data到bus计数器
       metricList: [],
     };
   },
@@ -183,12 +184,11 @@ export default {
     subblock(num) {
       this.index = num;
       this.$refs.ruleBlock.forEach((item) => {
-        // 子组件保存内容到bus
-        item.sub_save();
+        item.subSave(); // 子组件保存内容到bus
       });
     },
-    // sub_save保存成功后回调,
-    sub_ok() {
+    // subSave保存成功后回调,
+    subOk() {
       // 每个模块均有返回,当全部模块返回完成时,将sub计数器重置
       this.sub += 1;
       if (this.sub === this.blockNum) {
@@ -201,7 +201,7 @@ export default {
         this.$nextTick(() => {
           this.$refs.ruleBlock.forEach((item, index) => {
             // 将数据从bus重新赋值
-            item.set_sudata(index);
+            item.setSudata(index);
           });
         });
       }
@@ -213,7 +213,7 @@ export default {
       this.$nextTick(() => {
         this.$refs.ruleBlock.forEach((item, index) => {
           // 将数据从bus重新赋值
-          item.set_sudata(index);
+          item.setMdata(index);
         });
       });
     },

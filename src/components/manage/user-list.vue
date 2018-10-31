@@ -41,8 +41,8 @@
     <Modal title="移除用户" v-model="removeModal">
       <Alert type="warning" show-icon>确定要移除用户：<span v-for="(item,index) in deleteShowData" :key="item.id"><span v-if="index">，</span>{{item.username}}</span>&nbsp;吗？</Alert>
       <div slot="footer">
-        <Button @click="deleteConfirm" type="primary">确定</Button>
         <Button @click="deleteCancel">取消</Button>
+        <Button @click="deleteConfirm" type="primary">确定</Button>
       </div>
     </Modal>
   </div>
@@ -116,13 +116,14 @@ export default {
           sortable: 'custom',
           width: 150,
         }, {
-          title: '微信',
+          title: '企业微信',
           key: 'wechat',
           sortable: 'custom',
-          width: 150,
+          minWidth: 150,
         }, {
           title: '操作',
           align: 'right',
+          width: 100,
           render: (h, params) => h('div', [h('Tooltip', {
             props: {
               content: '移除',
@@ -241,7 +242,7 @@ export default {
     },
     // eslint-disable-next-line
     search: _.debounce(function() { // 输入框筛选
-      this.filter.query = this.searchName;
+      this.filter.query = this.searchName.trim();
       this.initFilter();
     }, 300),
     clearSearch() {

@@ -128,8 +128,11 @@
     cursor: pointer;
     &.disabled {
       td {
-        // background: #bbbec4;
-        background: #f8f8f9;
+        // background: #f3f3f3;
+        // *:not(sup) {
+        //   color: #ccc !important;
+        // }
+        // background: #f8f8f9;
         cursor: not-allowed !important;
       }
     }
@@ -137,8 +140,11 @@
   .show-ivu-row {
     &.disabled {
       td {
-        // background: #bbbec4;
-        background: #f8f8f9;
+        // background: #f3f3f3;
+        // *:not(sup) {
+        //   color: #ccc !important;
+        // }
+        // background: #f8f8f9;
         cursor: not-allowed !important;
       }
     }

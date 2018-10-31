@@ -96,6 +96,10 @@
   cursor: pointer;
   // border-bottom: 1px solid #dddee1;
   // box-shadow: 0 2px 1px 1px rgba(100, 100, 100, .1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 901;
   img {
     display: inline-block;
     @include size(auto, 44px);

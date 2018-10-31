@@ -29,7 +29,7 @@
 <script>
 import Cookies from 'js-cookie';
 import md5 from 'md5';
-import { getProducts } from '../../models/service';
+import { getProducts, getUserInfo } from '../../models/service';
 import bus from '../../libs/bus';
 import theader from '../../components/header';
 
@@ -61,6 +61,7 @@ export default {
   mounted() {
     this.isAdmin = this.role === Cookies.get('owl_role');
     this.getProducts();
+    // 触发角色校验
     bus.$on('on-role-info', (role) => {
       this.isAdmin = this.role === role;
     });
@@ -101,6 +102,55 @@ export default {
         path: `/console/panel/list/${obj.id}`,
       });
     },
+    getUser() {
+      getUserInfo().then((res) => {
+        if (res.status === 200 && res.data.code === 200) {
+          const arr = [];
+          if (!res.data.result.phone_number) {
+            arr.push('手机号');
+          }
+          if (!res.data.result.wechat) {
+            arr.push('企业微信');
+          }
+          if (!res.data.result.display_name) {
+            arr.push('真实姓名');
+          }
+          if (arr.length > 0) {
+            this.$Notice.warning({
+              title: '个人信息不完整',
+              name: 'userNotice',
+              duration: 0,
+              render: h => h('div', {
+                style: {
+                  lineHeight: '20px',
+                },
+              }, [h('span', `您还有 ${arr.join('、')} 等项未设置，`), h('a', {
+                attrs: {
+                  title: '点击完善',
+                  // eslint-disable-next-line
+                  href: 'javascript:;',
+                },
+                on: {
+                  click: () => {
+                    this.$Notice.close('userNotice');
+                    bus.$emit('on-user-change');
+                  },
+                },
+              }, '前去完善')]),
+            });
+          }
+        }
+      });
+    },
+  },
+  beforeRouteEnter(to, from, next) {
+    next((vm) => {
+      if (from.matched.length > 0 && (from.name === 'login_index'
+        || from.name === 'login_timeout')) {
+        // vm.$Message.warning('登录超时，请重新登录');
+        vm.getUser();
+      }
+    });
   },
 };
 

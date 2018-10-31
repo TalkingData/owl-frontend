@@ -8,12 +8,12 @@
       <div v-if="!changepsd">
         <div class="notice">{{noticeLogin}}</div>
         <Form ref="userInfo" :model="userInfo">
-          <Form-item prop="username" :rules="{ required: true, type: 'string', message: '用户名不能为空', trigger: 'change'}">
+          <FormItem prop="username" :rules="{ required: true, type: 'string', message: '用户名不能为空', trigger: 'change'}">
             <Input @on-keyup.enter="$refs.userpsd.focus()" v-model="userInfo.username" type="text" placeholder="用户名"></Input>
-          </Form-item>
-          <Form-item prop="userpsd" :rules="{ required: true, type: 'string', message: '密码不能为空', trigger: 'change'}">
+          </FormItem>
+          <FormItem prop="userpsd" :rules="{ required: true, type: 'string', message: '密码不能为空', trigger: 'change'}">
             <Input ref="userpsd" @on-keyup.enter="verify()" v-model="userInfo.userpsd" type="password" placeholder="密码"></Input>
-          </Form-item>
+          </FormItem>
           <div class="submit">
             <Button type="primary" long @click="verify()">登录</Button>
               <!-- 后期开发 -->
@@ -33,9 +33,9 @@
             <p v-if="issend"><span class="icon-confirm"></span>重设密码邮件已发送</p>
             <!-- <p v-else style="color:#e96062">{{notice1}}</p> -->
           </div>
-          <Form-item prop="emails" :rules="emailRules">
+          <FormItem prop="emails" :rules="emailRules">
             <Input v-model="rePsw.emails" type="text" placeholder="输入正确的邮箱号"></Input>
-          </Form-item>
+          </FormItem>
           <div class="submit">
             <Button type="primary" long @click="verify()">重设密码</Button>
           </div>
@@ -81,12 +81,6 @@ export default {
     };
   },
   components: {
-  },
-  mounted() {
-  },
-  created() {
-  },
-  beforeDestroy() {
   },
   methods: {
     setpsd() {
@@ -155,6 +149,22 @@ export default {
         });
       }
     },
+  },
+  mounted() {
+  },
+  created() {
+  },
+  beforeDestroy() {
+  },
+  beforeRouteEnter(to, from, next) {
+    next((vm) => {
+      if (from.matched.length > 0 && vm.$route.params.loginId === 'timeout') {
+        vm.$Message.warning({
+          duration: 3,
+          content: '认证失败，请重新登录',
+        });
+      }
+    });
   },
 };
 

@@ -152,6 +152,12 @@ export default {
     // 新建策略
     addStrategie(params) {
       const param = JSON.parse(JSON.stringify(params));
+      param.triggers.forEach((item) => {
+        // eslint-disable-next-line
+        item.tags = this.tagsToString(item.tagList);
+        // eslint-disable-next-line
+        delete item.tagList;
+      });
       param.productId = this.productId;
       addStrategie(param).then((res) => {
         if (res.status === 200) {
@@ -174,6 +180,12 @@ export default {
     // 升级策略
     updateStrategie(params) {
       const param = JSON.parse(JSON.stringify(params));
+      param.triggers.forEach((item) => {
+        // eslint-disable-next-line
+        item.tags = this.tagsToString(item.tagList);
+        // eslint-disable-next-line
+        delete item.tagList;
+      });
       param.productId = this.productId;
       updateStrategie(param).then((res) => {
         if (res.status === 200) {
@@ -190,37 +202,17 @@ export default {
         }
       });
     },
-    // 将后台拿到的“k1=v1,k2=v2...”转为[{key:k1,value:v1},{key:k2,value:v2}....]
-    proTags(data) {
-      const dou = data.indexOf(',');
-      const tmp = [];
-      if (dou === -1) {
-        const set = data.split('=');
-        if (set.length > 1) {
-          const valueArr = set[1].split('|');
-          valueArr.forEach((keyV) => {
-            tmp.push({
-              key: set[0],
-              value: keyV,
-            });
-          });
+    // tags字符串拼接
+    tagsToString(arr) {
+      let str = '';
+      arr.forEach((item, index) => {
+        if (index === 0) {
+          str += `${item.name}=${item.value.join('|')}`;
+        } else {
+          str += `,${item.name}=${item.value.join('|')}`;
         }
-      } else {
-        const mid = data.split(','); // ['key=v1','key=v2',....]
-        mid.forEach((item) => {
-          const setInner = item.split('=');
-          if (setInner.length > 1) {
-            const valueArr = setInner[1].split('|');
-            valueArr.forEach((keyV) => {
-              tmp.push({
-                key: setInner[0],
-                value: keyV,
-              });
-            });
-          }
-        });
-      }
-      return tmp;
+      });
+      return str;
     },
     // 获取策略信息
     getStrategyInfo(params) {
@@ -245,11 +237,12 @@ export default {
         }
       });
       // 设置步骤一信息, trigger信息
-      // this.strategyInfo.triggers = JSON.parse(JSON.stringify(ruleInfo.strategy.triggers));
+      this.strategyInfo.triggers = JSON.parse(JSON.stringify(ruleInfo.strategy.triggers));
+      // tag在rule-item中处理
       let triggerArr = JSON.parse(JSON.stringify(ruleInfo.strategy.triggers));
       triggerArr = triggerArr.map((item) => {
         const obj = item;
-        obj.tags = this.proTags(obj.tags);
+        obj.tagList = [];
         return obj;
       });
       bus.buildRuleInfo.triggers = triggerArr;
@@ -298,7 +291,7 @@ export default {
         let triggerArr = JSON.parse(JSON.stringify(data.template.triggers));
         triggerArr = triggerArr.map((item) => {
           const obj = item;
-          obj.tags = this.proTags(obj.tags);
+          obj.tagList = [];
           return obj;
         });
         bus.buildRuleInfo.triggers = triggerArr;

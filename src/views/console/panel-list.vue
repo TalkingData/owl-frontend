@@ -34,20 +34,20 @@
     </div>
     <Modal :title="createTitle" v-model="createModal">
       <Form :model="createInfo" ref="createInfo" :label-width="80">
-        <Form-item label="看板名称" prop="name" :rules="{ required: true, type: 'string', trigger: 'change', message: '请输入看板名称' }">
+        <FormItem label="看板名称" prop="name" :rules="{ required: true, type: 'string', trigger: 'change', message: '请输入看板名称' }">
           <Input v-model="createInfo.name"></Input>
-        </Form-item>
+        </FormItem>
       </Form>
        <div slot="footer">
-        <Button @click="createSuccess" type="primary">确定</Button>
         <Button @click="createCancel">取消</Button>
+        <Button @click="createSuccess" type="primary">确定</Button>
       </div>
     </Modal>
     <Modal title="删除看板" v-model="removeModal">
       <Alert type="warning" show-icon>确定要删除看板：<span v-for="(item,index) in deleteShowData" :key="item.id"><span v-if="index">，</span>{{item.name}}</span>&nbsp;吗？</Alert>
       <div slot="footer">
-        <Button @click="deleteConfirm" type="primary">确定</Button>
         <Button @click="deleteCancel">取消</Button>
+        <Button @click="deleteConfirm" type="primary">确定</Button>
       </div>
     </Modal>
   </div>
@@ -95,6 +95,7 @@ export default {
           title: '看板名称',
           key: 'name',
           sortable: 'custom',
+          minWidth: 160,
           render: (h, params) => h('a', {
             attrs: {
               title: '查看看板',
@@ -111,9 +112,11 @@ export default {
           title: '创建人',
           key: 'creator',
           sortable: 'custom',
+          minWidth: 160,
         }, {
           title: '操作',
           align: 'right',
+          width: 180,
           render: (h, params) => h('div', [h('Tooltip', {
             props: {
               content: '编辑',
@@ -179,6 +182,7 @@ export default {
       this.createInfo.id = '';
       this.createTitle = '创建看板';
       this.createModal = false;
+      this.$refs.createInfo.resetFields();
     },
     // 编辑看板
     editData(obj) {
@@ -199,7 +203,8 @@ export default {
         } else {
           this.$Message.warning('创建失败');
         }
-        this.createModal = false;
+        // this.createModal = false;
+        this.createCancel();
       });
     },
     // 编辑看板接口
@@ -215,7 +220,8 @@ export default {
         } else {
           this.$Message.warning('编辑失败');
         }
-        this.createModal = false;
+        // this.createModal = false;
+        this.createCancel();
       });
     },
     // //滚动条复位
@@ -321,7 +327,7 @@ export default {
     },
     // eslint-disable-next-line
     search: _.debounce(function() { // 输入框筛选
-      this.filter.query = this.searchName;
+      this.filter.query = this.searchName.trim();
       this.initFilter();
     }, 300),
     // 刷新

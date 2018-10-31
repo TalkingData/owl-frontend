@@ -79,7 +79,7 @@ export default {
         }, {
           title: '插件名称',
           key: 'name',
-          width: 150,
+          width: 160,
           render: (h, params) => h('span', params.row.name),
           // render: (h, params) => h('a', {
           //   attrs: {
@@ -112,6 +112,7 @@ export default {
         }, {
           title: '校验和',
           key: 'checksum',
+          width: 240,
         }, {
           title: '操作',
           align: 'right',
@@ -303,7 +304,7 @@ export default {
     // eslint-disable-next-line
     search: _.debounce(function() { // 输入框筛选
       this.filter.page = 1;
-      this.filter.query = this.searchName;
+      this.filter.query = this.searchName.trim();
       this.getData(this.filter);
     }, 300),
     // 刷新

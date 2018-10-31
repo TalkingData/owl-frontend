@@ -12,9 +12,20 @@
           <Button @click="addHost" 
           v-if="source === 'product' || source === 'group'"
           type="primary" icon="plus">添加主机</Button>
-          <Button :disabled="!disableObj.isRemove || !unDistribute" 
+          <Button :disabled="!disableObj.isRemove"
           type="primary"
-          v-if="unDistribute && (source === 'admin' || source === 'monitor')" @click="appendHost">{{sourceObj.text}}</Button>
+          v-if="source === 'admin' || source === 'monitor'" @click="appendHost">{{sourceObj.text}}</Button>
+          <Dropdown placement="bottom-start" trigger="click" @on-click="awareData">
+            <Button :disabled="!disableObj.isRemove" type="primary">静音</Button>
+            <DropdownMenu slot="list">
+              <DropdownItem name="1h">1h</DropdownItem>
+              <DropdownItem name="4h">4h</DropdownItem>
+              <DropdownItem name="8h">8h</DropdownItem>
+              <DropdownItem name="1d">1天</DropdownItem>
+              <DropdownItem name="1w">1周</DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+          <Button :disabled="!disableObj.isRemove" @click="unMuteAllData">取消静音</Button>
         </div>
         <div class="float-right">
           <Checkbox v-if="source === 'admin' || source === 'monitor'" v-model="unDistribute" @on-change="checkHost">未{{sourceObj.text}}</Checkbox>
@@ -41,7 +52,7 @@
     <create-host-group ref="addHost" @on-create-success="addSuccess"></create-host-group>
     <Modal :title="actionObj.title" v-model="removeModal">
       <Form :model="appendInfo" v-if="msgInfo === 'appendpro' || msgInfo === 'appendgroup'" ref="appendForm" :label-width="80">
-        <Form-item prop="productId" v-if="msgInfo === 'appendpro'"
+        <FormItem prop="productId" v-if="msgInfo === 'appendpro'"
         :rules="{required: true, type: 'number', message: '请选择产品线', trigger: 'change'}" label="产品线">
           <Select v-model="appendInfo.productId">
             <Option v-for="(item, index) in productList"
@@ -49,8 +60,8 @@
             :value="item.id"
             :label="item.name">{{item.name}}</Option>
           </Select>
-        </Form-item>
-        <Form-item prop="groupId" v-if="msgInfo === 'appendgroup'"
+        </FormItem>
+        <FormItem prop="groupId" v-if="msgInfo === 'appendgroup'"
         :rules="{required: true, type: 'number', message: '请选择主机组', trigger: 'change'}" label="主机组">
           <Select v-model="appendInfo.groupId">
             <Option v-for="(item, index) in groupList"
@@ -58,7 +69,7 @@
             :value="item.id"
             :label="item.name">{{item.name}}</Option>
           </Select>
-        </Form-item>
+        </FormItem>
       </Form>
       <Alert type="warning" show-icon>确定要{{actionObj.title}}：<span v-for="(item,index) in deleteShowData" :key="item.id"><span v-if="index">，</span>{{item.hostname}}</span>&nbsp;吗？</Alert>
       <div slot="footer">
@@ -71,7 +82,7 @@
 <script>
 import _ from 'lodash';
 import axios from 'axios';
-// import bus from '../../libs/bus';
+import bus from '../../libs/bus';
 import {
   getHostOfPro,
   removeHostInPro,
@@ -83,6 +94,8 @@ import {
   addHostInPro,
   getHostGroups,
   addHostInGroup,
+  muteHost,
+  unmuteHost,
 } from '../../models/service';
 import paging from '../page/paging';
 import createHostGroup from './create-host-group';
@@ -125,6 +138,7 @@ export default {
           title: '主机名称',
           key: 'hostname',
           sortable: 'custom',
+          minWidth: 180,
           render: (h, params) => h('a', {
             attrs: {
               title: '前往主机详情页',
@@ -143,6 +157,24 @@ export default {
           sortable: 'custom',
           width: 120,
         }, {
+          title: '空闲率',
+          key: 'idle_pct',
+          width: 100,
+          sortable: 'custom',
+          render: (h, params) => h('span', {}, `${params.row.idle_pct}%`),
+        }, {
+          title: '持续运行时间',
+          key: 'uptime',
+          width: 180,
+          sortable: 'custom',
+          render: (h, params) => h('span', {}, this.getDuration(params.row.uptime)),
+        }, {
+          title: '剩余静音时间',
+          width: 150,
+          key: 'mute_time',
+          sortable: 'custom',
+          render: (h, params) => h('span', this.getTimeLast(params.row.mute_time)),
+        }, {
           title: '状态',
           key: 'status',
           width: 80,
@@ -156,21 +188,8 @@ export default {
             },
           }),
         }, {
-          title: '空闲率',
-          key: 'idle_pct',
-          width: 100,
-          sortable: 'custom',
-          render: (h, params) => h('span', {}, `${params.row.idle_pct}%`),
-        }, {
-          title: '持续运行时间',
-          key: 'uptime',
-          width: 180,
-          sortable: 'custom',
-          render: (h, params) => h('span', {}, this.getDuration(params.row.uptime)),
-        }, {
           title: '插件数',
           key: 'plugin_cnt',
-          // sortable: 'custom',
           width: 80,
           align: 'center',
           render: (h, params) => h('a', {
@@ -188,10 +207,112 @@ export default {
           }, params.row.plugin_cnt),
         }, {
           title: '主机组',
+          minWidth: 160,
           renderHeader: h => h('span', this.source === 'admin' ? '产品线' : '主机组'),
           render: (h, params) => h('div', [this.source !== 'admin' && params.row.host_groups ? h('div', params.row.host_groups.map((item, gIndex) => h('span', {
           }, gIndex === 0 ? item.name : `, ${item.name}`))) : '', this.source === 'admin' && params.row.products ? h('div', params.row.products.map((item, gIndex) => h('span', {
           }, gIndex === 0 ? item.name : `, ${item.name}`))) : '']),
+        }, {
+          title: '操作',
+          align: 'right',
+          width: 100,
+          render: (h, params) => h('div', {
+            class: {
+              clearfix: true,
+            },
+          }, [h('Poptip', {
+            props: {
+              placement: 'left',
+              // value: params.row.muteVisible,
+              trigger: 'hover',
+            },
+          }, [h('Icon', {
+            props: {
+              size: 18,
+              type: 'android-volume-off',
+            },
+            // nativeOn: {
+            //   click: (event) => {
+            //     event.stopPropagation();
+            //     this.showMute(params.index);
+            //   },
+            // },
+          }), h('div', {
+            slot: 'content',
+          }, [h('span', '静音：'), h('Button', {
+            on: {
+              click: (event) => {
+                event.stopPropagation();
+                this.awareData('1h', params.row, params.index);
+              },
+            },
+          }, '1h'), h('Button', {
+            on: {
+              click: (event) => {
+                event.stopPropagation();
+                this.awareData('4h', params.row, params.index);
+              },
+            },
+          }, '4h'), h('Button', {
+            on: {
+              click: (event) => {
+                event.stopPropagation();
+                this.awareData('8h', params.row, params.index);
+              },
+            },
+          }, '8h'), h('Button', {
+            on: {
+              click: (event) => {
+                event.stopPropagation();
+                this.awareData('1d', params.row, params.index);
+              },
+            },
+          }, '1天'), h('Button', {
+            on: {
+              click: (event) => {
+                event.stopPropagation();
+                this.awareData('1w', params.row, params.index);
+              },
+            },
+          }, '1周')])]), h('Tooltip', {
+            props: {
+              content: '取消静音',
+              placement: 'top',
+            },
+            style: {
+              marginLeft: '10px',
+            },
+          }, [h('Icon', {
+            props: {
+              size: 18,
+              type: 'android-volume-up',
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.unMuteData(params.row);
+              },
+            },
+          })]), this.source !== 'monitor' ? h('Tooltip', {
+            props: {
+              content: this.sourceObj.deleteWord,
+              placement: 'top',
+            },
+            style: {
+              marginLeft: '10px',
+            },
+          }, [h('Icon', {
+            props: {
+              size: 18,
+              type: this.sourceObj.deleteIcon,
+            },
+            nativeOn: {
+              click: (event) => {
+                event.stopPropagation();
+                this.removeData(params.row);
+              },
+            },
+          })]) : '']),
         },
       ],
       groupItem: null, // 主机组信息
@@ -213,49 +334,6 @@ export default {
     };
   },
   methods: {
-    initColumn() {
-      // source === 'product' || source === 'group' || source === 'admin'
-      if (this.source !== 'monitor') {
-        // this.columns.unshift({
-        //   type: 'selection',
-        //   width: 60,
-        //   align: 'center',
-        // });
-        this.columns.push({
-          title: '操作',
-          align: 'right',
-          width: 120,
-          render: (h, params) => h('div', {
-            class: {
-              clearfix: true,
-            },
-          }, [this.source !== 'monitor' ? h('div', {
-            class: {
-              'float-right': true,
-            },
-          }, [h('Tooltip', {
-            props: {
-              content: this.sourceObj.deleteWord,
-              placement: 'top',
-            },
-            style: {
-              marginLeft: '10px',
-            },
-          }, [h('Icon', {
-            props: {
-              size: 18,
-              type: this.sourceObj.deleteIcon,
-            },
-            nativeOn: {
-              click: (event) => {
-                event.stopPropagation();
-                this.removeData(params.row);
-              },
-            },
-          })])]) : '']),
-        });
-      }
-    },
     // 产品线添加主机
     addHost() {
       let productInfo = '';
@@ -290,12 +368,136 @@ export default {
         return host;
       });
     },
-    // 添加出击回调
+    // 添加主机回调
     addSuccess(msg, data) {
       if (data.code === 200) {
         this.$Message.success('添加成功');
         this.getData(this.filter);
       }
+    },
+    showMute(index) {
+      this.dataList[index].muteVisible = true;
+      this.dataList.forEach((item, i) => {
+        const obj = item;
+        if (i !== index) obj.muteVisible = false;
+      });
+    },
+    // 静音告警
+    awareData(name, obj, count) {
+      const time = this.getAwareTime(name);
+      if (obj) {
+        // 操作一组
+        this.dataList[count].muteVisible = false;
+        const params = {
+          hostId: obj.id,
+          muteTime: time,
+        };
+        this.muteHost(params);
+      } else if (this.selectedData.length) {
+        const hostArr = this.selectedData.map(item => item.hostname);
+        // 操作多个
+        this.$Modal.confirm({
+          title: '静音确认',
+          content: `确认要静音以下主机 ${hostArr.join('，')} 吗`,
+          onOk: () => {
+            this.muteAllHost(time);
+          },
+        });
+      }
+    },
+    // 静音告警,对接接口
+    muteHost(params) {
+      muteHost(params).then((res) => {
+        if (res.status === 200) {
+          this.$Message.success('已静音成功');
+          this.getData(this.filter);
+        }
+      });
+    },
+    // 静音多个
+    muteAllHost(time) {
+      const awareArr = this.selectedData.map(item => muteHost({
+        hostId: item.id,
+        muteTime: time,
+      }));
+      axios.all(awareArr).then((all) => {
+        if (all.length === this.selectedData.length) {
+          let flag = true;
+          all.forEach((res) => {
+            if (res.status !== 200) {
+              flag = false;
+            }
+          });
+          if (flag) {
+            this.$Message.success('已静音成功');
+            this.getData(this.filter);
+          } else {
+            this.$Message.srror('静音失败');
+          }
+        } else {
+          this.$Message.srror('静音失败');
+        }
+      });
+    },
+    unMuteData(obj) {
+      if (obj) {
+        const params = {
+          hostId: obj.id,
+        };
+        this.$Modal.confirm({
+          title: '取消静音',
+          content: `确定要将主机： ${obj.hostname} 取消静音吗?`,
+          onOk: () => {
+            this.unmuteHost(params);
+          },
+        });
+      }
+    },
+    unMuteAllData() {
+      if (this.selectedData.length) {
+        const hostArr = this.selectedData.map(item => item.hostname);
+        // 操作多个
+        this.$Modal.confirm({
+          title: '取消静音',
+          content: `确认要将以下主机 ${hostArr.join('，')} 取消静音吗`,
+          onOk: () => {
+            this.unmuteAllHost();
+          },
+        });
+      }
+    },
+    // 取消静音多个
+    unmuteAllHost() {
+      const awareArr = this.selectedData.map(item => unmuteHost({
+        hostId: item.id,
+      }));
+      axios.all(awareArr).then((all) => {
+        if (all.length === this.selectedData.length) {
+          let flag = true;
+          all.forEach((res) => {
+            if (res.status !== 200) {
+              flag = false;
+            }
+          });
+          if (flag) {
+            this.$Message.success('取消静音成功');
+            this.getData(this.filter);
+          } else {
+            this.$Message.srror('取消静音失败');
+          }
+        } else {
+          this.$Message.srror('取消静音失败');
+        }
+      });
+    },
+    // 取消静音,对接接口
+    unmuteHost(params) {
+      unmuteHost(params).then((res) => {
+        if (res.status === 200) {
+          this.$Message.success('取消静音成功');
+          this.getData(this.filter);
+        }
+      });
     },
     // 移除主机
     removeData(obj) {
@@ -467,7 +669,11 @@ export default {
         getHostOfPro(obj).then((res) => {
           if (res.status === 200) {
             this.total = res.data.total;
-            this.dataList = res.data.hosts;
+            this.dataList = res.data.hosts.map((item) => {
+              const hostobj = item;
+              hostobj.muteVisible = false;
+              return hostobj;
+            });
           } else {
             this.total = 0;
             this.dataList = [];
@@ -477,7 +683,11 @@ export default {
         getHostOfGroup(obj).then((res) => {
           if (res.status === 200) {
             this.total = res.data.total;
-            this.dataList = res.data.hosts;
+            this.dataList = res.data.hosts.map((item) => {
+              const hostobj = item;
+              hostobj.muteVisible = false;
+              return hostobj;
+            });
           } else {
             this.total = 0;
             this.dataList = [];
@@ -488,7 +698,11 @@ export default {
         getAllHosts(obj).then((res) => {
           if (res.status === 200) {
             this.total = res.data.total;
-            this.dataList = res.data.hosts;
+            this.dataList = res.data.hosts.map((item) => {
+              const hostobj = item;
+              hostobj.muteVisible = false;
+              return hostobj;
+            });
           } else {
             this.total = 0;
             this.dataList = [];
@@ -549,7 +763,7 @@ export default {
     search: _.debounce(function() { // 输入框筛选
       this.filter.page = 1;
       this.$refs.page.init();
-      this.filter.query = this.searchName;
+      this.filter.query = this.searchName.trim();
       this.getData(this.filter);
     }, 300),
     // 刷新
@@ -558,7 +772,6 @@ export default {
     },
     // 初始化
     getDetailData() {
-      this.initColumn();
       if (this.$route.params.productId) {
         this.filter.productId = parseInt(this.$route.params.productId, 10);
       }
@@ -718,6 +931,58 @@ export default {
          : value.toString().replace(/\B(?=(\d{3})+$)/g, ',');
       }
       return 0;
+    },
+    // 获取时间
+    getAwareTime(name) {
+      if (name) {
+        const now = new Date();
+        if (name.indexOf('h') > -1) {
+          const hour = parseInt(name.slice(0, name.length - 1), 10);
+          now.setHours(now.getHours() + hour);
+        } else if (name.indexOf('d') > -1) {
+          const day = parseInt(name.slice(0, name.length - 1), 10);
+          now.setDate(now.getDate() + day);
+        } else if (name.indexOf('w') > -1) {
+          const week = parseInt(name.slice(0, name.length - 1), 10);
+          now.setDate(now.getDate() + (week * 7));
+        }
+        const time = bus.timeFormate(now, 'yyyy-MM-dd hh:mm:ss');
+        return time;
+      }
+      return '';
+    },
+    setTimeFormat(time) {
+      if (time) {
+        return bus.timeFormate(time, 'yyyy-MM-dd hh:mm:ss');
+      }
+      return time;
+    },
+    // 获取持续时间
+    getTimeLast(time) {
+      const now = new Date();
+      const end = new Date(time);
+      if (now > end) return '--';
+      const num = end.getTime() - now.getTime();
+      if (num > 0) {
+        const seconds = Math.ceil(num / 1000);
+        if (seconds >= 60) {
+          // const minutes = Math.floor(seconds / 60);
+          const minutes = seconds / 60;
+          if (minutes >= 60) {
+            const hours = minutes / 60;
+            if (hours >= 24) {
+              const days = hours / 24;
+              return `${Math.floor(days)}天${Math.floor(hours) % 24}小时
+              ${Math.floor(minutes) % 60}分${seconds % 60}秒`;
+            }
+            return `${Math.floor(hours) % 24}小时
+              ${Math.floor(minutes) % 60}分${seconds % 60}秒`;
+          }
+          return `${Math.floor(minutes) % 60}分${seconds % 60}秒`;
+        }
+        return `${seconds % 60}秒`;
+      }
+      return time;
     },
   },
   computed: {

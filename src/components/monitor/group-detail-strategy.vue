@@ -53,6 +53,7 @@ export default {
       columns: [{
         title: '策略名称',
         key: 'name',
+        minWidth: 180,
         render: (h, params) => h('a', {
           attrs: {
             title: '查看策略',
@@ -68,12 +69,15 @@ export default {
       }, {
         title: '创建人',
         key: 'user_name',
+        minWidth: 180,
       }, {
         title: '报警次数',
         key: 'alarm_count',
+        minWidth: 180,
       }, {
         title: '策略追溯时间(分钟)',
         key: 'cycle',
+        minWidth: 180,
       }],
       selectedData: [], // 选中数据
       removeModal: false,
@@ -91,7 +95,7 @@ export default {
     },
     // eslint-disable-next-line
     search: _.debounce(function() { // 输入框筛选
-      this.filter.query = this.searchName;
+      this.filter.query = this.searchName.trim();
       this.initFilter();
     }, 300),
     reload() {

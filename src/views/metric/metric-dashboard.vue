@@ -56,8 +56,8 @@ import bus from '../../libs/bus';
 import {
   getQueryChart,
 } from '../../models/service';
-import metricSet from '../../components/admin/metric/metric-set';
-import lineChartBlock from '../../components/dashboard/line-chart-block';
+import metricSet from '../../components/metric/metric-set';
+import lineChartBlock from '../../components/charts/line-chart-block';
 import calendarSelect from '../../components/page/calendar-select';
 
 export default {
