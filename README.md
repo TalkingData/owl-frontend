@@ -1,4 +1,4 @@
-# owltest
+# owl
 
 > A Vue.js project
 

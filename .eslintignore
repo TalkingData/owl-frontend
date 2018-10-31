@@ -1,0 +1,6 @@
+build/*.js
+config/*.js
+src/store
+src/models
+src/directives/*.js
+src/libs

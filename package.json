@@ -19,7 +19,7 @@
     "axios": "^0.15.3",
     "highcharts": "^5.0.14",
     "highcharts-custom-events": "^2.0.20",
-    "iview": "2.13.1",
+    "iview": "2.14.3",
     "js-cookie": "^2.1.4",
     "lodash": "4.17.4",
     "md5": "^2.2.1",
