@@ -1,5 +1,5 @@
 <style lang="scss">
-  @import './line-chart-block.scss'
+  @import './line-chart-block.scss';
 </style>
 <template>
   <div class="line-chart-block">
@@ -62,7 +62,7 @@ export default {
   },
   data() {
     return {
-      data: [], // 该图表信息,chartItem
+      data: {}, // 该图表信息,chartItem
       seriesItem: [], // 保存信息
       images: '',
       toolbox: false,
@@ -87,7 +87,14 @@ export default {
       firstShow: false, // 默认不显示操作按钮,
     };
   },
-  computed: {},
+  computed: {
+    typeVisible() {
+      if (this.data.type === 1 || this.data.type === 2 || this.data.type === 4) {
+        return true;
+      }
+      return false;
+    },
+  },
   watch: {},
   methods: {
     // 展示图表编辑区
@@ -184,6 +191,12 @@ export default {
       axios.all(axiosArr).then((res) => {
         if (res.length > 0) {
           const series = [];
+          const sumData = {
+            name: 'sum',
+            data: [],
+            visible: true,
+            threshold: null,
+          };
           res.forEach((response) => {
             if (response.data.code === 200) {
               if (response.data.data) {
@@ -201,24 +214,34 @@ export default {
                   // 图表中每条线的名字,后半部分
                   let host = `${queryItem.metric}, `;
                   const tagsArr = Object.keys(queryItem.tags);
-                  tagsArr.forEach((tag) => {
+                  tagsArr.forEach((tag, i) => {
                     if (tag !== 'uuid') {
-                      host += `${tag}=${queryItem.tags[tag]}, `;
+                      host += i === 0 ? `${tag}=${queryItem.tags[tag]}` : `, ${tag}=${queryItem.tags[tag]}`;
                     }
                   });
                   // 图表中每条线的名字,去掉最后的逗号与空格
-                  seriesItem.theData.name = host.substring(0, host.length - 2);
+                  seriesItem.theData.name = host;
                   seriesItem.metric_name = seriesItem.theData.name;
                   // 设置时间-数据格式对
                   const dpsArr = Object.entries(queryItem.dps);
                   // 将秒改为毫秒
-                  seriesItem.theData.data = dpsArr.map(dpsItem =>
-                    [dpsItem[0] * 1000, dpsItem[1]]);
+                  seriesItem.theData.data = dpsArr.map((dpsItem, dpsIndex) => {
+                    if (sumData.data[dpsIndex]) {
+                      const sumNum = sumData.data[dpsIndex][1] || 0;
+                      sumData.data[dpsIndex][1] = sumNum + dpsItem[1];
+                    } else {
+                      sumData.data[dpsIndex] = [dpsItem[0] * 1000, dpsItem[1]];
+                    }
+                    return [dpsItem[0] * 1000, dpsItem[1]];
+                  });
                   series.push(seriesItem.theData);
                 });
               }
             }
           });
+          if (series.length && this.data.type === 4) {
+            series.push(sumData);
+          }
           this.initChart(this.data, series, this.$refs.screenShowArea, 'screen');
         }
       }).catch((error) => {
@@ -235,7 +258,7 @@ export default {
       this.firstShow = true; // 展示操作按键
       const self = this;
       this.chartType = ''; // 图表类型
-      if (chartInfo.type === 1) {
+      if (chartInfo.type === 1 || chartInfo.type === 4) {
         this.chartType = 'line';
       } else if (chartInfo.type === 2) {
         this.chartType = 'column';
@@ -493,6 +516,9 @@ export default {
       this.data = chartItem;
       this.seriesItem = seriesItem;
       this.initChart(chartItem, seriesItem, this.$refs.lineChartArea, 'local');
+      if (chartItem.type === 1 || chartItem.type === 2 || chartItem.type === 4) {
+        this.initChart(chartItem, seriesItem, this.$refs.lineChartArea, 'local');
+      }
     },
     showLoad() {
       if (this.highchartStore) {

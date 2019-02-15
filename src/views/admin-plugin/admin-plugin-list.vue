@@ -1,5 +1,5 @@
 <style lang="scss">
-  @import './admin-plugin-list.scss'
+  @import './admin-plugin-list.scss';
 </style>
 <template>
   <div class="main-container admin-plugin-list"> 
@@ -18,11 +18,12 @@
       </div>
       <div class="table-list group-list">
         <div class="box-content">
-          <paging :total="total" @on-page-info-change="pageInfoChange" ref="page">
-            <Table slot="listTable" size="small" border
+          <paging :total="total" @on-page-info-change="pageInfoChange" ref="page" :pageSize="filter.page_size">
+            <Table size="small" border
               ref="tablelist"
               :data="dataList" 
               :columns="columns"
+              :loading="loading"
               no-data-text="暂无数据"
               @on-select-all="selectAll"
               @on-selection-change="selectItem"
@@ -45,6 +46,7 @@
 <script>
 import _ from 'lodash';
 import axios from 'axios';
+import core from '../../mixins/core';
 // import bus from '../../libs/bus';
 import { getAllPlugins, deletePlugin } from '../../models/service';
 import createPlugin from '../../components/admin/plugin/create-plugin';
@@ -52,12 +54,14 @@ import paging from '../../components/page/paging';
 
 export default {
   name: 'monitorGroup',
+  mixins: [core],
   components: {
     createPlugin,
     paging,
   },
   data() {
     return {
+      loading: false,
       dataList: [], // 表格数据,主机列表
       filter: {
         page_size: 10,
@@ -84,8 +88,6 @@ export default {
           // render: (h, params) => h('a', {
           //   attrs: {
           //     title: params.row.name,
-          //     // eslint-disable-next-line
-          //     href: 'javascript:;',
           //   },
           //   on: {
           //     click: () => {
@@ -113,6 +115,10 @@ export default {
           title: '校验和',
           key: 'checksum',
           width: 240,
+        }, {
+          title: '备注',
+          key: 'comment',
+          width: 140,
         }, {
           title: '操作',
           align: 'right',
@@ -259,6 +265,7 @@ export default {
     },
     // 获取表格内容数据
     getData(params) {
+      this.loading = true;
       this.selectedData = [];
       this.checkAll = false;
       const obj = Object.assign({}, params);
@@ -267,18 +274,16 @@ export default {
       getAllPlugins(obj).then((res) => {
         if (res.status === 200) {
           this.total = res.data.total;
-          this.dataList = res.data.plugins.map((item) => {
-            const host = item;
-            host.checked = false;
-            return host;
-          });
+          this.dataList = res.data.plugins;
         } else {
           this.total = 0;
           this.dataList = [];
         }
+        this.loading = false;
       });
     },
     pageInfoChange(filter) {
+      // this.setInitPage(filter.pageSize);
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
       this.getData(this.filter);
@@ -311,6 +316,8 @@ export default {
     reload() {
       this.getData(this.filter);
     },
+  },
+  created() {
   },
   mounted() {
     this.getData(this.filter);

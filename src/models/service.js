@@ -6,7 +6,7 @@ export const updateUser = schema.put('/users/profile', {});
 export const postLogin = schema.post('/login', {});
 export const postLogout = schema.post('/logout', {});
 
-export const resetPassword = schema.post('/users/changepassword', {});
+export const changePassword = schema.post('/users/changepassword', {});
 // 返回当前用户所在的产品线列表
 export const getProducts = schema.get('/users/products', {});
 export const getAllProducts = schema.get('/products', {});
@@ -256,8 +256,19 @@ export const removeHostInPro = schema.put('/products/{productId}/hosts/remove', 
 export const getStatusSummary = schema.get('/products/{productId}/statistics/host/status', {
   productId: { type: Number, required: true, urlOnly: true },
 });
+export const getHostDetail = schema.get('/hosts/{hostId}', {
+  hostId: { type: String, required: true, urlOnly: true },
+});
 // 获取主机下所有metric
 export const getMetricByHost = schema.get('/hosts/{hostId}/metrics', {
+  hostId: { type: String, required: true, urlOnly: true },
+});
+export const deleteHostMetric = schema.delete('/hosts/{hostId}/metrics/{metricId}', {
+  hostId: { type: String, required: true, urlOnly: true },
+  metricId: { type: Number, required: true, urlOnly: true },
+});
+// 获取主机下的apps
+export const getAppByHost = schema.get('/hosts/{hostId}/apps', {
   hostId: { type: String, required: true, urlOnly: true },
 });
 // 获取主机下插件

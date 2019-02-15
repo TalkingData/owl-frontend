@@ -1,5 +1,5 @@
 <style lang="scss">
-@import './user-group-list.scss'
+@import './user-group-list.scss';
 
 </style>
 <template>
@@ -19,12 +19,13 @@
       </div>
       <div class="table-list">
         <div class="box-content">
-          <paging ref="userGroupList" :total="total" @on-page-info-change="pageInfoChange">
-            <Table slot="listTable" size="small" border
+          <paging ref="userGroupList" :total="total" @on-page-info-change="pageInfoChange" :pageSize="filter.page_size">
+            <Table size="small" border
               ref="tablelist"
               :data="dataList" 
               :columns="columns"
               no-data-text="暂无数据"
+              :loading="loading"
               @on-select-all="selectAll"
               @on-selection-change="selectItem"
               @on-sort-change="handleSort"
@@ -46,6 +47,7 @@
 <script>
 import axios from 'axios';
 import _ from 'lodash';
+import core from '../../mixins/core';
 // import bus from '../../libs/bus';
 import { getUserGroups, deleteUserGroup } from '../../models/service';
 import paging from '../../components/page/paging';
@@ -53,6 +55,7 @@ import createUserGroup from '../../components/manage/create-user-group';
 
 export default {
   name: 'userGroupList',
+  mixins: [core],
   components: {
     paging,
     createUserGroup,
@@ -60,6 +63,7 @@ export default {
   props: {},
   data() {
     return {
+      loading: false,
       dataList: [], // 数据列表
       allDataList: [],
       searchName: '', //  搜索名称
@@ -82,11 +86,12 @@ export default {
           key: 'name',
           sortable: 'custom',
           minWidth: 200,
-          render: (h, params) => h('a', {
+          render: (h, params) => h('span', {
+            class: {
+              'view-detail': true,
+            },
             attrs: {
               title: '查看用户组',
-              // eslint-disable-next-line
-              href: 'javascript:;',
             },
             on: {
               click: () => {
@@ -234,6 +239,7 @@ export default {
     },
     // 翻页
     pageInfoChange(filter) {
+      // this.setInitPage(filter.pageSize);
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
       this.getData(this.filter);
@@ -256,6 +262,7 @@ export default {
     },
     // 获取数据
     getData(params) {
+      this.loading = true;
       this.selectedData = [];
       const param = Object.assign({}, params);
       if (!param.query) delete param.query;
@@ -264,7 +271,11 @@ export default {
         if (res.status === 200) {
           this.total = res.data.total;
           this.dataList = res.data.user_groups;
+        } else {
+          this.total = 0;
+          this.dataList = [];
         }
+        this.loading = false;
       });
     },
   },
@@ -281,6 +292,8 @@ export default {
     },
   },
   watch: {
+  },
+  created() {
   },
   mounted() {
     if (this.$route.params.productId) {

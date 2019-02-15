@@ -1,5 +1,5 @@
 <style lang="scss">
-@import './alarm-strategy-list.scss'
+@import './alarm-strategy-list.scss';
 
 </style>
 <template>
@@ -34,12 +34,13 @@
       </div>
       <div class="rule-list table-list">
         <div class="box-content">
-          <paging ref="ruleList" :total="total" @on-page-info-change="pageInfoChange">
-            <Table slot="listTable" size="small" border
+          <paging ref="ruleList" :total="total" @on-page-info-change="pageInfoChange" :pageSize="filter.page_size">
+            <Table size="small" border
               ref="tablelist"
               :data="dataList" 
               :columns="columns"
               :row-class-name="rowClassName"
+              :loading="loading"
               no-data-text="暂无数据"
               @on-select-all="selectAll"
               @on-selection-change="selectItem"
@@ -54,6 +55,7 @@
 </template>
 <script>
 import _ from 'lodash';
+import core from '../../mixins/core';
 import bus from '../../libs/bus';
 import { getStrategies, enableStrategie, deleteStrategie } from '../../models/service';
 import paging from '../../components/page/paging';
@@ -61,12 +63,14 @@ import ruleDetailModal from '../../components/alarm/rule-detail-modal';
 
 export default {
   name: 'alarmStrategy',
+  mixins: [core],
   components: {
     paging,
     ruleDetailModal,
   },
   data() {
     return {
+      loading: false,
       dataList: [], // 数据列表
       searchName: '', //  搜索名称
       filterEnable: '', // 筛选条件
@@ -94,11 +98,12 @@ export default {
           key: 'name',
           sortable: 'custom',
           minWidth: 200,
-          render: (h, params) => h('a', {
+          render: (h, params) => h('span', {
+            class: {
+              'view-detail': true,
+            },
             attrs: {
               title: '查看策略',
-              // eslint-disable-next-line
-              href: 'javascript:;',
             },
             on: {
               click: () => {
@@ -327,6 +332,7 @@ export default {
     },
     // 翻页
     pageInfoChange(filter) {
+      // this.setInitPage(filter.pageSize);
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
       this.getData(this.filter);
@@ -358,6 +364,7 @@ export default {
     },
     // 获取数据
     getData(params) {
+      this.loading = true;
       const param = Object.assign({}, params);
       if (param.query === '') delete param.query;
       if (param.order === '') delete param.order;
@@ -372,6 +379,7 @@ export default {
           this.total = 0;
           this.dataList = [];
         }
+        this.loading = false;
       });
     },
     // 禁用 or 启用
@@ -495,6 +503,8 @@ export default {
         bus.backtoRulelist = '';
       }
     },
+  },
+  created() {
   },
   mounted() {
     if (this.$route.params.productId) {

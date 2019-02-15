@@ -1,5 +1,5 @@
 <style lang="scss">
-@import "./index.scss"
+@import "./index.scss";
 </style>
 <template>
   <div class="main-header">
@@ -24,7 +24,7 @@
     <div class="personal-center float-right mr-18">
       <Row type="flex" justify="end" align="middle">
         <Dropdown style="margin-left: 20px" @on-click="userSet" placement="bottom-end">
-          <a href="javascript:;">
+          <a>
             个人中心
             <Icon type="arrow-down-b"></Icon>
           </a>
@@ -37,7 +37,7 @@
         </Dropdown>
       </Row>
     </div>
-    <Modal :title="modalTitle" v-model="userInfoModal">
+    <Modal :title="modalTitle" v-model="userInfoModal" :mask-closable="false" @on-cancel="cancelUser">
       <Form v-if="!isResetPwd" :model="userInfo" ref="userUpdateInfo" :label-width="90" :rules="userInfoRules">
         <FormItem prop="username" label="用户名">
           <Input v-model="userInfo.username" disabled placeholder="请输入用户名"></Input>
@@ -284,7 +284,7 @@ export default {
         }
       });
     },
-    // 重置密码
+    // 重置密码,使用formdata格式，不能使用统一接口格式
     resetPassword() {
       const tmp = new FormData();
       tmp.append('username', this.userInfo.username);

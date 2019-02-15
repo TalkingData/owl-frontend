@@ -1,5 +1,5 @@
 <style lang="scss">
-@import './event-rule-block.scss'
+@import './event-rule-block.scss';
 
 </style>
 <template>

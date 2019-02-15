@@ -1,5 +1,5 @@
 <style lang="scss">
-@import './user-group-detail.scss'
+@import './user-group-detail.scss';
 
 </style>
 <template>

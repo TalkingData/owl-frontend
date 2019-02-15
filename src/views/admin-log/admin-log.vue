@@ -1,5 +1,5 @@
 <style lang="scss">
-  @import './admin-log.scss'
+  @import './admin-log.scss';
 </style>
 <template>
   <div class="main-container admin-log-list">
@@ -17,11 +17,12 @@
       </div>
       <div class="table-list group-list">
         <div class="box-content">
-          <paging :total="total" @on-page-info-change="pageInfoChange" ref="page">
-            <Table slot="listTable" size="small" border
+          <paging :total="total" @on-page-info-change="pageInfoChange" ref="page" :pageSize="filter.page_size">
+            <Table size="small" border
               ref="tablelist"
               :data="dataList" 
               :columns="columns"
+              :loading="loading"
               no-data-text="暂无数据"
               @on-sort-change="handleSort"
             ></Table>
@@ -34,6 +35,7 @@
 <script>
 import _ from 'lodash';
 // import axios from 'axios';
+import core from '../../mixins/core';
 import bus from '../../libs/bus';
 import { getOperateLog } from '../../models/service';
 import paging from '../../components/page/paging';
@@ -41,12 +43,14 @@ import calendarSelect from '../../components/page/calendar-select';
 
 export default {
   name: 'adminLog',
+  mixins: [core],
   components: {
     paging,
     calendarSelect,
   },
   data() {
     return {
+      loading: false,
       dataList: [], // 表格数据,主机列表
       filter: {
         page_size: 10,
@@ -209,6 +213,7 @@ export default {
     },
     // 获取表格内容数据
     getData(params) {
+      this.loading = true;
       this.selectedData = [];
       const obj = Object.assign({}, params);
       if (!obj.query) delete obj.query;
@@ -224,9 +229,11 @@ export default {
           this.total = 0;
           this.dataList = [];
         }
+        this.loading = false;
       });
     },
     pageInfoChange(filter) {
+      // this.setInitPage(filter.pageSize);
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
       this.getData(this.filter);
@@ -276,6 +283,8 @@ export default {
       this.filter.page = 1;
       this.getData(this.filter);
     },
+  },
+  created() {
   },
   mounted() {
     this.initTime();

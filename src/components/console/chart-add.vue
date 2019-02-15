@@ -1,5 +1,5 @@
 <style lang="scss">
-  @import './chart-add.scss'
+  @import './chart-add.scss';
 </style>
 <template>
   <div>
@@ -15,7 +15,7 @@
             <div class="common-float-left">
               <FormItem :label-width="80" label="类型" prop="type"
               :rules="{ required: true, type: 'number', message: '请选择图表类型', trigger: 'change' }">
-                <Select transfer style="width:100px;" v-model="chartInfo.type">
+                <Select transfer style="width:100px;" v-model="chartInfo.type" @on-change="selectType">
                   <Option v-for="item in typeList" 
                     :key="item.id" 
                     :label="item.name" 
@@ -31,7 +31,7 @@
               <FormItem :label-width="80" label="图宽" prop="span"
               :rules="{ required: true, type: 'number', message: '请选择图表宽度', trigger: 'change' }">
                 <Select style="width:100px;" v-model="chartInfo.span" transfer>
-                  <Option v-for="item in spanList" :key="item" :label="'span-' + item" :value="item">
+                  <Option v-for="item in spanList" :key="item" :disabled="spanDisable && item < 6" :label="'span-' + item" :value="item">
                     span-{{item}}
                   </Option>
                 </Select>
@@ -101,6 +101,12 @@ export default {
       }, {
         id: 2,
         name: '柱状图',
+      }, {
+        id: 3,
+        name: '表格',
+      }, {
+        id: 4,
+        name: '曲线汇总',
       }],
       // 是否为编辑已有信息
       isedit: false,
@@ -116,9 +122,20 @@ export default {
     chartTitle() {
       return this.isedit ? '编辑图表' : '添加图表';
     },
+    spanDisable() {
+      if (this.chartInfo.type === 3) {
+        return true;
+      }
+      return false;
+    },
   },
   watch: {},
   methods: {
+    selectType(num) {
+      if (num === 3) {
+        this.chartInfo.span = 12;
+      }
+    },
     // 创建打开
     createData(panelId) {
       this.panelId = panelId;
@@ -232,7 +249,7 @@ export default {
             this.$refs.chartInfo.resetFields();
             this.$emit('on-create-success', 'create', res.data);
           } else {
-            this.$Mesaage.error(res.code.message);
+            this.$Message.error(`创建失败：${res.data.message || res.statusText}`);
           }
         }
       });
@@ -255,9 +272,9 @@ export default {
       let str = '';
       arr.forEach((item, index) => {
         if (index === 0) {
-          str += `${item.name}=${item.value.join('|')}`;
+          str += item.value.indexOf('all') > -1 ? `${item.name}=all` : `${item.name}=${item.value.join('|')}`;
         } else {
-          str += `,${item.name}=${item.value.join('|')}`;
+          str += item.value.indexOf('all') > -1 ? `,${item.name}=all` : `,${item.name}=${item.value.join('|')}`;
         }
       });
       return str;

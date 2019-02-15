@@ -100,46 +100,9 @@ http.interceptors.response.use((response) => {
 }, error => Promise.reject(error),
 );
 
-const httpCluster = axios.create({
-  baseURL: 'http://172.28.5.2:7777',
-  headers: {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
-  },
-  withCredentials: true,
-  // 2.登录以后,对token过期进行校验,以及token权限进行校验
-  validateStatus(status) {
-    if (status === 403) {
-      Message.warning({
-        content: '您没有权限，请联系管理员',
-        duration: 5,
-        top: 66,
-        closable: true,
-      });
-    }
-    return status;
-  },
-});
-
-// 添加响应拦截器
-httpCluster.interceptors.response.use((response) => {
-  if (response.status === 200) {
-    if (response.data.code === 401) {
-      Message.warning('认证失败，请先登录!');
-      window.location.href = response.data.link;
-    }
-  }
-  if (response.data.code === 401) {
-    Message.warning('认证失败，请先登录!');
-    window.location.href = response.data.link;
-  }
-  return response;
-}, error => Promise.reject(error),
-);
 // setProductInfo();
 
 const schema = apischema({ http });
-const schemaCluster = apischema({ http: httpCluster });
 // export default apischema({ http });
 
-export { serviceInfo, schema, schemaCluster, setProductInfo };
+export { serviceInfo, schema, setProductInfo };

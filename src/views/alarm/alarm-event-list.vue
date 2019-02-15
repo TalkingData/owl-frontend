@@ -1,5 +1,5 @@
 '<style lang="scss">
-@import './alarm-event-list.scss'
+@import './alarm-event-list.scss';
 
 </style>
 <template>
@@ -32,12 +32,13 @@
       </div>
       <div class="table-list event-list">
         <div class="box-content">
-          <paging ref="eventList" :total="total" @on-page-info-change="pageInfoChange">
-            <Table slot="listTable" size="small" border
+          <paging ref="eventList" :total="total" @on-page-info-change="pageInfoChange" :pageSize="filter.page_size">
+            <Table size="small" border
               ref="tablelist"
               :data="dataList" 
               :columns="columns"
               :row-class-name="rowClassName"
+              :loading="loading"
               no-data-text="暂无数据"
               @on-select-all="selectAll"
               @on-selection-change="selectItem"
@@ -51,17 +52,20 @@
 </template>
 <script>
 import _ from 'lodash';
+import core from '../../mixins/core';
 import bus from '../../libs/bus';
 import { getEvents, awareEvent } from '../../models/service';
 import paging from '../../components/page/paging';
 
 export default {
   name: 'alarmEvent',
+  mixins: [core],
   components: {
     paging,
   },
   data() {
     return {
+      loading: false,
       dataList: [], // 数据列表
       searchName: '', //  搜索名称
       alarmStatus: 0, // 全部默认
@@ -99,11 +103,12 @@ export default {
           key: 'strategy_name',
           sortable: 'custom',
           minWidth: 150,
-          render: (h, params) => h('a', {
+          render: (h, params) => h('span', {
+            class: {
+              'view-detail': true,
+            },
             attrs: {
               title: '查看告警',
-              // eslint-disable-next-line
-              href: 'javascript:;',
             },
             on: {
               click: () => {
@@ -286,6 +291,7 @@ export default {
     },
     // 翻页
     pageInfoChange(filter) {
+      // this.setInitPage(filter.pageSize);
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
       this.getData(this.filter);
@@ -300,11 +306,11 @@ export default {
     initFilter() {
       this.$refs.eventList.init();
       this.filter.page = 1;
-      // this.filter.page_size = 10;
       this.getData(this.filter);
     },
     // 获取数据
     getData(params) {
+      this.loading = true;
       const param = Object.assign({}, params);
       if (param.query === '') delete param.query;
       if (param.order === '') delete param.order;
@@ -318,6 +324,7 @@ export default {
             return obj;
           });
         }
+        this.loading = false;
       });
     },
     // 初始化,判断是否是策略下列表
@@ -469,6 +476,8 @@ export default {
       }
       return time;
     },
+  },
+  created() {
   },
   mounted() {
     this.judge();

@@ -1,5 +1,5 @@
 <style lang="scss">
-  @import './product.scss'
+  @import './product.scss';
 </style>
 <template>
   <div class="product">
@@ -127,8 +127,6 @@ export default {
               }, [h('span', `您还有 ${arr.join('、')} 等项未设置，`), h('a', {
                 attrs: {
                   title: '点击完善',
-                  // eslint-disable-next-line
-                  href: 'javascript:;',
                 },
                 on: {
                   click: () => {

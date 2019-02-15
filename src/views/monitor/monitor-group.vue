@@ -1,5 +1,5 @@
 <style lang="scss">
-  @import './monitor-group.scss'
+  @import './monitor-group.scss';
 </style>
 <template>
   <div class="main-container monitor-group">
@@ -18,11 +18,12 @@
       </div>
       <div class="table-list group-list">
         <div class="box-content">
-          <paging :total="total" @on-page-info-change="pageInfoChange" ref="page">
-            <Table slot="listTable" size="small" border
+          <paging :total="total" @on-page-info-change="pageInfoChange" :pageSize="filter.page_size" ref="page">
+            <Table size="small" border
             ref="tablelist"
             :data="dataList"
             :columns="columns"
+            :loading="loading"
             no-data-text="暂无数据"
             @on-select-all="selectAll"
             @on-selection-change="selectItem"
@@ -45,18 +46,21 @@
 <script>
 import _ from 'lodash';
 import axios from 'axios';
+import core from '../../mixins/core';
 import { getHostGroups, delHostGroup } from '../../models/service';
 import createHostGroup from '../../components/monitor/create-host-group';
 import paging from '../../components/page/paging';
 
 export default {
   name: 'monitorGroup',
+  mixins: [core],
   components: {
     createHostGroup,
     paging,
   },
   data() {
     return {
+      loading: false,
       dataList: [], // 表格数据,主机列表
       filter: {
         page_size: 10,
@@ -80,11 +84,12 @@ export default {
           key: 'name',
           sortable: 'custom',
           minWidth: 180,
-          render: (h, params) => h('a', {
+          render: (h, params) => h('span', {
+            class: {
+              'view-detail': true,
+            },
             attrs: {
               title: '查看主机组',
-              // eslint-disable-next-line
-              href: 'javascript:;',
             },
             on: {
               click: () => {
@@ -101,11 +106,12 @@ export default {
           title: '主机',
           key: 'host_cnt',
           width: 80,
-          render: (h, params) => h('a', {
+          render: (h, params) => h('span', {
+            class: {
+              'view-detail': true,
+            },
             attrs: {
               title: '查看主机组主机',
-              // eslint-disable-next-line
-              href: 'javascript:;',
             },
             on: {
               click: () => {
@@ -117,11 +123,12 @@ export default {
           title: '策略',
           key: 'strategy_cnt',
           width: 80,
-          render: (h, params) => h('a', {
+          render: (h, params) => h('span', {
+            class: {
+              'view-detail': true,
+            },
             attrs: {
               title: '查看主机组策略',
-              // eslint-disable-next-line
-              href: 'javascript:;',
             },
             on: {
               click: () => {
@@ -133,11 +140,12 @@ export default {
           title: '插件',
           key: 'plugin_cnt',
           width: 80,
-          render: (h, params) => h('a', {
+          render: (h, params) => h('span', {
+            class: {
+              'view-detail': true,
+            },
             attrs: {
               title: '查看主机组插件',
-              // eslint-disable-next-line
-              href: 'javascript:;',
             },
             on: {
               click: () => {
@@ -309,6 +317,7 @@ export default {
     },
     // 获取表格内容数据
     getData(params) {
+      this.loading = true;
       this.selectedData = [];
       const obj = Object.assign({}, params);
       if (!obj.query) delete obj.query;
@@ -321,9 +330,11 @@ export default {
           this.total = 0;
           this.dataList = [];
         }
+        this.loading = false;
       });
     },
     pageInfoChange(filter) {
+      // this.setInitPage(filter.pageSize);
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
       this.getData(this.filter);
@@ -354,6 +365,8 @@ export default {
     reload() {
       this.getData(this.filter);
     },
+  },
+  created() {
   },
   mounted() {
     if (this.$route.params.productId) {

@@ -1,4 +1,10 @@
 .chart-add {
+  .ivu-modal-mask {
+    z-index: 899;
+  }
+  .ivu-modal-wrap {
+    z-index: 899;
+  }
   /*搜索栏样式*/
   .search-data {
     width: 100%;
@@ -23,6 +29,11 @@
   }
   .ivu-form-item .ivu-form-item {
     margin-bottom: 24px;
+  }
+  .host-form-item {
+    .ivu-form-item-content {
+      line-height: 1;
+    }
   }
 }
 

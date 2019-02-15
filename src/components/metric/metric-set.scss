@@ -34,6 +34,11 @@
   .ivu-form-item .ivu-form-item {
     margin-bottom: 24px;
   }
+  .host-form-item {
+    .ivu-form-item-content {
+      line-height: 1;
+    }
+  }
 }
 
 // .setdata {

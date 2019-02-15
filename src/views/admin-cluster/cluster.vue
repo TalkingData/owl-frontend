@@ -1,5 +1,5 @@
 <style lang="scss">
-@import './cluster.scss'
+@import './cluster.scss';
 
 </style>
 <template>

@@ -1,5 +1,5 @@
 <style lang="scss">
-@import './admin-user-list.scss'
+@import './admin-user-list.scss';
 
 </style>
 <template>
@@ -18,11 +18,12 @@
           </div>
         </div>
         <div class="box-content">
-          <paging ref="page" :total="total" @on-page-info-change="pageInfoChange">
-            <Table slot="listTable" size="small" border
+          <paging ref="page" :total="total" @on-page-info-change="pageInfoChange" :pageSize="filter.page_size">
+            <Table size="small" border
               ref="tablelist"
               :data="dataList" 
               :columns="columns"
+              :loading="loading"
               no-data-text="暂无数据"
               @on-sort-change="handleSort"
               ></Table>
@@ -114,6 +115,7 @@
 </template>
 <script>
 import _ from 'lodash';
+import core from '../../mixins/core';
 import Util from '../../libs/utils';
 import bus from '../../libs/bus';
 import { getAllUsers, changeUserRole,
@@ -122,12 +124,14 @@ import paging from '../../components/page/paging';
 
 export default {
   name: 'userGroupList',
+  mixins: [core],
   components: {
     paging,
   },
   props: {},
   data() {
     return {
+      loading: false,
       dataList: [], // 数据列表
       searchName: '', //  搜索名称
       alarmStatus: 0, // 全部默认
@@ -483,6 +487,7 @@ export default {
     },
     // 翻页
     pageInfoChange(filter) {
+      // this.setInitPage(filter.pageSize);
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
       this.getData(this.filter);
@@ -513,6 +518,7 @@ export default {
     },
     // 获取数据
     getData(params) {
+      this.loading = true;
       this.checkAll = false;
       this.selectedData = [];
       const param = Object.assign({}, params);
@@ -522,7 +528,11 @@ export default {
         if (res.status === 200) {
           this.total = res.data.total;
           this.dataList = res.data.users;
+        } else {
+          this.total = 0;
+          this.dataList = [];
         }
+        this.loading = false;
       });
     },
     // 用户角色展示
@@ -533,6 +543,8 @@ export default {
   computed: {
   },
   watch: {
+  },
+  created() {
   },
   mounted() {
     this.getData(this.filter);

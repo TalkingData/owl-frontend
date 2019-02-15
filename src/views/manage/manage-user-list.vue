@@ -1,5 +1,5 @@
 <style lang="scss">
-@import './manage-user-list.scss'
+@import './manage-user-list.scss';
 
 </style>
 <template>

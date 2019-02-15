@@ -1,5 +1,5 @@
 <style lang="scss">
-@import './calendar-select.scss'
+@import './calendar-select.scss';
 
 </style>
 <template>
@@ -18,7 +18,7 @@
         @on-clear="dateClear"
         @on-ok="dateConfirm"
         :placement="placement">
-        <a href="javascript:;" @click="openDate">
+        <a @click="openDate">
           <Icon class="icon-btn calendar-icon" type="ios-calendar-outline"></Icon>
             <span class="cur-date">{{date.showDateValue}}</span>
           <template>

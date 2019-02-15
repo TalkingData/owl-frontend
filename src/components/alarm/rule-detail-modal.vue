@@ -1,5 +1,5 @@
 <style lang="scss">
-  @import './rule-detail-modal'
+  @import './rule-detail-modal';
 </style>
 <template>
   <div>
@@ -18,10 +18,11 @@
           <Input v-model="searchName" placeholder="搜索" @on-change="search"></Input>
         </div>
       </div>
-      <paging :total="total" ref="pageFault" @on-page-info-change="pageInfoChange">
-        <Table slot="listTable" border size="small" 
+      <paging :total="total" ref="pageFault" @on-page-info-change="pageInfoChange" :pageSize="filter.page_size">
+        <Table border size="small" 
         :data="alarmData" 
         :columns="alarmColumn"
+        :loading="loading"
         :height="tableHeight"></Table>
       </paging>
       <div slot="footer">
@@ -33,17 +34,20 @@
 </template>
 <script>
 import _ from 'lodash';
+import core from '../../mixins/core';
 import { getEventsFailed } from '../../models/service';
 import paging from '../page/paging';
 
 export default {
   name: 'ruleDetailModal',
+  mixins: [core],
   components: {
     paging,
   },
   props: {},
   data() {
     return {
+      loading: false,
       filter: { // 翻页
         page: 1,
         page_size: 10,
@@ -105,7 +109,7 @@ export default {
       this.filter.page = 1;
       this.searchName = '';
       this.filter.query = '';
-      this.filter.page_size = 10;
+      // this.filter.page_size = 10;
       this.$refs.pageFault.initSize();
     },
     // 关闭
@@ -133,6 +137,7 @@ export default {
     },
     // 翻页
     pageInfoChange(filter) {
+      // this.setInitPage(filter.pageSize);
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
       this.getData(this.filter);
@@ -166,13 +171,18 @@ export default {
     },
     // 获取数据
     getData(params) {
+      this.loading = true;
       const param = Object.assign({}, params);
       if (!param.query) delete param.query;
       getEventsFailed(param).then((res) => {
         if (res.status === 200) {
           this.total = res.data.total;
           this.alarmData = res.data.events_failed ? res.data.events_failed : [];
+        } else {
+          this.total = 0;
+          this.alarmData = [];
         }
+        this.loading = false;
       });
     },
   },
@@ -195,6 +205,8 @@ export default {
       }
       return '';
     },
+  },
+  created() {
   },
   mounted() {
     // this.getData();

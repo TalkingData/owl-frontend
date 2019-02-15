@@ -1,5 +1,5 @@
 <style lang="scss">
-@import './user-list.scss'
+@import './user-list.scss';
 
 </style>
 <template>
@@ -24,11 +24,12 @@
         </div>
       </div>
       <div class="box-content">
-        <paging ref="userList" :total="total" @on-page-info-change="pageInfoChange">
-          <Table slot="listTable" size="small" border
+        <paging ref="userList" :total="total" @on-page-info-change="pageInfoChange" :pageSize="filter.page_size">
+          <Table size="small" border
             ref="tablelist"
             :data="dataList" 
             :columns="columns"
+            :loading="loading"
             no-data-text="暂无数据"
             @on-select-all="selectAll"
             @on-selection-change="selectItem"
@@ -49,6 +50,7 @@
 </template>
 <script>
 import _ from 'lodash';
+import core from '../../mixins/core';
 // import bus from '../../libs/bus';
 import { removeUserInPro, getUserOfPro, getUserOfGroup, removeUserInGroup } from '../../models/service';
 import paging from '../../components/page/paging';
@@ -56,6 +58,7 @@ import createUserGroup from '../../components/manage/create-user-group';
 
 export default {
   name: 'userList',
+  mixins: [core],
   components: {
     paging,
     createUserGroup,
@@ -74,6 +77,7 @@ export default {
   },
   data() {
     return {
+      loading: false,
       dataList: [], // 数据列表
       searchName: '', //  搜索名称
       alarmStatus: 0, // 全部默认
@@ -264,6 +268,7 @@ export default {
     },
     // 翻页
     pageInfoChange(filter) {
+      // this.setInitPage(filter.pageSize);
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
       this.getData(this.filter);
@@ -285,6 +290,7 @@ export default {
     },
     // 获取数据
     getData(params) {
+      this.loading = true;
       this.selectedData = [];
       const param = Object.assign({}, params);
       if (!param.query) delete param.query;
@@ -299,6 +305,7 @@ export default {
             this.total = 0;
             this.dataList = [];
           }
+          this.loading = false;
         });
       } else if (this.source === 'group') {
         getUserOfGroup(param).then((res) => {
@@ -309,7 +316,10 @@ export default {
             this.total = 0;
             this.dataList = [];
           }
+          this.loading = false;
         });
+      } else {
+        this.loading = false;
       }
     },
     // 初始化获取数据
@@ -350,6 +360,8 @@ export default {
     },
   },
   watch: {
+  },
+  created() {
   },
   mounted() {
     this.getDetailData();

@@ -1,5 +1,5 @@
 <style lang="scss">
-@import './action-item.scss'
+@import './action-item.scss';
 
 </style>
 <template>

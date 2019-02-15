@@ -2,6 +2,10 @@
 .table-list {
   width: 100%;
   box-sizing: border-box;
+  .view-detail {
+    color: #2d8cf0;
+    cursor: pointer;
+  }
   &-header {
     // width: 100%;
     position: relative;

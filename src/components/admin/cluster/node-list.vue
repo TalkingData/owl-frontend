@@ -1,5 +1,5 @@
 <style lang="scss">
-@import './node-list.scss'
+@import './node-list.scss';
 
 </style>
 <template>
@@ -16,11 +16,12 @@
     </div>
     <div class="table-list">
       <div class="box-content">
-        <paging :total="total" @on-page-info-change="pageInfoChange" ref="page">
-          <Table slot="listTable" size="small" border
+        <paging :total="total" @on-page-info-change="pageInfoChange" ref="page" :pageSize="filter.page_size">
+          <Table size="small" border
             ref="tablelist"
             :data="dataList" 
             :columns="columns"
+            :loading="loading"
             no-data-text="暂无数据"
             ></Table>
         </paging>
@@ -30,18 +31,21 @@
 </template>
 <script>
 import _ from 'lodash';
+import core from '../../../mixins/core';
 // import bus from '../../libs/bus';
 import { getNodeStatus } from '../../../models/service';
 import paging from '../../page/paging';
 
 export default {
   name: 'nodeList',
+  mixins: [core],
   components: {
     paging,
   },
   props: {},
   data() {
     return {
+      loading: false,
       saveDataList: [], // 作为备份的数据列表
       // 过滤器
       filter: {
@@ -74,6 +78,7 @@ export default {
   methods: {
     // 获取数据// 获取组下队列列表
     getData() {
+      this.loading = true;
       getNodeStatus().then((res) => {
         if (res.status === 200) {
           const arr = Object.values(res.data.nodes);
@@ -100,6 +105,7 @@ export default {
           this.allDataList = [];
           this.saveDataList = [];
         }
+        this.loading = false;
       });
     },
     reload() {
@@ -127,6 +133,7 @@ export default {
       // this.getData(this.filter);
     }, 300),
     pageInfoChange(filter) {
+      // this.setInitPage(filter.pageSize);
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
       const start = (this.filter.page - 1) * this.filter.page_size;
@@ -141,6 +148,8 @@ export default {
     },
   },
   computed: {
+  },
+  created() {
   },
   mounted() {
     this.getData();

@@ -1,5 +1,5 @@
 <style lang="scss">
-@import './host-plugin.scss'
+@import './host-plugin.scss';
 
 </style>
 <template>
@@ -19,6 +19,7 @@
 </template>
 <script>
 // import bus from '../../libs/bus';
+import { getHostDetail } from '../../models/service';
 import pluginList from '../../components/admin/plugin/plugin-list';
 
 export default {
@@ -40,9 +41,17 @@ export default {
     // 初始化获取数据
     getDetailData() {
       this.hostId = this.$route.params.hostId; // 主机id
-      const str = localStorage.getItem('hostItemInfo');
-      const hostItemInfo = JSON.parse(str);
-      this.hostItemInfo = hostItemInfo;
+      this.getHostDetail(this.hostId);
+    },
+    // 获取主机详情
+    getHostDetail(id) {
+      getHostDetail({
+        hostId: id,
+      }).then((res) => {
+        if (res.status === 200) {
+          this.hostItemInfo = res.data.host;
+        }
+      });
     },
   },
   computed: {

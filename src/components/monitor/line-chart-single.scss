@@ -1,0 +1,13 @@
+/* --------chart-view-lit---------- */
+.line-chart-single {
+  .chartBox {
+    box-sizing: border-box;
+    margin-bottom: 10px;
+    width: 100%;
+    &.hover {
+      .highcharts-crosshair {
+        visibility: visible;
+      }
+    }
+  }
+}

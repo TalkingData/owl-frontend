@@ -1,5 +1,5 @@
 <style lang="scss">
-  @import './metric-set.scss'
+  @import './metric-set.scss';
 </style>
 <template>
   <div class="metric-set">
@@ -378,7 +378,7 @@ export default {
               },
             });
           } else {
-            this.$Mesaage.error(res.code.message);
+            this.$Message.error(`创建失败：${res.data.message || res.statusText}`);
           }
         }
       });
@@ -479,9 +479,9 @@ export default {
       let str = '';
       arr.forEach((item, index) => {
         if (index === 0) {
-          str += `${item.name}=${item.value.join('|')}`;
+          str += item.value.indexOf('all') > -1 ? `${item.name}=all` : `${item.name}=${item.value.join('|')}`;
         } else {
-          str += `,${item.name}=${item.value.join('|')}`;
+          str += item.value.indexOf('all') > -1 ? `,${item.name}=all` : `,${item.name}=${item.value.join('|')}`;
         }
       });
       return str;

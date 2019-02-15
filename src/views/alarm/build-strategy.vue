@@ -1,5 +1,5 @@
 <style lang="scss">
-@import './build-strategy.scss'
+@import './build-strategy.scss';
 
 </style>
 <template>
@@ -71,7 +71,7 @@ export default {
         priority: 1, // 告警级别
         alarm_count: 5, // 告警次数
         cycle: 5, // 追溯时间
-        logic: 'AND', // 逻辑关系
+        logic: 'OR', // 逻辑关系
         expression: 'A', // 自定义
         triggers: [], // 对应模块ruleBlock
         groups: [], // 主机组
@@ -236,6 +236,11 @@ export default {
           this.strategyInfo[item] = ruleInfo.strategy[item];
         }
       });
+      if (ruleInfo.strategy.expression && ruleInfo.strategy.expression.indexOf('&&') > -1) {
+        this.strategyInfo.logic = 'AND';
+      } else {
+        this.strategyInfo.logic = 'OR';
+      }
       // 设置步骤一信息, trigger信息
       this.strategyInfo.triggers = JSON.parse(JSON.stringify(ruleInfo.strategy.triggers));
       // tag在rule-item中处理
@@ -287,6 +292,11 @@ export default {
             this.strategyInfo[item] = data.template[item];
           }
         });
+        if (data.template.expression && data.template.expression.indexOf('&&') > -1) {
+          this.strategyInfo.logic = 'AND';
+        } else {
+          this.strategyInfo.logic = 'OR';
+        }
         // 设置步骤一信息, trigger信息
         let triggerArr = JSON.parse(JSON.stringify(data.template.triggers));
         triggerArr = triggerArr.map((item) => {

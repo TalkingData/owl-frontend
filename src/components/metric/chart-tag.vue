@@ -1,5 +1,5 @@
 <style lang="scss">
-  @import './chart-tag.scss'
+  @import './chart-tag.scss';
 </style>
 <template>
   <Form class="chart-tag-metric" :model="elementInfo" ref="elementInfo">
@@ -14,16 +14,15 @@
       </FormItem>
     </Row>
     <Row v-if="elementInfo.tagList.length > 0">
-      <FormItem v-for="(item, index) in elementInfo.tagList" :key="index" :label="item.name" :label-width="100" :prop="'tagList.' + index + '.value'" :rules="{ required: true, type: 'array', min: 1, message: '请选择tag值'}">
-        <Select v-model="item.value" ref="tagSelect"
-        @on-change="selectTag"
+      <FormItem v-for="(item, index) in elementInfo.tagList" :key="index" :label="item.name" :label-width="100" :prop="'tagList.' + index + '.value'" :class="[item.name === 'host' ? 'host-form-item' : '']" :rules="{ required: true, type: 'array', min: 1, message: '请选择tag值'}">
+        <multiple-select ref="hostSelect" v-if="item.name === 'host'" @on-change="selectHost($event, index)" :selectId="'host_select_' + '_' + index" v-model="item.value" :dataList="item.list" :disabled="false" placeholder="请选择主机"></multiple-select>
+        <Select v-else v-model="item.value" ref="tagSelect"
+        @on-change="selectTag(index)"
         placeholder="请选择tag值"
         multiple 
         filterable 
-        transfer
-        not-found-text="">
-          <Option v-for="(op, j) in item.list" :key="op + j"
-          :value="op">{{op}}</Option>
+        not-found-text="未找到匹配项">
+          <Option v-for="(op, j) in item.list" :key="op + j" :disabled="op !== '*' && item.value.toString() === '*'" :value="op">{{op}}</Option>
         </Select>
       </FormItem>
     </Row>
@@ -32,6 +31,7 @@
 <script>
 import _ from 'lodash';
 // import bus from '../../libs/bus';
+import multipleSelect from '../common/multiple-select/multiple-select';
 import { getSuggestTags } from '../../models/service';
 
 export default {
@@ -53,7 +53,7 @@ export default {
       default: () => [],
     },
   },
-  components: {},
+  components: { multipleSelect },
   data() {
     return {
       // 指标信息
@@ -84,8 +84,19 @@ export default {
       }
       this.$emit('on-change-condition');
     }, 300),
+    // 选择主机
+    selectHost(arr, index) {
+      this.elementInfo.tagList[index].value = arr;
+      if (this.$refs.elementInfo && this.$refs[`tagItem${index}`]) {
+        this.$refs.elementInfo.validateField(`tagList.${index}.value`);
+      }
+    },
     // 选择标签
-    selectTag() {
+    selectTag(index) {
+      const arr = this.elementInfo.tagList[index].value;
+      if (arr.length > 0 && arr.indexOf('*') > -1) {
+        this.elementInfo.tagList[index].value = ['*'];
+      }
       this.$emit('on-change-condition');
     },
     // 获取tags列表
@@ -98,9 +109,10 @@ export default {
             const keyList = Object.keys(res.data.tag_set);
             keyList.forEach((item) => {
               if (item !== 'uuid') { // 滤除uuid
+                const valueList = item === 'host' ? this.tagSet[item] : ['*', ...this.tagSet[item]];
                 const tagObj = {
                   name: item,
-                  list: this.tagSet[item],
+                  list: valueList,
                   value: [],
                 };
                 this.elementInfo.tagList.push(tagObj);

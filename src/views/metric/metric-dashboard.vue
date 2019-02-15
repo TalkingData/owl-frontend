@@ -1,5 +1,5 @@
 <style lang="scss">
-  @import './metric-dashboard.scss'
+  @import './metric-dashboard.scss';
 </style>
 <template>
   <div class="main-container metric-dashboard">
@@ -151,13 +151,13 @@ export default {
         // 图表中每条线的名字,后半部分
         let host = `${queryItem.metric}, `;
         const tagsArr = Object.keys(queryItem.tags);
-        tagsArr.forEach((tag) => {
+        tagsArr.forEach((tag, i) => {
           if (tag !== 'uuid') {
-            host += `${tag}=${queryItem.tags[tag]}, `;
+            host += i === 0 ? `${tag}=${queryItem.tags[tag]}` : `, ${tag}=${queryItem.tags[tag]}`;
           }
         });
         // 图表中每条线的名字,去掉最后的逗号与空格
-        seriesItem.theData.name = host.substring(0, host.length - 2);
+        seriesItem.theData.name = host;
         seriesItem.metric_name = seriesItem.theData.name;
         // 设置时间-数据格式对
         const dpsArr = Object.entries(queryItem.dps);

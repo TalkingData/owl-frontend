@@ -20,9 +20,12 @@
         <FormItem prop="checksum" label="校验和" :rules="{ required: true, type: 'string', message: '校验和不能为空', trigger: 'change'}">
           <Input v-model="pluginInfo.checksum" :readonly="isEdit" placeholder="请输入校验和"></Input>
         </FormItem>
+        <FormItem prop="comment" label="备注">
+          <Input v-model="pluginInfo.comment" :autosize="{ minRows: 2 }" type="textarea" :readonly="isEdit" placeholder="请输入备注"></Input>
+        </FormItem>
         <Alert type="warning" show-icon v-if="errorMsg">{{errorMsg}}</Alert>
       </Form>
-      <div class="select-transfer" v-show="isEdit">
+      <div class="input-select-all" v-show="isEdit">
         <div class="clearfix">
           <div class="float-left">
             <Input style="width:200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
@@ -31,10 +34,10 @@
         <Row class="mt-5">
           <Tag color="blue">已选中主机组：{{selectData.length}}人</Tag>
           <Tag v-for="(item, index) in selectShowData" :key="item.id" :name="index" closable @on-close="unSelect">{{ item.name }}</Tag>
-          <a class="ellipsis" v-show="!showAllFlag && selectData.length > 10" href="javascript:;" title="显示全部" @click="showAllSelect">......</a>
+          <a class="ellipsis" v-show="!showAllFlag && selectData.length > 10" title="显示全部" @click="showAllSelect">......</a>
         </Row>
         <paging ref="userGroupList" :total="total" @on-page-info-change="pageInfoChange">
-          <Table ref="userTable" class="mt-5" slot="listTable" size="small" border 
+          <Table ref="userTable" class="mt-5" size="small" border 
           :columns="userColumn" 
           :data="dataList"
           :height="tableHeight"
@@ -114,6 +117,7 @@ export default {
         interval: 60,
         timeout: 10,
         checksum: '',
+        comment: '',
       },
       // 插件ID
       pluginId: 0,
@@ -226,6 +230,7 @@ export default {
         interval: 60,
         timeout: 10,
         checksum: '',
+        comment: '',
       };
     },
     // 编辑与创建
@@ -310,6 +315,7 @@ export default {
     // 创建插件
     createPlugin() {
       const param = Object.assign({}, this.pluginInfo);
+      delete param.id;
       createPlugin(param).then((res) => {
         if (res.status === 200) {
           if (res.data.code === 200) {
@@ -366,7 +372,7 @@ export default {
 
 </script>
 <style scoped lang="scss">
-  .select-transfer {
+  .input-select-all {
     .ellipsis {
       font-size: 18px;
       font-weight: bold;

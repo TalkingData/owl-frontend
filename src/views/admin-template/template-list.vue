@@ -1,5 +1,5 @@
 <style lang="scss">
-@import './template-list.scss'
+@import './template-list.scss';
 
 </style>
 <template>
@@ -22,11 +22,12 @@
       </div>
       <div class="rule-list table-list">
         <div class="box-content">
-          <paging ref="page" :total="total" @on-page-info-change="pageInfoChange">
-            <Table slot="listTable" size="small" border
+          <paging ref="page" :total="total" @on-page-info-change="pageInfoChange" :pageSize="filter.page_size">
+            <Table size="small" border
               ref="tablelist"
               :data="dataList" 
               :columns="columns"
+              :loading="loading"
               no-data-text="暂无数据"
               @on-select-all="selectAll"
               @on-selection-change="selectItem"
@@ -39,17 +40,20 @@
 </template>
 <script>
 import _ from 'lodash';
+import core from '../../mixins/core';
 import bus from '../../libs/bus';
 import { getTemplates, deleteTemplate } from '../../models/service';
 import paging from '../../components/page/paging';
 
 export default {
   name: 'alarmStrategy',
+  mixins: [core],
   components: {
     paging,
   },
   data() {
     return {
+      loading: false,
       saveDataList: [], // 作为备份的数据列表
       allDataList: [], // 所有数据列表
       dataList: [], // 数据列表
@@ -79,8 +83,6 @@ export default {
           render: (h, params) => h('a', {
             attrs: {
               title: '查看模板',
-              // eslint-disable-next-line
-              href: 'javascript:;',
             },
             on: {
               click: () => {
@@ -215,6 +217,7 @@ export default {
     },
     // 翻页
     pageInfoChange(filter) {
+      // this.setInitPage(filter.pageSize);
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
       // this.getData(this.filter);
@@ -244,6 +247,7 @@ export default {
     },
     // 获取数据
     getData() {
+      this.loading = true;
       this.selectedData = [];
       // const param = Object.assign({}, params);
       // if (param.query === '') delete param.query;
@@ -270,6 +274,7 @@ export default {
           this.allDataList = [];
           this.saveDataList = [];
         }
+        this.loading = false;
       });
     },
     // 删除
@@ -353,6 +358,8 @@ export default {
     rowClassName() {
       return 'cursor-ivu-row';
     },
+  },
+  created() {
   },
   mounted() {
     this.getData();

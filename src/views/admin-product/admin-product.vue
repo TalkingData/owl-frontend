@@ -1,5 +1,5 @@
 <style lang="scss">
-  @import './admin-product.scss'
+  @import './admin-product.scss';
 </style>
 <template>
   <div class="main-container admin-product">
@@ -18,11 +18,12 @@
       </div>
       <div class="table-list product-list">
         <div class="box-content">
-          <paging :total="total" @on-page-info-change="pageInfoChange" ref="page">
-            <Table slot="listTable" size="small" border
+          <paging :total="total" @on-page-info-change="pageInfoChange" ref="page" :pageSize="filter.page_size">
+            <Table size="small" border
               ref="tablelist"
               :data="dataList" 
               :columns="columns"
+              :loading="loading"
               no-data-text="暂无数据"
               @on-select-all="selectAll"
               @on-selection-change="selectItem"
@@ -59,17 +60,20 @@
 <script>
 import _ from 'lodash';
 import axios from 'axios';
+import core from '../../mixins/core';
 // import bus from '../../libs/bus';
 import { deleteProduct, addProduct, getAllProducts, updatetProduct } from '../../models/service';
 import paging from '../../components/page/paging';
 
 export default {
   name: 'monitorGroup',
+  mixins: [core],
   components: {
     paging,
   },
   data() {
     return {
+      loading: false,
       dataList: [], // 表格数据,主机列表
       filter: {
         page_size: 10,
@@ -99,11 +103,12 @@ export default {
           key: 'name',
           sortable: 'custom',
           minWidth: 160,
-          render: (h, params) => h('a', {
+          render: (h, params) => h('span', {
+            class: {
+              'view-detail': true,
+            },
             attrs: {
               title: '查看产品线',
-              // eslint-disable-next-line
-              href: 'javascript:;',
             },
             on: {
               click: () => {
@@ -124,11 +129,12 @@ export default {
           title: '主机数',
           key: 'host_cnt',
           width: 160,
-          render: (h, params) => h('a', {
+          render: (h, params) => h('span', {
+            class: {
+              'view-detail': true,
+            },
             attrs: {
               title: '查看产品线主机',
-              // eslint-disable-next-line
-              href: 'javascript:;',
             },
             on: {
               click: () => {
@@ -140,11 +146,12 @@ export default {
           title: '用户数',
           key: 'user_cnt',
           width: 160,
-          render: (h, params) => h('a', {
+          render: (h, params) => h('span', {
+            class: {
+              'view-detail': true,
+            },
             attrs: {
               title: '查看产品线用户',
-              // eslint-disable-next-line
-              href: 'javascript:;',
             },
             on: {
               click: () => {
@@ -368,6 +375,7 @@ export default {
     },
     // 获取表格内容数据
     getData(params) {
+      this.loading = true;
       this.selectedData = [];
       const obj = Object.assign({}, params);
       if (!obj.query) delete obj.query;
@@ -380,9 +388,11 @@ export default {
           this.total = 0;
           this.dataList = [];
         }
+        this.loading = false;
       });
     },
     pageInfoChange(filter) {
+      // this.setInitPage(filter.pageSize);
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
       this.getData(this.filter);
@@ -412,6 +422,8 @@ export default {
     reload() {
       this.getData(this.filter);
     },
+  },
+  created() {
   },
   mounted() {
     this.getData(this.filter);

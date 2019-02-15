@@ -1,5 +1,5 @@
 <style lang="scss">
-  @import './product-host.scss'
+  @import './product-host.scss';
 </style>
 <template>
   <div class="main-container product-host-container">

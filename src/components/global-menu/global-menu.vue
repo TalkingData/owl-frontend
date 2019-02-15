@@ -1,5 +1,5 @@
 <style lang="scss">
-@import './global-menu.scss'
+@import './global-menu.scss';
 
 </style>
 <template>

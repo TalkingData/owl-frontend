@@ -1,5 +1,5 @@
 <style lang="scss">
-  @import './sort-page.scss'
+  @import './sort-page.scss';
 </style>
 <template>
   <div class="sort-page">

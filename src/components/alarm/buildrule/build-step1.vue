@@ -1,5 +1,5 @@
 <style lang="scss">
-@import './build-step1.scss'
+@import './build-step1.scss';
 
 </style>
 <template>
@@ -89,7 +89,7 @@ export default {
         priority: 1, // 告警级别
         alarm_count: 5, // 告警次数
         cycle: 5, // 追溯时间
-        logic: 'AND', // 逻辑关系
+        logic: 'OR', // 逻辑关系
         expression: 'A', // 自定义
         triggers: [], // 对应模块ruleItem
       },

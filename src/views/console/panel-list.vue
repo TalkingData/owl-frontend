@@ -1,5 +1,5 @@
 <style lang="scss">
-  @import './panel-list.scss'
+  @import './panel-list.scss';
 </style>
 <template>
   <div class="main-container panel-list">
@@ -18,11 +18,12 @@
       </div>
       <div class="table-list">
         <div class="box-content">
-          <paging :total="total" @on-page-info-change="pageInfoChange" ref="page">
-            <Table slot="listTable" size="small" border
+          <paging :total="total" @on-page-info-change="pageInfoChange" :pageSize="filter.page_size" ref="page">
+            <Table size="small" border
               ref="tablelist"
               :data="dataList" 
               :columns="columns"
+              :loading="loading"
               no-data-text="暂无数据"
               @on-select-all="selectAll"
               @on-selection-change="selectItem"
@@ -55,17 +56,20 @@
 <script>
 import _ from 'lodash';
 import axios from 'axios';
+import core from '../../mixins/core';
 // import bus from '../../libs/bus';
 import { getPanels, addPanels, updatePanels, deletePanels } from '../../models/service';
 import paging from '../../components/page/paging';
 
 export default {
   name: 'panelList',
+  mixins: [core],
   components: {
     paging,
   },
   data() {
     return {
+      loading: false,
       dataList: [], // 表格数据,主机列表
       filter: {
         page_size: 10,
@@ -96,11 +100,12 @@ export default {
           key: 'name',
           sortable: 'custom',
           minWidth: 160,
-          render: (h, params) => h('a', {
+          render: (h, params) => h('span', {
+            class: {
+              'view-detail': true,
+            },
             attrs: {
               title: '查看看板',
-              // eslint-disable-next-line
-              href: 'javascript:;',
             },
             on: {
               click: () => {
@@ -288,6 +293,7 @@ export default {
     },
     // 获取表格内容数据
     getData(params) {
+      this.loading = true;
       this.selectedData = [];
       const obj = Object.assign({}, params);
       if (!obj.query) delete obj.query;
@@ -300,9 +306,11 @@ export default {
           this.total = 0;
           this.dataList = [];
         }
+        this.loading = false;
       });
     },
     pageInfoChange(filter) {
+      // this.setInitPage(filter.pageSize);
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
       this.getData(this.filter);
@@ -334,6 +342,8 @@ export default {
     reload() {
       this.getData(this.filter);
     },
+  },
+  created() {
   },
   mounted() {
     if (this.$route.params.productId) {

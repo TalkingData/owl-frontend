@@ -1,5 +1,5 @@
 <style lang="scss">
-  @import './monitor-host.scss'
+  @import './monitor-host.scss';
 </style>
 <template>
   <div class="main-container monitor-host">

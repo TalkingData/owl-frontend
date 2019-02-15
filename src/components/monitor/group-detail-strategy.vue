@@ -1,5 +1,5 @@
 <style lang="scss">
-@import './group-detail-strategy.scss'
+@import './group-detail-strategy.scss';
 
 </style>
 <template>
@@ -13,12 +13,13 @@
       </div>
     </div>
     <div class="box-content">
-      <paging ref="ruleList" :total="total" @on-page-info-change="pageInfoChange">
-        <Table slot="listTable" size="small" border
+      <paging ref="ruleList" :total="total" @on-page-info-change="pageInfoChange" :pageSize="filter.page_size">
+        <Table size="small" border
           ref="tablelist"
           :data="dataList" 
           :columns="columns"
           :row-class-name="rowClassName"
+          :loading="loading"
           no-data-text="暂无数据"
           ></Table>
       </paging>
@@ -27,18 +28,21 @@
 </template>
 <script>
 import _ from 'lodash';
+import core from '../../mixins/core';
 // import bus from '../../libs/bus';
 import { getStrategyInGroup } from '../../models/service';
 import paging from '../page/paging';
 
 export default {
   name: 'groupDetailStrategy',
+  mixins: [core],
   components: {
     paging,
   },
   props: {},
   data() {
     return {
+      loading: false,
       groupItem: {}, // 组信息
       // 过滤器
       filter: {
@@ -54,11 +58,12 @@ export default {
         title: '策略名称',
         key: 'name',
         minWidth: 180,
-        render: (h, params) => h('a', {
+        render: (h, params) => h('span', {
+          class: {
+            'view-detail': true,
+          },
           attrs: {
             title: '查看策略',
-            // eslint-disable-next-line
-            href: 'javascript:;',
           },
           on: {
             click: () => {
@@ -114,6 +119,7 @@ export default {
     },
     // 获取数据
     getData(params) {
+      this.loading = true;
       const param = Object.assign({}, params);
       if (!param.query) delete param.query;
       if (!param.order) delete param.order;
@@ -122,7 +128,11 @@ export default {
         if (res.status === 200) {
           this.total = res.data.total;
           this.dataList = res.data.strategies;
+        } else {
+          this.total = 0;
+          this.dataList = [];
         }
+        this.loading = false;
       });
     },
     // 初始化过滤条件
@@ -132,6 +142,7 @@ export default {
       this.getData(this.filter);
     },
     pageInfoChange(filter) {
+      // this.setInitPage(filter.pageSize);
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
       this.getData(this.filter);
@@ -158,6 +169,8 @@ export default {
         isCorrelate: false,
       };
     },
+  },
+  created() {
   },
   mounted() {
     this.getDetailData();

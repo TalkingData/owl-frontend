@@ -1,5 +1,5 @@
 <style lang="scss">
-  @import './plugin-list.scss'
+  @import './plugin-list.scss';
 </style>
 <template>
   <div class="common-host-list">
@@ -18,11 +18,12 @@
         </div>
       </div>
       <div class="box-content">
-        <paging :total="total" @on-page-info-change="pageInfoChange" ref="page">
-          <Table slot="listTable" size="small" border
+        <paging :total="total" @on-page-info-change="pageInfoChange" ref="page" :pageSize="filter.page_size">
+          <Table size="small" border
             ref="tablelist"
             :data="dataList" 
             :columns="columns"
+            :loading="loading"
             no-data-text="暂无数据"
             @on-select-all="selectAll"
             @on-selection-change="selectItem"
@@ -45,6 +46,7 @@
 <script>
 import _ from 'lodash';
 import axios from 'axios';
+import core from '../../../mixins/core';
 // import bus from '../../libs/bus';
 import { getAllPlugins, deletePluginOfGroup, getPluginOfGroup,
   getPluginOfHost, deletePluginOfHost } from '../../../models/service';
@@ -54,6 +56,7 @@ import paging from '../../../components/page/paging';
 
 export default {
   name: 'pluginList',
+  mixins: [core],
   components: {
     createPlugin,
     pluginEdit,
@@ -67,6 +70,7 @@ export default {
   },
   data() {
     return {
+      loading: false,
       dataList: [], // 表格数据,主机列表
       filter: {
         page_size: 10,
@@ -95,8 +99,6 @@ export default {
           // render: (h, params) => h('a', {
           //   attrs: {
           //     title: params.row.name,
-          //     // eslint-disable-next-line
-          //     href: 'javascript:;',
           //   },
           //   on: {
           //     click: () => {
@@ -115,6 +117,10 @@ export default {
         }, {
           title: '超时时间(秒)',
           key: 'timeout',
+          width: 150,
+        }, {
+          title: '备注',
+          key: 'comment',
           width: 150,
         }, {
           title: '操作',
@@ -296,6 +302,7 @@ export default {
     },
     // 获取表格内容数据
     getData(params) {
+      this.loading = true;
       this.selectedData = [];
       this.checkAll = false;
       const obj = Object.assign({}, params);
@@ -310,6 +317,7 @@ export default {
             this.total = 0;
             this.dataList = [];
           }
+          this.loading = false;
         });
       } else if (this.source === 'host') {
         delete obj.productId;
@@ -322,6 +330,7 @@ export default {
             this.total = 0;
             this.dataList = [];
           }
+          this.loading = false;
         });
       } else if (this.source === 'admin') {
         delete obj.productId;
@@ -334,10 +343,14 @@ export default {
             this.total = 0;
             this.dataList = [];
           }
+          this.loading = false;
         });
+      } else {
+        this.loading = false;
       }
     },
     pageInfoChange(filter) {
+      // this.setInitPage(filter.pageSize);
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
       this.getData(this.filter);
@@ -386,6 +399,8 @@ export default {
       }
       this.getData(this.filter);
     },
+  },
+  created() {
   },
   mounted() {
     this.getDetailData();

@@ -1,5 +1,5 @@
 <style lang="scss">
-  @import './host-list.scss'
+  @import './host-list.scss';
 </style>
 <template>
   <div class="common-host-list">
@@ -36,11 +36,12 @@
         </div>
       </div>
       <div class="box-content">
-        <paging :total="total" @on-page-info-change="pageInfoChange" ref="page">
-          <Table slot="listTable" size="small" border
+        <paging :total="total" @on-page-info-change="pageInfoChange" :pageSize="filter.page_size" ref="page">
+          <Table size="small" border
             ref="tablelist"
             :data="dataList" 
             :columns="columns"
+            :loading="loading"
             no-data-text="暂无数据"
             @on-select-all="selectAll"
             @on-selection-change="selectItem"
@@ -50,11 +51,11 @@
       </div>
     </div>
     <create-host-group ref="addHost" @on-create-success="addSuccess"></create-host-group>
-    <Modal :title="actionObj.title" v-model="removeModal">
+    <Modal :title="actionObj.title" v-model="removeModal" @on-cancel="deleteCancel">
       <Form :model="appendInfo" v-if="msgInfo === 'appendpro' || msgInfo === 'appendgroup'" ref="appendForm" :label-width="80">
         <FormItem prop="productId" v-if="msgInfo === 'appendpro'"
         :rules="{required: true, type: 'number', message: '请选择产品线', trigger: 'change'}" label="产品线">
-          <Select v-model="appendInfo.productId">
+          <Select v-model="appendInfo.productId" filterable ref="productSelect">
             <Option v-for="(item, index) in productList"
             :key="index"
             :value="item.id"
@@ -82,6 +83,7 @@
 <script>
 import _ from 'lodash';
 import axios from 'axios';
+import core from '../../mixins/core';
 import bus from '../../libs/bus';
 import {
   getHostOfPro,
@@ -102,6 +104,7 @@ import createHostGroup from './create-host-group';
 
 export default {
   name: 'hostList',
+  mixins: [core],
   components: {
     paging,
     createHostGroup,
@@ -120,6 +123,7 @@ export default {
   },
   data() {
     return {
+      loading: false,
       dataList: [], // 表格数据,主机列表
       unDistribute: false, // 未分配主机
       filter: {
@@ -139,15 +143,14 @@ export default {
           key: 'hostname',
           sortable: 'custom',
           minWidth: 180,
-          render: (h, params) => h('a', {
+          render: (h, params) => h('router-link', {
             attrs: {
               title: '前往主机详情页',
-              // eslint-disable-next-line
-              href: 'javascript:;',
+              to: this.getViewRouter(params.row),
             },
-            on: {
+            nativeOn: {
               click: () => {
-                this.viewDetail(params.row, 'default');
+                localStorage.setItem('hostAppname', 'default');
               },
             },
           }, params.row.name || params.row.hostname),
@@ -179,6 +182,7 @@ export default {
           key: 'status',
           width: 80,
           align: 'center',
+          sortable: 'custom',
           render: (h, params) => h('Badge', {
             props: {
               count: this.getHostStatus(params.row.status),
@@ -190,13 +194,15 @@ export default {
         }, {
           title: '插件数',
           key: 'plugin_cnt',
-          width: 80,
+          width: 90,
           align: 'center',
-          render: (h, params) => h('a', {
+          sortable: 'custom',
+          render: (h, params) => h('span', {
+            class: {
+              'view-detail': true,
+            },
             attrs: {
               title: '前往插件列表页',
-              // eslint-disable-next-line
-              href: 'javascript:;',
             },
             on: {
               click: (event) => {
@@ -207,11 +213,11 @@ export default {
           }, params.row.plugin_cnt),
         }, {
           title: '主机组',
+          key: 'host_groups',
           minWidth: 160,
+          sortable: 'custom',
           renderHeader: h => h('span', this.source === 'admin' ? '产品线' : '主机组'),
-          render: (h, params) => h('div', [this.source !== 'admin' && params.row.host_groups ? h('div', params.row.host_groups.map((item, gIndex) => h('span', {
-          }, gIndex === 0 ? item.name : `, ${item.name}`))) : '', this.source === 'admin' && params.row.products ? h('div', params.row.products.map((item, gIndex) => h('span', {
-          }, gIndex === 0 ? item.name : `, ${item.name}`))) : '']),
+          render: (h, params) => h('div', [this.source !== 'admin' && params.row.host_groups ? params.row.host_groups : '', this.source === 'admin' && params.row.products ? params.row.products : '']),
         }, {
           title: '操作',
           align: 'right',
@@ -356,6 +362,7 @@ export default {
     // 将主机添加到产品线
     appendHost() {
       if (this.source === 'admin') {
+        this.productList = [];
         this.getAllProducts();
         this.msgInfo = 'appendpro';
       } else if (this.source === 'monitor') {
@@ -367,6 +374,9 @@ export default {
         const host = Object.assign({}, item);
         return host;
       });
+      if (this.$refs.productSelect) {
+        this.$refs.productSelect.reset();
+      }
     },
     // 添加主机回调
     addSuccess(msg, data) {
@@ -543,6 +553,9 @@ export default {
     deleteCancel() {
       this.removeModal = false;
       this.deleteShowData = [];
+      if (this.$refs.appendForm) {
+        this.$refs.appendForm.resetFields();
+      }
     },
     // 从产品线移除成功
     removeHostInPro() {
@@ -607,9 +620,23 @@ export default {
         }
       });
     },
-    // 查看详情
+    getViewRouter(item) {
+      if (this.source === 'product') {
+        return `/admin/product/host/detail/${item.id}/${this.filter.productId}`;
+      }
+      if (this.source === 'monitor') {
+        return `/monitor/host/detail/${item.id}/${this.filter.productId}`;
+      }
+      if (this.source === 'group') {
+        return `/monitor/grouphost/${item.id}/${this.groupId}/${this.filter.productId}`;
+      }
+      if (this.source === 'admin') {
+        return `/admin/monitor/host/detail/${item.id}`;
+      }
+      return `/admin/monitor/host/detail/${item.id}`;
+    },
+    // 查看主机详情
     viewDetail(item, appname) {
-      localStorage.setItem('hostItemInfo', JSON.stringify(item));
       if (appname) {
         localStorage.setItem('hostAppname', appname);
       }
@@ -638,8 +665,8 @@ export default {
         path: `/monitor/groupd/etail/${group.id}/${this.filter.productId}`,
       });
     },
+    // 查看插件
     viewPlugin(item) {
-      localStorage.setItem('hostItemInfo', JSON.stringify(item));
       if (this.source === 'product') {
         this.$router.push({
           path: `/admin/product/host/plugin/${item.id}/${this.filter.productId}`,
@@ -660,6 +687,7 @@ export default {
     },
     // 获取表格内容数据
     getData(params) {
+      this.loading = true;
       this.selectedData = [];
       const obj = Object.assign({}, params);
       if (!obj.query) delete obj.query;
@@ -678,6 +706,7 @@ export default {
             this.total = 0;
             this.dataList = [];
           }
+          this.loading = false;
         });
       } else if (this.source === 'group') {
         getHostOfGroup(obj).then((res) => {
@@ -692,6 +721,7 @@ export default {
             this.total = 0;
             this.dataList = [];
           }
+          this.loading = false;
         });
       } else if (this.source === 'admin') {
         delete obj.productId;
@@ -707,7 +737,10 @@ export default {
             this.total = 0;
             this.dataList = [];
           }
+          this.loading = false;
         });
+      } else {
+        this.loading = false;
       }
     },
     // 初始化过滤条件
@@ -718,13 +751,20 @@ export default {
     },
     // 翻页
     pageInfoChange(filter) {
+      // this.setInitPage(filter.pageSize);
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
       this.getData(this.filter);
     },
     // 排序
     handleSort(value) {
-      const order = value.order === 'normal' ? '' : `${value.key}|${value.order}`;
+      let order = '';
+      if (value.key === 'host_groups') {
+        const key = this.source === 'admin' ? 'products' : 'groups';
+        order = value.order === 'normal' ? '' : `${key}|${value.order}`;
+      } else {
+        order = value.order === 'normal' ? '' : `${value.key}|${value.order}`;
+      }
       this.filter.order = order;
       this.initFilter();
     },
@@ -799,6 +839,9 @@ export default {
             this.appendInfo.productId = '';
             this.removeModal = false;
             this.initFilter();
+            if (this.$refs.appendForm) {
+              this.$refs.appendForm.resetFields();
+            }
           }
         });
       } else {
@@ -822,6 +865,9 @@ export default {
             this.appendInfo.groupId = '';
             this.removeModal = false;
             this.initFilter();
+            if (this.$refs.appendForm) {
+              this.$refs.appendForm.resetFields();
+            }
           }
         });
       } else {
@@ -1043,6 +1089,8 @@ export default {
         isRemove: false,
       };
     },
+  },
+  created() {
   },
   mounted() {
     this.getDetailData();

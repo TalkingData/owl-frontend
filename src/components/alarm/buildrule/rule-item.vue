@@ -1,6 +1,5 @@
 <style lang="scss">
-@import './rule-item.scss'
-
+@import './rule-item.scss';
 </style>
 <template>
   <div class="rule-item-view">
@@ -18,7 +17,7 @@
             <div class="float-left">
               <FormItem prop="metric" :rules="{required: true, type: 'string', trigger: 'change', message: '请添加metric'}">
                 <Select ref="metricSelect" v-model="data.metric" 
-                style="width: 200px;"
+                :style="selectStyle"
                 placeholder="metric必填"
                 :disabled="viewDisable"
                 filterable transfer 
@@ -45,7 +44,7 @@
                     <Option v-for="item in symbolArr" :key="item" :value="item" :label="item">{{item}}</Option>
                   </Select>
                   <span class="character">—</span>
-                  <InputNumber v-model="data.threshold" placeholder="threshold" :readonly="viewDisable"></InputNumber>
+                  <InputNumber :min="0" style="width:100px;" v-model="data.threshold" placeholder="threshold" :readonly="viewDisable"></InputNumber>
                   <span class="info-word">{{bytesToSize(data.threshold)}}</span>
                 </div>
                 <!-- <div class="float-left ml-10">
@@ -63,14 +62,14 @@
         <Row v-if="data.tagList.length > 0" v-for="(item, index) in data.tagList" :key="'ss' + index">
           <div class="float-left mr-10">
             <FormItem :key="index" :label="item.name" :label-width="80" :prop="'tagList.' + index + '.value'" :rules="{ required: true, type: 'array', min: 1, message: '请选择tag值'}">
-              <Select v-model="item.value" ref="tagSelect"
+              <Select v-model="item.value" ref="tagSelect" @on-change="selectTag(index)"
               placeholder="请选择tag值"
               :disabled="viewDisable"
               multiple 
               filterable 
               transfer
               not-found-text="">
-                <Option v-for="(op, j) in item.list" :key="op + j"
+                <Option v-for="(op, j) in item.list" :key="op + j" :disabled="op !== 'all' && item.value.toString() === 'all'"
                 :value="op">{{op}}</Option>
               </Select>
             </FormItem>
@@ -173,6 +172,12 @@ export default {
         this.data.tagList = [];
       }
     },
+    selectTag(index) {
+      const arr = this.data.tagList[index].value;
+      if (arr.length > 0 && arr.indexOf('all') > -1) {
+        this.data.tagList[index].value = ['all'];
+      }
+    },
     // 搜索特定metric下的tag
     getSuggestTags(params) {
       getSuggestTags(params).then((res) => {
@@ -184,7 +189,7 @@ export default {
             if (item !== 'uuid' && item !== 'host') { // 滤除uuid
               const tagObj = {
                 name: item,
-                list: this.tagSet[item],
+                list: ['all', ...this.tagSet[item]],
                 value: [],
               };
               this.data.tagList.push(tagObj);
@@ -206,7 +211,7 @@ export default {
     },
     // on-delete-block回调，删除时保存所有规则块的数据
     subSave() {
-      this.tagsToString();
+      // this.tagsToString();
       this.data.index = this.title;
       bus.buildRuleInfo.triggers[this.num] = Object.assign({}, this.data);
       this.$emit('sub-save-ok');
@@ -230,9 +235,9 @@ export default {
       let str = '';
       this.data.tagList.forEach((item, index) => {
         if (index === 0) {
-          str += `${item.name}=${item.value.join('|')}`;
+          str += item.value.indexOf('all') > -1 ? `${item.name}=all` : `${item.name}=${item.value.join('|')}`;
         } else {
-          str += `,${item.name}=${item.value.join('|')}`;
+          str += item.value.indexOf('all') > -1 ? `,${item.name}=all` : `,${item.name}=${item.value.join('|')}`;
         }
       });
       return str;
@@ -282,6 +287,7 @@ export default {
     },
     bytesToSize(bytes) {
       if (!bytes) return '0';
+      if (bytes <= 1) return bytes;
       const k = 1000; // or 1024
       const sizes = ['', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
       const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -298,11 +304,20 @@ export default {
         arr: [...this.metricList],
         text: '',
       };
-      if (this.data.metric && this.metricList.indexOf(this.data.metric) === -1) {
+      if (this.data.metric && this.metricList.length > 0 &&
+      this.metricList.indexOf(this.data.metric) === -1) {
         obj.arr.unshift(this.data.metric);
         obj.text = `metric：${this.data.metric}，不可用`;
       }
       return obj;
+    },
+    selectStyle() {
+      if (this.data.metric) {
+        const number = (this.data.metric.length * 7) + 20;
+        const length = number > 200 ? number : 200;
+        return `width: ${length}px;`;
+      }
+      return 'width: 200px;';
     },
   },
   watch: {

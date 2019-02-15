@@ -1,5 +1,5 @@
 <style lang="scss">
-  @import './simple-table.scss'
+  @import './simple-table.scss';
 </style>
 <template>
   <div class="my-table-list">

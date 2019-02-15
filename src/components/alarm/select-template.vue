@@ -13,10 +13,11 @@
           </div>
         </div>
         <!-- @on-row-click="dataSelect" -->
-        <paging ref="userGroupList" :total="total" @on-page-info-change="pageInfoChange">
-          <Table size="small" slot="listTable" 
+        <paging ref="userGroupList" :total="total" @on-page-info-change="pageInfoChange" :pageSize="filter.page_size">
+          <Table size="small" 
           :columns="userColumn" 
           :data="dataList"
+          :loading="loading"
           @on-row-click="dataSelect"></Table>
         </paging>
       </div>
@@ -29,6 +30,7 @@
 </template>
 <script>
 import _ from 'lodash';
+import core from '../../mixins/core';
 // import bus from '../../libs/bus';
 import {
   getTemplateInfo,
@@ -38,12 +40,14 @@ import paging from '../page/paging';
 
 export default {
   name: 'selectTemplate',
+  mixins: [core],
   props: {},
   components: {
     paging,
   },
   data() {
     return {
+      loading: false,
       total: 0,
       filter: { // 翻页
         page: 1,
@@ -101,6 +105,7 @@ export default {
     },
     // 翻页
     pageInfoChange(filter) {
+      // this.setInitPage(filter.pageSize);
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
       // this.initFilter();
@@ -130,6 +135,7 @@ export default {
     },
     // 获取主机组外主机列表
     getTemplates(params) {
+      this.loading = true;
       this.selectData = [];
       const obj = Object.assign({}, params);
       if (!obj.query) delete obj.query;
@@ -138,7 +144,12 @@ export default {
           this.total = res.data.templates.length;
           this.allDataList = res.data.templates;
           this.dataList = this.allDataList.slice(0, this.filter.page_size);
+        } else {
+          this.total = 0;
+          this.allDataList = [];
+          this.dataList = [];
         }
+        this.loading = false;
       });
     },
     // 取消弹窗
@@ -163,6 +174,8 @@ export default {
         }
       });
     },
+  },
+  created() {
   },
   mounted() {},
 };

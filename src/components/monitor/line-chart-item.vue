@@ -1,17 +1,17 @@
 <style lang="scss">
-  @import './line-chart-item.scss'
+  @import './line-chart-item.scss';
 </style>
 <template>
   <div class="line-chart-item">
     <div class="edit">
-      <div class="list-icon" v-if="firstShow">
+      <div class="list-icon" v-if="firstShow && showSetting">
         <span @click="showAllScreen" title="全屏" class="set-icon">
           <Icon type="arrow-expand"></Icon>
         </span>
       </div>
     </div>
     <div class="line-area list_line_area" ref="lineChartArea"></div>
-    <Modal title="查看" v-model="screenModal" width="96%" class="line-chart-block-modal">
+    <Modal title="查看" v-model="screenModal" width="100" class="line-chart-block-modal">
       <Row>
         <div class="float-right">
           <calendar-select placement="bottom-end" ref="dateSelect" @on-date-change="dateChange"></calendar-select>
@@ -161,13 +161,13 @@ export default {
                 // 图表中每条线的名字,后半部分
                 let host = `${queryItem.metric}, `;
                 const tagsArr = Object.keys(queryItem.tags);
-                tagsArr.forEach((tag) => {
+                tagsArr.forEach((tag, i) => {
                   if (tag !== 'uuid') {
-                    host += `${tag}=${queryItem.tags[tag]}, `;
+                    host += i === 0 ? `${tag}=${queryItem.tags[tag]}` : `, ${tag}=${queryItem.tags[tag]}`;
                   }
                 });
                 // 图表中每条线的名字,去掉最后的逗号与空格
-                seriesItem.theData.name = host.substring(0, host.length - 2);
+                seriesItem.theData.name = host;
                 seriesItem.metric_name = seriesItem.theData.name;
                 // 设置时间-数据格式对
                 const dpsArr = Object.entries(queryItem.dps);
@@ -189,6 +189,7 @@ export default {
         }
       });
     },
+    // 显示加载效果
     showLoad() {
       if (this.highchartStore) {
         this.highchartStore.showLoading();
@@ -475,49 +476,6 @@ export default {
         return `${kbNum.toFixed(2)}KB`;
       }
       return num.toFixed(2);
-    },
-    // 获取tag数组
-    proTags(data) {
-      const dou = data.indexOf(',');
-      const tmp = [];
-      if (dou === -1) {
-        const set = data.split('=');
-        if (set[1].indexOf('|') > -1) {
-          const valueArr = set[1].split('|');
-          valueArr.forEach((keyV) => {
-            tmp.push(`${set[0]}=${keyV}`);
-          });
-        } else {
-          tmp.push(`${set[0]}=${set[1]}`);
-        }
-      } else {
-        const mid = data.split(','); // ['key=v1','key=v2',....]
-        mid.forEach((item) => {
-          const setInner = item.split('=');
-          if (setInner[1].indexOf('|') > -1) {
-            const valueArr = setInner[1].split('|');
-            valueArr.forEach((keyV) => {
-              tmp.push(`${setInner[0]}=${keyV}`);
-            });
-          } else {
-            tmp.push(`${setInner[0]}=${setInner[1]}`);
-          }
-        });
-      }
-      return tmp;
-    },
-    // 获取交集,取得所需tags进行查询,k1=v1,k2=v2
-    getCompilation(arr1, arr2) {
-      const arr = [];
-      if (arr1.length && arr2.length) {
-        arr1.forEach((item) => {
-          if (arr2.indexOf(item) > -1) {
-            arr.push(item);
-          }
-        });
-        return arr;
-      }
-      return [];
     },
   },
   mounted() {

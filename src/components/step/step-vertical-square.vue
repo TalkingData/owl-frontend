@@ -1,5 +1,5 @@
 <style lang="scss">
-@import './step-vertical-square.scss'
+@import './step-vertical-square.scss';
 
 </style>
 <template>

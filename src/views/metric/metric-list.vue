@@ -1,5 +1,5 @@
 <style lang="scss">
-  @import './metric-list.scss'
+  @import './metric-list.scss';
 </style>
 <template>
   <div class="main-container metric-list">
@@ -11,11 +11,12 @@
       </div>
       <div class="table-list">
         <div class="box-content">
-          <paging :total="total" @on-page-info-change="pageInfoChange" ref="page">
-            <Table slot="listTable" size="small" border
+          <paging :total="total" @on-page-info-change="pageInfoChange" :pageSize="filter.page_size" ref="page">
+            <Table size="small" border
               ref="tablelist"
               :data="dataList" 
               :columns="columns"
+              :loading="loading"
               :row-class-name="rowClassName"
               no-data-text="暂无数据"
               @on-row-click="viewDetail"
@@ -30,7 +31,7 @@
           <Icon type="podium"></Icon>
           {{selectedData.name}}
         </p>
-        <a href="javascript:;" slot="extra" @click.prevent="viewCancel">
+        <a slot="extra" @click.prevent="viewCancel">
           <Icon type="close"></Icon>
         </a>
         <Card :bordered="false">
@@ -50,6 +51,7 @@
 </template>
 <script>
 import _ from 'lodash';
+import core from '../../mixins/core';
 import {
   getSuggestMetric,
   getSuggestTags,
@@ -58,6 +60,7 @@ import paging from '../../components/page/paging';
 
 export default {
   name: 'monitorHost',
+  mixins: [core],
   components: {
     paging,
   },
@@ -65,6 +68,7 @@ export default {
   },
   data() {
     return {
+      loading: false,
       saveDataList: [], // 作为备份的数据列表
       allDataList: [], // 所有数据列表
       dataList: [], // 表格数据,指标列表
@@ -139,6 +143,7 @@ export default {
     },
     // 获取表格内容数据
     getData(params) {
+      this.loading = true;
       this.initFilter();
       const param = {
         product_id: params.productId,
@@ -169,6 +174,7 @@ export default {
           this.dataList = [];
         }
       });
+      this.loading = false;
     },
     // 获取tags列表
     getSuggestTags(params) {
@@ -190,6 +196,7 @@ export default {
     },
     // 翻页
     pageInfoChange(filter) {
+      // this.setInitPage(filter.pageSize);
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
       this.allDataList = this.allDataList.map((item) => {
@@ -233,6 +240,8 @@ export default {
     rowClassName(item) {
       return item.checked ? 'cursor-ivu-row selected' : 'cursor-ivu-row';
     },
+  },
+  created() {
   },
   mounted() {
     if (this.$route.params.productId) {

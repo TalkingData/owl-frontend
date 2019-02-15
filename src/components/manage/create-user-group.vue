@@ -10,7 +10,7 @@
         </FormItem>
         <Alert v-if="errorMsg" type="warning" show-icon>{{errorMsg}}</Alert>
       </Form>
-      <div class="select-transfer" v-show="isEdit">
+      <div class="input-select-all" v-show="isEdit">
         <div class="clearfix">
           <div class="float-left">
             <Input style="width:200px; margin-right: 10px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
@@ -19,11 +19,11 @@
         <Row class="mt-5">
           <Tag color="blue">已选中用户：{{selectData.length}}人</Tag>
           <Tag v-for="(item, index) in selectShowData" :key="item.id" :name="index" closable @on-close="unSelectUser">{{ item.username }}</Tag>
-          <a class="ellipsis" v-show="!showAllFlag && selectData.length > 10" href="javascript:;" title="显示全部" @click="showAllSelect">......</a>
+          <a class="ellipsis" v-show="!showAllFlag && selectData.length > 10" title="显示全部" @click="showAllSelect">......</a>
         </Row>
         </Row>
-        <paging ref="userPage" :total="total" @on-page-info-change="pageInfoChange">
-          <Table ref="userTable" class="mt-5" slot="listTable" size="small" border 
+        <paging ref="userPage" :total="total" @on-page-info-change="pageInfoChange" :pageSize="filter.page_size">
+          <Table ref="userTable" class="mt-5" size="small" border 
           :columns="userColumn" 
           :data="dataList"
           :height="tableHeight"
@@ -40,6 +40,7 @@
 </template>
 <script>
 import _ from 'lodash';
+import core from '../../mixins/core';
 // import bus from '../../libs/bus';
 import {
   addUserGroups,
@@ -53,6 +54,7 @@ import paging from '../page/paging';
 
 export default {
   name: 'createUserGroup',
+  mixins: [core],
   props: {},
   components: {
     paging,
@@ -168,6 +170,7 @@ export default {
     },
     // 翻页
     pageInfoChange(filter) {
+      // this.setInitPage(filter.pageSize);
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
       this.initFilter();
@@ -368,7 +371,7 @@ export default {
       this.selectData = [];
       this.showAllFlag = false;
       this.filter.page = 1;
-      this.filter.page_size = 10;
+      // this.filter.page_size = 10;
       if (this.$route.params.productId) {
         this.productId = parseInt(this.$route.params.productId, 10);
       }
@@ -407,12 +410,14 @@ export default {
       return num === 1 ? '管理员' : '用户';
     },
   },
+  created() {
+  },
   mounted() {},
 };
 
 </script>
 <style scoped lang="scss">
-  .select-transfer {
+  .input-select-all {
     .ellipsis {
       font-size: 18px;
       font-weight: bold;

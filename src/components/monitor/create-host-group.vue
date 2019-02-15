@@ -10,7 +10,7 @@
         </FormItem>
         <Alert type="warning" show-icon v-if="errorMsg">{{errorMsg}}</Alert>
       </Form>
-      <div class="select-transfer" v-show="isEdit">
+      <div class="input-select-all" v-show="isEdit">
         <div class="clearfix">
           <div class="float-left">
             <Input style="width:200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
@@ -21,8 +21,8 @@
           <Tag v-for="(item, index) in selectShowData" :key="item.id" :name="index" closable @on-close="unSelect">{{ item.hostname }}</Tag>
           <a class="ellipsis" v-show="!showAllFlag && selectData.length > 10" href="javascript:;" title="显示全部" @click="showAllSelect">......</a>
         </Row>
-        <paging ref="hostPage" :total="total" @on-page-info-change="pageInfoChange">
-          <Table ref="hostTable" class="mt-5" slot="listTable" size="small" border 
+        <paging ref="hostPage" :total="total" @on-page-info-change="pageInfoChange" :pageSize="filter.page_size">
+          <Table ref="hostTable" class="mt-5" size="small" border 
           :columns="userColumn" 
           :data="dataList"
           :height="tableHeight"
@@ -39,6 +39,7 @@
 </template>
 <script>
 import _ from 'lodash';
+import core from '../../mixins/core';
 // import bus from '../../libs/bus';
 import {
   addHostGroups,
@@ -52,6 +53,7 @@ import paging from '../page/paging';
 
 export default {
   name: 'createHostGroup',
+  mixins: [core],
   props: {},
   components: {
     paging,
@@ -151,6 +153,7 @@ export default {
     },
     // 翻页
     pageInfoChange(filter) {
+      // this.setInitPage(filter.pageSize);
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
       this.initFilter();
@@ -197,7 +200,7 @@ export default {
     // 编辑组
     editInit(group, msg) {
       this.filter.page = 1;
-      this.filter.page_size = 10;
+      // this.filter.page_size = 10;
       this.selectData = [];
       this.showAllFlag = false;
       if (this.$route.params.productId) {
@@ -278,7 +281,7 @@ export default {
     // 取消弹窗
     cancel() {
       this.filter.page = 1;
-      this.filter.page_size = 10;
+      // this.filter.page_size = 10;
       if (this.$refs.hostPage) {
         this.$refs.hostPage.init();
       }
@@ -411,6 +414,8 @@ export default {
       return str;
     },
   },
+  created() {
+  },
   mounted() {},
   beforeDestory() {},
   watch: {
@@ -458,7 +463,7 @@ export default {
 </script>
 <style scoped lang="scss">
 
-  .select-transfer {
+  .input-select-all {
     .ellipsis {
       font-size: 18px;
       font-weight: bold;

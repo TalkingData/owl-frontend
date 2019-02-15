@@ -1,5 +1,5 @@
 <style lang="scss">
-@import './queue-list.scss'
+@import './queue-list.scss';
 
 </style>
 <template>
@@ -16,12 +16,13 @@
     </div>
     <div class="table-list">
       <div class="box-content">
-        <paging :total="total" @on-page-info-change="pageInfoChange" ref="page">
-          <Table slot="listTable" size="small" border
+        <paging :total="total" @on-page-info-change="pageInfoChange" ref="page" :pageSize="filter.page_size">
+          <Table size="small" border
             ref="tablelist"
             :data="dataList" 
             :columns="columns"
             :row-class-name="rowClassName"
+            :loading="loading"
             no-data-text="暂无数据"
             ></Table>
             <!-- @on-select-all="selectAll"
@@ -41,18 +42,21 @@
 </template>
 <script>
 import _ from 'lodash';
+import core from '../../../mixins/core';
 // import bus from '../../libs/bus';
 import { getQuequeStatus, updateQueue } from '../../../models/service';
 import paging from '../../page/paging';
 
 export default {
   name: 'queueList',
+  mixins: [core],
   components: {
     paging,
   },
   props: {},
   data() {
     return {
+      loading: false,
       saveDataList: [], // 作为备份的数据列表
       // 过滤器
       filter: {
@@ -128,6 +132,7 @@ export default {
     },
     // 获取数据// 获取组下队列列表
     getData() {
+      this.loading = true;
       getQuequeStatus().then((res) => {
         if (res.status === 200) {
           // this.total = res.data.queues.length;
@@ -152,6 +157,7 @@ export default {
           this.allDataList = [];
           this.saveDataList = [];
         }
+        this.loading = false;
       });
     },
     // 操作队列
@@ -195,6 +201,7 @@ export default {
       this.getData();
     },
     pageInfoChange(filter) {
+      // this.setInitPage(filter.pageSize);
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
       // this.getData(this.filter);
@@ -273,6 +280,8 @@ export default {
         isRemove: false,
       };
     },
+  },
+  created() {
   },
   mounted() {
     this.getData();

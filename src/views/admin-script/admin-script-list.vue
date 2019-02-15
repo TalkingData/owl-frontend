@@ -1,5 +1,5 @@
 <style lang="scss">
-  @import './admin-script-list.scss'
+  @import './admin-script-list.scss';
 </style>
 <template>
   <div class="main-container admin-script-list">
@@ -18,11 +18,12 @@
       </div>
       <div class="table-list group-list">
         <div class="box-content">
-          <paging :total="total" @on-page-info-change="pageInfoChange" ref="page">
-            <Table slot="listTable" size="small" border
+          <paging :total="total" @on-page-info-change="pageInfoChange" ref="page" :pageSize="filter.page_size">
+            <Table size="small" border
               ref="tablelist"
               :data="dataList" 
               :columns="columns"
+              :loading="loading"
               no-data-text="暂无数据"
               @on-select-all="selectAll"
               @on-selection-change="selectItem"
@@ -59,17 +60,20 @@
 <script>
 import _ from 'lodash';
 // import axios from 'axios';
+import core from '../../mixins/core';
 import Util from '../../libs/utils';
 import { getScripts, addScript, updateScript, removeScript } from '../../models/service';
 import paging from '../../components/page/paging';
 
 export default {
   name: 'monitorGroup',
+  mixins: [core],
   components: {
     paging,
   },
   data() {
     return {
+      loading: false,
       saveDataList: [], // 作为备份的数据列表
       allDataList: [],
       dataList: [], // 表格数据,主机列表
@@ -319,6 +323,7 @@ export default {
     },
     // 获取表格内容数据
     getData() {
+      this.loading = true;
       this.selectedData = [];
       this.checkAll = false;
       // const obj = Object.assign({}, params);
@@ -347,9 +352,11 @@ export default {
           this.allDataList = [];
           this.saveDataList = [];
         }
+        this.loading = false;
       });
     },
     pageInfoChange(filter) {
+      // this.setInitPage(filter.pageSize);
       this.filter.page = filter.page;
       this.filter.page_size = filter.pageSize;
       const start = (this.filter.page - 1) * this.filter.page_size;
@@ -392,6 +399,8 @@ export default {
     reload() {
       this.getData();
     },
+  },
+  created() {
   },
   mounted() {
     this.getData();

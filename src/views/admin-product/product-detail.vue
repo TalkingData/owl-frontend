@@ -1,5 +1,5 @@
 <style lang="scss">
-@import './product-detail.scss'
+@import './product-detail.scss';
 
 </style>
 <template>

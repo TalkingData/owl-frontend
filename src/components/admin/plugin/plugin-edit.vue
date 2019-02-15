@@ -27,6 +27,9 @@
         <FormItem prop="timeout" label="超时时间" :rules="{ required: true, type: 'number', message: '超时时间不能为空', trigger: 'change'}">
           <InputNumber style="width: 180px;" :min="1" v-model="pluginInfo.timeout" placeholder="请输入超时时间"></InputNumber>
         </FormItem>
+        <FormItem prop="comment" label="备注">
+          <Input v-model="pluginInfo.comment" :autosize="{ minRows: 2 }" type="textarea" placeholder="请输入备注"></Input>
+        </FormItem>
         <Alert type="warning" show-icon v-if="errorMsg">{{errorMsg}}</Alert>
       </Form>
       <div slot="footer">
@@ -67,6 +70,7 @@ export default {
         interval: 60,
         timeout: 10,
         path: '',
+        comment: '',
       },
       savePlugin: {}, // 保存插件信息
       // 插件ID
@@ -101,6 +105,7 @@ export default {
         interval: 60,
         timeout: 10,
         path: '',
+        comment: '',
       };
     },
     // 编辑与创建
@@ -156,6 +161,7 @@ export default {
             this.pluginInfo.interval = plugin.interval;
             this.pluginInfo.timeout = plugin.timeout;
             this.pluginInfo.path = plugin.path;
+            this.pluginInfo.comment = plugin.comment;
           }
         }
       }
@@ -185,6 +191,7 @@ export default {
             interval: this.pluginInfo.interval,
             timeout: this.pluginInfo.timeout,
             path: this.pluginInfo.path,
+            comment: this.pluginInfo.comment,
           };
           if (this.msgInfo === 'groupadd') {
             this.addPluginInGroup(params); // 主机组添加主机
@@ -290,11 +297,3 @@ export default {
 };
 
 </script>
-<style scoped lang="scss">
-  .select-transfer {
-    .ellipsis {
-      font-size: 18px;
-      font-weight: bold;
-    }
-  }
-</style>

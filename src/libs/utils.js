@@ -6,7 +6,7 @@ const nameReg = /^[A-Za-z]+$/;
 const ipaddress = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
 
 const pathReg = /^(\.|(\.\.(\/\.\.)*))?(\/[\w-]+)*(\.\w+)+$/;
-const phoneReg = /^1(3|4|5|7|8)\d{9}$/;
+const phoneReg = /^1\d{10}$/;
 // eslint-disable-next-line
 const emailReg = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
 const wechatReg = /^[a-zA-Z0-9]{1}([-_a-zA-Z0-9]{5,19})+$/;
