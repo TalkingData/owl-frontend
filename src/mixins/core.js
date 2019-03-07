@@ -1,6 +1,9 @@
+import md5 from 'md5';
+
 export default {
   data() {
     return {
+      roleMd5: md5(1), // 1是管理员,0是普通用户
     };
   },
   created() {

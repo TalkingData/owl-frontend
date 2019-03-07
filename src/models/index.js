@@ -51,20 +51,6 @@ const http = axios.create({
   },
 });
 
-function setProductInfo(obj) {
-  if (obj) {
-    // return obj.id;
-    http.defaults.baseURL = `${serviceInfo.url}/products/${obj.id}`;
-  } else {
-    const infoStr = localStorage.getItem('productInfo');
-    if (infoStr) {
-      const info = JSON.parse(infoStr);
-      if (info) {
-        http.defaults.baseURL = `${serviceInfo.url}/products/${info.id}`;
-      }
-    }
-  }
-}
 // 1.添加请求拦截器,初次进入页面没有tokcn的情况,前往talking页面登录
 // http.interceptors.request.use((config) => {
 //   const obj = config;
@@ -100,9 +86,7 @@ http.interceptors.response.use((response) => {
 }, error => Promise.reject(error),
 );
 
-// setProductInfo();
-
 const schema = apischema({ http });
 // export default apischema({ http });
 
-export { serviceInfo, schema, setProductInfo };
+export { serviceInfo, schema };

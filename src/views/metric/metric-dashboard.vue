@@ -103,6 +103,7 @@ export default {
         }
       }
       getQueryChart({
+        product_id: this.productId,
         metric: params.metric,
         tags: params.tags,
         start: this.filter.start_time,
@@ -151,20 +152,29 @@ export default {
         // 图表中每条线的名字,后半部分
         let host = `${queryItem.metric}, `;
         const tagsArr = Object.keys(queryItem.tags);
-        tagsArr.forEach((tag, i) => {
-          if (tag !== 'uuid') {
-            host += i === 0 ? `${tag}=${queryItem.tags[tag]}` : `, ${tag}=${queryItem.tags[tag]}`;
-          }
-        });
-        // 图表中每条线的名字,去掉最后的逗号与空格
-        seriesItem.theData.name = host;
-        seriesItem.metric_name = seriesItem.theData.name;
         // 设置时间-数据格式对
         const dpsArr = Object.entries(queryItem.dps);
-        // 将秒改为毫秒
-        seriesItem.theData.data = dpsArr.map(dpsItem =>
-          [dpsItem[0] * 1000, dpsItem[1]]);
-        series.push(seriesItem.theData);
+        if (tagsArr.length > 0 && dpsArr.length > 0) {
+          tagsArr.forEach((tag, i) => {
+            if (tag !== 'uuid') {
+              host += i === 0 ? `${tag}=${queryItem.tags[tag]}` : `, ${tag}=${queryItem.tags[tag]}`;
+            }
+          });
+          // 图表中每条线的名字,去掉最后的逗号与空格
+          seriesItem.theData.name = host;
+          seriesItem.metric_name = seriesItem.theData.name;
+          // 将秒改为毫秒
+          seriesItem.theData.data = dpsArr.map(dpsItem =>
+            [dpsItem[0] * 1000, dpsItem[1]]);
+          series.push(seriesItem.theData);
+        } else {
+          const errorMsg = `metric： ${params.metric} 和tags ${params.tags} 组合下无数据`;
+          this.$Message.warning({
+            duration: 15,
+            content: errorMsg,
+            closable: true,
+          });
+        }
       });
       // 将获取的数据运用于创建多个图表备用
       this.$refs.metricSet.setSeries(response.data.data);

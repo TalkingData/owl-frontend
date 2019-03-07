@@ -7,7 +7,7 @@
     <div class="brule-top clearfix">
       <div class="float-left">
         <span title="返回到预警报警页" @click="backTo" class="brule-top-title">返回上级</span>
-        <span>&gt;{{eventItem.strategy_name || '告警详情'}}</span>
+        <span>&gt;{{eventName || '告警详情'}}</span>
       </div>
       <div class="float-right">
         <Button type="primary" @click="showResult">处理记录</Button>
@@ -73,7 +73,6 @@ export default {
       stepsArr: [], // 告警详情步骤
       stepFlag: false, // 步骤一验证
       eventInfoList: [], // 获取详情信息
-      eventItem: {}, // 从列表页获取的event信息
       countIndex: 0, // 告警次数
       eventList: [], // 事件列表
       eventProcess: [], // 处理记录
@@ -105,7 +104,7 @@ export default {
     showResult() {
       this.showResultModal = true;
       this.getEventRecods({
-        id: this.eventItem.id,
+        id: this.eventId,
       });
     },
     stepChange() {
@@ -133,7 +132,7 @@ export default {
         let countArr = new Array(toGetNum).fill(0);
         countArr = countArr.map((item, index) => leftLength - index);
         this.getEventInfo({
-          id: this.eventItem.id,
+          id: this.eventId,
           count: countArr,
         });
       }
@@ -165,9 +164,10 @@ export default {
         this.productId = parseInt(this.$route.params.productId, 10);
         this.filter.productId = this.productId;
       }
-      const eventItem = localStorage.getItem('eventItem');
-      this.eventItem = JSON.parse(eventItem);
-      this.filter.id = this.eventItem.id;
+      if (this.$route.params.eventId) {
+        this.eventId = parseInt(this.$route.params.eventId, 10);
+        this.filter.id = this.eventId;
+      }
       this.getEventInfo(this.filter);
     },
     // 获取处理结果信息
@@ -196,6 +196,9 @@ export default {
     },
     addDisabled() {
       return this.total <= this.eventList.length;
+    },
+    eventName() {
+      return this.$route.query.eventname;
     },
   },
   mounted() {

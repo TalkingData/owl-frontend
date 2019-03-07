@@ -280,7 +280,6 @@ export default {
         if (res.status === 200 && res.data.code === 200) {
           this.panelId = res.data.panel.id;
           this.panelItem = res.data.panel;
-          localStorage.setItem('panelItem', JSON.stringify(res.data.panel));
           this.getOptions();
         } else {
           this.$Message.warning('创建看板失败');
@@ -293,7 +292,6 @@ export default {
         const panel = this.panelList.find(p => p.id === id);
         if (panel) {
           this.panelItem = panel;
-          localStorage.setItem('panelItem', JSON.stringify(panel));
         }
       }
     },
@@ -371,6 +369,10 @@ export default {
               onOk: () => {
                 this.$router.push({
                   path: `/console/panel/detail/${this.panelId}/${this.productId}`,
+                  query: {
+                    product: this.$route.query.product,
+                    panel: this.panelItem.name,
+                  },
                 });
               },
               onCancel: () => {
@@ -410,6 +412,10 @@ export default {
               onOk: () => {
                 this.$router.push({
                   path: `/console/panel/detail/${this.panelId}/${this.productId}`,
+                  query: {
+                    product: this.$route.query.product,
+                    panel: this.panelItem.name,
+                  },
                 });
               },
             });
@@ -479,9 +485,9 @@ export default {
       let str = '';
       arr.forEach((item, index) => {
         if (index === 0) {
-          str += item.value.indexOf('all') > -1 ? `${item.name}=all` : `${item.name}=${item.value.join('|')}`;
+          str += item.value.indexOf('*') > -1 ? `${item.name}=*` : `${item.name}=${item.value.join('|')}`;
         } else {
-          str += item.value.indexOf('all') > -1 ? `,${item.name}=all` : `,${item.name}=${item.value.join('|')}`;
+          str += item.value.indexOf('*') > -1 ? `,${item.name}=*` : `,${item.name}=${item.value.join('|')}`;
         }
       });
       return str;

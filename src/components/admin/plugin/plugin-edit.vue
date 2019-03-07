@@ -30,6 +30,9 @@
         <FormItem prop="comment" label="备注">
           <Input v-model="pluginInfo.comment" :autosize="{ minRows: 2 }" type="textarea" placeholder="请输入备注"></Input>
         </FormItem>
+        <FormItem v-if="msgInfo === 'groupUpdate' || msgInfo === 'groupadd' || msgInfo === 'hostUpdate' || msgInfo === 'hostadd'" key="pluginComment" prop="pluginComment" label="插件备注">
+          {{pluginInfo.pluginComment}}
+        </FormItem>
         <Alert type="warning" show-icon v-if="errorMsg">{{errorMsg}}</Alert>
       </Form>
       <div slot="footer">
@@ -71,6 +74,7 @@ export default {
         timeout: 10,
         path: '',
         comment: '',
+        pluginComment: '',
       },
       savePlugin: {}, // 保存插件信息
       // 插件ID
@@ -106,10 +110,12 @@ export default {
         timeout: 10,
         path: '',
         comment: '',
+        pluginComment: '',
       };
     },
     // 编辑与创建
     editInit(msg, group, proId, plugin) {
+      this.pluginInfo.pluginComment = '';
       if (this.$refs.nameForm) {
         this.$refs.nameForm.resetFields();
       }
@@ -161,13 +167,17 @@ export default {
             this.pluginInfo.interval = plugin.interval;
             this.pluginInfo.timeout = plugin.timeout;
             this.pluginInfo.path = plugin.path;
-            this.pluginInfo.comment = plugin.comment;
+            this.pluginInfo.comment = '';
+            this.pluginInfo.pluginComment = plugin.comment;
           }
         }
+      } else {
+        this.pluginInfo.pluginComment = '';
       }
     },
     // 取消弹窗
     cancel() {
+      this.pluginInfo.pluginComment = '';
       this.errorMsg = '';
       this.showModal = false;
       this.dataList = [];

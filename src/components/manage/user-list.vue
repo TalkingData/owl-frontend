@@ -50,6 +50,7 @@
 </template>
 <script>
 import _ from 'lodash';
+import Cookies from 'js-cookie';
 import core from '../../mixins/core';
 // import bus from '../../libs/bus';
 import { removeUserInPro, getUserOfPro, getUserOfGroup, removeUserInGroup } from '../../models/service';
@@ -77,6 +78,7 @@ export default {
   },
   data() {
     return {
+      listMode: 'manage',
       loading: false,
       dataList: [], // 数据列表
       searchName: '', //  搜索名称
@@ -88,7 +90,6 @@ export default {
         order: '',
       },
       groupId: 0,
-      userGroupItem: null, // 用户组信息
       total: 0,
       selectedData: [], // 选中数据
       removeModal: false,
@@ -155,21 +156,26 @@ export default {
   methods: {
     // 添加数据
     createData() {
-      let productInfo = '';
       // 产品线中数据,获取产品线信息,admin-product
       if (this.source === 'product') {
-        productInfo = localStorage.getItem('productItem');
-        if (productInfo) {
-          this.$refs.createUserGroup.editInit(JSON.parse(productInfo), 'addprouser');
-        }
+        // productInfo = localStorage.getItem('productItem');
+        this.$refs.createUserGroup.editInit({
+          id: this.filter.productId,
+          name: this.$route.query.product,
+        }, 'addprouser');
       } else if (this.source === 'manage') {
         // 普通户情况,获取产品线信息,prouct
-        productInfo = localStorage.getItem('productInfo');
-        if (productInfo) {
-          this.$refs.createUserGroup.editInit(JSON.parse(productInfo), 'addprouser');
-        }
+        // productInfo = localStorage.getItem('productInfo');
+        this.$refs.createUserGroup.editInit({
+          id: this.filter.productId,
+          name: this.$route.query.product,
+        }, 'addprouser');
       } else if (this.source === 'group') {
-        this.$refs.createUserGroup.editInit(this.userGroupItem, 'addgroupuser');
+        // this.userGroupItem
+        this.$refs.createUserGroup.editInit({
+          id: this.groupId,
+          name: this.$route.query.usergroup,
+        }, 'addgroupuser');
       }
     },
     // 添加成功
@@ -329,9 +335,6 @@ export default {
       }
       if (this.source === 'group') {
         this.groupId = parseInt(this.$route.params.usergroupId, 10); // 用户组id
-        const str = localStorage.getItem('userGroupItem');
-        const userGroupItem = JSON.parse(str);
-        this.userGroupItem = userGroupItem;
         this.filter.groupId = this.groupId;
       }
       this.getData(this.filter);
@@ -362,6 +365,12 @@ export default {
   watch: {
   },
   created() {
+    const owlRole = Cookies.get('owl_role');
+    if (this.source === 'manage' && this.roleMd5 === owlRole) {
+      this.listMode = 'product';
+    } else {
+      this.listMode = this.source;
+    }
   },
   mounted() {
     this.getDetailData();

@@ -249,9 +249,12 @@ export default {
     deleteAlarm() {}, // 删除
     // 查看详情
     viewDetail(item) {
-      localStorage.setItem('eventItem', JSON.stringify(item));
       this.$router.push({
         path: `/alarm/event/detail/${item.id}/${this.filter.productId}`,
+        query: {
+          product: this.$route.query.product,
+          eventname: item.strategy_name,
+        },
       });
     },
     // eslint-disable-next-line

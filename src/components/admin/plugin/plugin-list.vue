@@ -76,7 +76,6 @@ export default {
         page_size: 10,
         page: 1,
       },
-      groupItem: {},
       groupId: 0,
       total: 0, // 总数
       checkAll: false, // 全选
@@ -186,6 +185,9 @@ export default {
         isRemove: false,
       };
     },
+    groupName() {
+      return this.$route.query.hostgroup;
+    },
   },
   methods: {
     // 创建插件
@@ -206,17 +208,29 @@ export default {
     // 添加插件
     addPlugin() {
       if (this.source === 'group') {
-        this.$refs.pluginEdit.editInit('groupadd', this.groupItem, this.filter.productId);
+        this.$refs.pluginEdit.editInit('groupadd', {
+          name: this.groupName,
+          id: this.groupId,
+        }, this.filter.productId);
       } else if (this.source === 'host') {
-        this.$refs.pluginEdit.editInit('hostadd', this.groupItem, this.filter.hostId);
+        this.$refs.pluginEdit.editInit('hostadd', {
+          name: this.groupName,
+          id: this.groupId,
+        }, this.filter.hostId);
       }
     },
     // 编辑插件
     editPlugin(plugin) {
       if (this.source === 'group') {
-        this.$refs.pluginEdit.editInit('groupUpdate', this.groupItem, this.filter.productId, plugin);
+        this.$refs.pluginEdit.editInit('groupUpdate', {
+          name: this.groupName,
+          id: this.groupId,
+        }, this.filter.productId, plugin);
       } else if (this.source === 'host') {
-        this.$refs.pluginEdit.editInit('hostUpdate', this.groupItem, this.filter.hostId, plugin);
+        this.$refs.pluginEdit.editInit('hostUpdate', {
+          name: this.groupName,
+          id: this.groupId,
+        }, this.filter.hostId, plugin);
       }
     },
     // //滚动条复位
@@ -291,8 +305,7 @@ export default {
       }
     },
     // 查看详情
-    viewDetail(item) {
-      localStorage.setItem('pluginItem', JSON.stringify(item));
+    viewDetail() {
     },
     // 初始化过滤条件
     initFilter() {
@@ -389,8 +402,6 @@ export default {
         this.filter.productId = parseInt(this.$route.params.productId, 10);
       }
       if (this.source === 'group') {
-        const groupItem = localStorage.getItem('groupItem');
-        this.groupItem = JSON.parse(groupItem);
         this.groupId = parseInt(this.$route.params.groupId, 10);
         this.filter.groupId = this.groupId;
       }

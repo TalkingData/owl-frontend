@@ -108,7 +108,7 @@ export default {
               'view-detail': true,
             },
             attrs: {
-              title: '查看产品线',
+              title: '查看产品线下主机',
             },
             on: {
               click: () => {
@@ -362,10 +362,21 @@ export default {
       } else {
         localStorage.removeItem('productItem_type');
       }
-      localStorage.setItem('productItem', JSON.stringify(item));
-      this.$router.push({
-        path: `/admin/product/detail/${item.id}`,
-      });
+      if (type === 'user') {
+        this.$router.push({
+          path: `/manage/user/list/${item.id}`,
+          query: { product: item.name },
+        });
+      } else {
+        this.$router.push({
+          path: `/monitor/host/${item.id}`,
+          query: { product: item.name },
+        });
+      }
+      // this.$router.push({
+      //   path: `/admin/product/detail/${item.id}`,
+      //   query: { product: item.name },
+      // });
     },
     // 初始化过滤条件
     initFilter() {

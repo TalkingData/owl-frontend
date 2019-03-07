@@ -19,7 +19,7 @@
         <Row class="mt-5">
           <Tag color="blue">已选中主机：{{selectData.length}}台</Tag>
           <Tag v-for="(item, index) in selectShowData" :key="item.id" :name="index" closable @on-close="unSelect">{{ item.hostname }}</Tag>
-          <a class="ellipsis" v-show="!showAllFlag && selectData.length > 10" href="javascript:;" title="显示全部" @click="showAllSelect">......</a>
+          <a class="ellipsis" v-show="!showAllFlag && selectData.length > 10" title="显示全部" @click="showAllSelect">......</a>
         </Row>
         <paging ref="hostPage" :total="total" @on-page-info-change="pageInfoChange" :pageSize="filter.page_size">
           <Table ref="hostTable" class="mt-5" size="small" border 
@@ -219,7 +219,7 @@ export default {
         this.getHostOutPro(this.filter);
       } else { // 主机组操作
         this.groupInfo.name = group.name;
-        this.groupInfo.description = group.description;
+        this.groupInfo.description = group.description || '';
         this.groupId = group.id;
         if (msg === 'editgroup') {
           this.modalTitle = '编辑主机组';

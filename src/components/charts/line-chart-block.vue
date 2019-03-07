@@ -94,6 +94,12 @@ export default {
       }
       return false;
     },
+    productId() {
+      if (this.$route.params.productId) {
+        return parseInt(this.$route.params.productId, 10);
+      }
+      return 0;
+    },
   },
   watch: {},
   methods: {
@@ -156,6 +162,7 @@ export default {
         axiosArr = this.data.elements.map((ele) => {
           const filterItem = ele;
           return getQueryChart({
+            product_id: this.productId,
             metric: filterItem.metric,
             tags: filterItem.tags,
             start: this.filter.start_time,
@@ -173,6 +180,7 @@ export default {
           // 获取所需标签
           const tagArr = this.getCompilation(tagAllArr, titleArr);
           axiosArr = [getQueryChart({
+            product_id: this.productId,
             metric: this.data.metric,
             tags: tagArr.toString(),
             start: this.filter.start_time,
@@ -180,6 +188,7 @@ export default {
           })];
         } else {
           axiosArr = [getQueryChart({
+            product_id: this.productId,
             metric: this.data.metric,
             tags: this.data.tags,
             start: this.filter.start_time,
@@ -214,27 +223,29 @@ export default {
                   // 图表中每条线的名字,后半部分
                   let host = `${queryItem.metric}, `;
                   const tagsArr = Object.keys(queryItem.tags);
-                  tagsArr.forEach((tag, i) => {
-                    if (tag !== 'uuid') {
-                      host += i === 0 ? `${tag}=${queryItem.tags[tag]}` : `, ${tag}=${queryItem.tags[tag]}`;
-                    }
-                  });
-                  // 图表中每条线的名字,去掉最后的逗号与空格
-                  seriesItem.theData.name = host;
-                  seriesItem.metric_name = seriesItem.theData.name;
                   // 设置时间-数据格式对
                   const dpsArr = Object.entries(queryItem.dps);
-                  // 将秒改为毫秒
-                  seriesItem.theData.data = dpsArr.map((dpsItem, dpsIndex) => {
-                    if (sumData.data[dpsIndex]) {
-                      const sumNum = sumData.data[dpsIndex][1] || 0;
-                      sumData.data[dpsIndex][1] = sumNum + dpsItem[1];
-                    } else {
-                      sumData.data[dpsIndex] = [dpsItem[0] * 1000, dpsItem[1]];
-                    }
-                    return [dpsItem[0] * 1000, dpsItem[1]];
-                  });
-                  series.push(seriesItem.theData);
+                  if (tagsArr.length > 0 && dpsArr.length > 0) {
+                    tagsArr.forEach((tag, i) => {
+                      if (tag !== 'uuid') {
+                        host += i === 0 ? `${tag}=${queryItem.tags[tag]}` : `, ${tag}=${queryItem.tags[tag]}`;
+                      }
+                    });
+                    // 图表中每条线的名字,去掉最后的逗号与空格
+                    seriesItem.theData.name = host;
+                    seriesItem.metric_name = seriesItem.theData.name;
+                    // 将秒改为毫秒
+                    seriesItem.theData.data = dpsArr.map((dpsItem, dpsIndex) => {
+                      if (sumData.data[dpsIndex]) {
+                        const sumNum = sumData.data[dpsIndex][1] || 0;
+                        sumData.data[dpsIndex][1] = sumNum + dpsItem[1];
+                      } else {
+                        sumData.data[dpsIndex] = [dpsItem[0] * 1000, dpsItem[1]];
+                      }
+                      return [dpsItem[0] * 1000, dpsItem[1]];
+                    });
+                    series.push(seriesItem.theData);
+                  }
                 });
               }
             }

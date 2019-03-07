@@ -388,7 +388,7 @@ export default {
         this.$refs.userPage.initSize();
       } else {
         this.groupInfo.name = group.name;
-        this.groupInfo.description = group.description;
+        this.groupInfo.description = group.description || '';
         this.groupId = group.id;
         if (msg === 'editgroup') {
           this.modalTitle = '编辑用户组';

@@ -240,7 +240,8 @@ export default {
         arr: [...this.metricList],
         text: '',
       };
-      if (this.elementInfo.metric && this.metricList.indexOf(this.elementInfo.metric) === -1) {
+      if (this.elementInfo.metric && this.metricList.length > 0 &&
+      this.metricList.indexOf(this.elementInfo.metric) === -1) {
         obj.arr.unshift(this.elementInfo.metric);
         obj.text = `metric：${this.elementInfo.metric}，不在当前产品线下`;
       }

@@ -215,9 +215,12 @@ export default {
     },
     // 查看详情
     viewDetail(item) {
-      localStorage.setItem('userGroupItem', JSON.stringify(item));
       this.$router.push({
         path: `/manage/user/group/detail/${item.id}/${this.filter.productId}`,
+        query: {
+          product: this.$route.query.product,
+          usergroup: item.name,
+        },
       });
     },
     // eslint-disable-next-line

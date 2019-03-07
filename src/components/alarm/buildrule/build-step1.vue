@@ -53,11 +53,11 @@
         <Option value="OR">OR</Option>
         <!-- <Option value="自定义">自定义</Option> -->
       </Select>
-      <Input v-model="strategyInfo.expression" style="width: 200px;" :readonly="viewDisable"></Input>
+      <Input v-model="strategyInfo.expression" style="width: 240px;" :readonly="viewDisable"></Input>
       <span class="reminder-word ml-10">如需自定义，请输入正确格式。例:A&&(B||C)</span>
     </Row>
     <Row class="mt-10">
-      <Button type="primary" icon="plus" @click="addblock" :disabled="viewDisable">添加规则块</Button>
+      <Button type="primary" icon="plus" @click="addblock" :disabled="viewDisable || blockNumList.length > 25">添加规则块</Button>
     </Row>
   </div>
 </template>

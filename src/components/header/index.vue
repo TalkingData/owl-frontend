@@ -184,9 +184,18 @@ export default {
     // 面包屑跳转到对应页面,一般用于详情页返回列表页
     gotoPage(obj, index) {
       if (index === 1) {
-        this.$router.push({
-          name: obj.name,
-        });
+        if (obj.name.indexOf('admin') > -1) {
+          this.$router.push({
+            name: obj.name,
+          });
+        } else {
+          this.$router.push({
+            name: obj.name,
+            query: {
+              product: this.$route.query.product,
+            },
+          });
+        }
       }
     },
     // 返回产品页
@@ -338,27 +347,24 @@ export default {
       });
     },
   },
+  created() {
+    this.getUserInfo();
+  },
   mounted() {
     // 修改个人信息
     bus.$on('on-user-change', () => {
       this.showUserInfo();
     });
-    this.getUserInfo();
-    // 获取面包屑首位
-    const infoStr = localStorage.getItem('productInfo');
-    if (infoStr) {
-      const info = JSON.parse(infoStr);
-      if (info) {
-        this.titleProduct = info.name;
-      }
-    }
   },
   beforeDestory() {
     bus.$off('on-user-change');
   },
   computed: {
+    productName() {
+      return this.$route.query.product;
+    },
     titleRole() {
-      return this.routerNow.indexOf('admin') > -1 ? '管理员后台' : this.titleProduct;
+      return this.routerNow.indexOf('admin') > -1 ? '管理员后台' : this.productName;
     },
     // 返回当前主路由
     routerNow() {

@@ -69,7 +69,7 @@
               filterable 
               transfer
               not-found-text="">
-                <Option v-for="(op, j) in item.list" :key="op + j" :disabled="op !== 'all' && item.value.toString() === 'all'"
+                <Option v-for="(op, j) in item.list" :key="op + j" :disabled="op !== '*' && item.value.toString() === '*'"
                 :value="op">{{op}}</Option>
               </Select>
             </FormItem>
@@ -174,8 +174,8 @@ export default {
     },
     selectTag(index) {
       const arr = this.data.tagList[index].value;
-      if (arr.length > 0 && arr.indexOf('all') > -1) {
-        this.data.tagList[index].value = ['all'];
+      if (arr.length > 0 && arr.indexOf('*') > -1) {
+        this.data.tagList[index].value = ['*'];
       }
     },
     // 搜索特定metric下的tag
@@ -186,10 +186,10 @@ export default {
           this.tagSet = res.data.tag_set;
           const keyList = Object.keys(res.data.tag_set);
           keyList.forEach((item) => {
-            if (item !== 'uuid' && item !== 'host') { // 滤除uuid
+            if (item !== 'uuid' && item !== 'host' && item !== 'host_group') { // 滤除uuid
               const tagObj = {
                 name: item,
-                list: ['all', ...this.tagSet[item]],
+                list: ['*', ...this.tagSet[item]],
                 value: [],
               };
               this.data.tagList.push(tagObj);
@@ -235,9 +235,9 @@ export default {
       let str = '';
       this.data.tagList.forEach((item, index) => {
         if (index === 0) {
-          str += item.value.indexOf('all') > -1 ? `${item.name}=all` : `${item.name}=${item.value.join('|')}`;
+          str += item.value.indexOf('*') > -1 ? `${item.name}=*` : `${item.name}=${item.value.join('|')}`;
         } else {
-          str += item.value.indexOf('all') > -1 ? `,${item.name}=all` : `,${item.name}=${item.value.join('|')}`;
+          str += item.value.indexOf('*') > -1 ? `,${item.name}=*` : `,${item.name}=${item.value.join('|')}`;
         }
       });
       return str;

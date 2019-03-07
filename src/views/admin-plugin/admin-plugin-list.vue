@@ -252,9 +252,9 @@ export default {
     },
     // 查看详情
     viewDetail(item) {
-      localStorage.setItem('pluginItem', JSON.stringify(item));
       this.$router.push({
         path: `/admin/plugin/plugindetail/${item.id}`,
+        query: { plugin: item.name },
       });
     },
     // 初始化过滤条件

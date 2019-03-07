@@ -91,6 +91,9 @@ export default {
     backTo() {
       this.$router.push({
         path: `/alarm/strategy/list/${this.productId}`,
+        query: {
+          product: this.$route.query.product,
+        },
       });
     },
     // 启用编辑策略
@@ -98,6 +101,9 @@ export default {
       const strategy = this.$route.params.strategyId;
       this.$router.push({
         path: `/alarm/erule/${strategy}/${this.productId}`,
+        query: {
+          product: this.$route.query.product,
+        },
       });
     },
     // 设置步骤状态

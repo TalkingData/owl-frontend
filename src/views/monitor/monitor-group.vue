@@ -299,7 +299,6 @@ export default {
     },
     // 查看详情
     viewDetail(item, name) {
-      localStorage.setItem('groupItem', JSON.stringify(item));
       if (name) {
         localStorage.setItem('group_detail_tab', name);
       } else {
@@ -307,6 +306,10 @@ export default {
       }
       this.$router.push({
         path: `/monitor/group/detail/${item.id}/${this.filter.productId}`,
+        query: {
+          product: this.$route.query.product,
+          hostgroup: item.name,
+        },
       });
     },
     // 初始化过滤条件

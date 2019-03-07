@@ -314,7 +314,6 @@ export default {
     },
     // 查看详情
     viewDetail() {
-      // localStorage.setItem('scriptItem', JSON.stringify(item));
     },
     // 初始化过滤条件
     initFilter() {

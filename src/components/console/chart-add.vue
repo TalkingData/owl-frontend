@@ -272,9 +272,9 @@ export default {
       let str = '';
       arr.forEach((item, index) => {
         if (index === 0) {
-          str += item.value.indexOf('all') > -1 ? `${item.name}=all` : `${item.name}=${item.value.join('|')}`;
+          str += item.value.indexOf('*') > -1 ? `${item.name}=*` : `${item.name}=${item.value.join('|')}`;
         } else {
-          str += item.value.indexOf('all') > -1 ? `,${item.name}=all` : `,${item.name}=${item.value.join('|')}`;
+          str += item.value.indexOf('*') > -1 ? `,${item.name}=*` : `,${item.name}=${item.value.join('|')}`;
         }
       });
       return str;

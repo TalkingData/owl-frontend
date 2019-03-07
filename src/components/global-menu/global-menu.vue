@@ -85,9 +85,17 @@ export default {
       }
       // 默认该处生效
       if (willpush) {
-        this.$router.push({
-          name: nameValue,
-        });
+        if (nameValue.indexOf('admin') > -1) {
+          this.$router.push({
+            name: nameValue,
+          });
+        } else {
+          // 携带产品线信息
+          this.$router.push({
+            name: nameValue,
+            query: { product: this.$route.query.product },
+          });
+        }
       }
       this.$emit('on-change', nameValue);
     },

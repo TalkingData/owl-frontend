@@ -43,7 +43,6 @@ export default {
   data() {
     return {
       loading: false,
-      groupItem: {}, // 组信息
       // 过滤器
       filter: {
         productId: '',
@@ -93,6 +92,9 @@ export default {
     viewRule(rule) {
       this.$router.push({
         path: `/alarm/vrule/${rule.id}/${this.filter.productId}`,
+        query: {
+          product: this.$route.query.product,
+        },
       });
     },
     userSelect(arr) {
@@ -111,8 +113,6 @@ export default {
       if (this.$route.params.productId) {
         this.filter.productId = parseInt(this.$route.params.productId, 10);
       }
-      const groupItem = localStorage.getItem('groupItem');
-      this.groupItem = JSON.parse(groupItem);
       this.groupId = parseInt(this.$route.params.groupId, 10);
       this.filter.groupId = this.groupId;
       this.getData(this.filter);

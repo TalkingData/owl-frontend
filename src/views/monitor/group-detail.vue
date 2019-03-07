@@ -7,7 +7,7 @@
     <div class="common-detail-top common-detail-top-fixed clearfix">
       <div class="float-left">
         <span title="返回到主机组列表页" @click="backTo" class="common-detail-top-title">主机组列表&gt;</span>
-        <span>&nbsp;主机组名称 : {{groupItem.name || '主机组详情'}}</span>
+        <span>&nbsp;主机组名称 : {{groupName || '主机组详情'}}</span>
       </div>
     </div>
     <div class="common-detail-margin">
@@ -47,7 +47,6 @@ export default {
   data() {
     return {
       productId: '',
-      groupItem: {}, // 从列表页获取的主机信息
       tabValue: 'host', // 切换tab
     };
   },
@@ -55,6 +54,9 @@ export default {
     backTo() {
       this.$router.push({
         path: `/monitor/group/${this.productId}`,
+        query: {
+          product: this.$route.query.product,
+        },
       });
     },
     // 设置详情信息
@@ -62,8 +64,6 @@ export default {
       if (this.$route.params.productId) {
         this.productId = parseInt(this.$route.params.productId, 10);
       }
-      const groupItem = localStorage.getItem('groupItem');
-      this.groupItem = JSON.parse(groupItem);
     },
     tabclick(name) {
       localStorage.setItem('group_detail_tab', name);
@@ -72,6 +72,10 @@ export default {
   computed: {
     groupId() {
       return parseInt(this.$route.params.groupId, 10);
+    },
+    // 主机组名称
+    groupName() {
+      return this.$route.query.hostgroup;
     },
   },
   watch: {

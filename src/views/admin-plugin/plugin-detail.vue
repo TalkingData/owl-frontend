@@ -201,9 +201,6 @@ export default {
     // 初始化获取数据
     getDetailData() {
       this.pluginId = parseInt(this.$route.params.pluginId, 10); // 插件id
-      const str = localStorage.getItem('pluginItem');
-      const pluginItem = JSON.parse(str);
-      this.pluginItem = pluginItem;
       this.filter.pluginId = this.pluginId;
       this.getData(this.filter);
     },

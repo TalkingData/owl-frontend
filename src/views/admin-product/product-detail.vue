@@ -7,7 +7,7 @@
     <div class="common-detail-top common-detail-top-fixed clearfix">
       <div class="float-left">
         <span title="返回到产品线列表页" @click="backTo" class="common-detail-top-title">产品线列表&gt;</span>
-        <span>&nbsp;产品线名称 : {{productItem.name || '产品线详情'}}</span>
+        <span>&nbsp;产品线名称 : {{productName || '产品线详情'}}</span>
       </div>
     </div>
     <div class="common-detail-margin">
@@ -41,7 +41,6 @@ export default {
   props: {},
   data() {
     return {
-      productItem: {}, // 从列表页获取的主机信息
       showResultModal: false,
       tabValue: 'host', // 切换tab
     };
@@ -54,14 +53,15 @@ export default {
     },
     // 设置详情信息
     getDetailData() {
-      const productItem = localStorage.getItem('productItem');
-      this.productItem = JSON.parse(productItem);
     },
     tabclick(name) {
       localStorage.setItem('productItem_type', name);
     },
   },
   computed: {
+    productName() {
+      return this.$route.query.product;
+    },
   },
   created() {
     const type = localStorage.getItem('productItem_type');

@@ -9,7 +9,7 @@
         <div class="common-detail-top-item clearfix">
           <div class="float-left">
             <span title="返回到看板列表页" @click="backTo" class="common-detail-top-title">看板列表&gt;</span>
-            <span>&nbsp;看板名称 : {{panelItem.name || '看板详情'}}</span>
+            <span>&nbsp;看板名称 : {{panelName || '看板详情'}}</span>
           </div>
           <div class="float-right">
             <div class="mr-20">
@@ -80,7 +80,6 @@ export default {
         end_time: '',
       },
       panelId: 0,
-      panelItem: {}, // 看板信息
       removeModal: false, // 删除弹出
       deleteObj: {}, // 删除对象
     };
@@ -89,6 +88,9 @@ export default {
     backTo() {
       this.$router.push({
         path: `/console/panel/list/${this.filter.productId}`,
+        query: {
+          product: this.$route.query.product,
+        },
       });
     },
     // eslint-disable-next-line
@@ -119,9 +121,6 @@ export default {
         this.filter.productId = parseInt(this.$route.params.productId, 10);
       }
       this.panelId = parseInt(this.$route.params.panelId, 10); // 看板id
-      const str = localStorage.getItem('panelItem');
-      const panelItem = JSON.parse(str);
-      this.panelItem = panelItem;
       this.filter.panelId = this.panelId;
       // filter中是productId和panelId
       this.getData(this.filter);
@@ -179,6 +178,9 @@ export default {
     },
   },
   computed: {
+    panelName() {
+      return this.$route.query.panel;
+    },
   },
   watch: {
   },

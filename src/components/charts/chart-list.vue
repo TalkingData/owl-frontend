@@ -38,6 +38,7 @@ export default {
   },
   data() {
     return {
+      productId: 0,
       filter: {},
       dataList: [], // 看板中所有图表信息
       time: {
@@ -66,6 +67,7 @@ export default {
     },
     // 获取panel详情数据,获取panel下所有chart列表
     getData(params) {
+      this.productId = params.productId;
       if (this.dataList.length > 0) {
         this.$refs.editChart.forEach((item) => {
           item.showLoad();
@@ -127,6 +129,7 @@ export default {
           const axiosArr = chartItem.elements.map((ele) => {
             const filterItem = ele;
             return getQueryChart({
+              product_id: this.productId,
               metric: filterItem.metric,
               tags: filterItem.tags,
               start: startTime,
@@ -144,7 +147,7 @@ export default {
                 visible: true,
                 threshold: null,
               };
-              res.forEach((response) => {
+              res.forEach((response, innerPos) => {
                 if (response.data.code === 200) {
                   if (response.data.data) {
                     // 循环处理每个elements下获取的数据列
@@ -161,33 +164,45 @@ export default {
                       // 图表中每条线的名字,后半部分
                       let host = `${queryItem.metric}, `;
                       const tagsArr = Object.keys(queryItem.tags);
-                      tagsArr.forEach((tag, i) => {
-                        if (tag !== 'uuid') {
-                          host += i === 0 ? `${tag}=${queryItem.tags[tag]}` : `, ${tag}=${queryItem.tags[tag]}`;
-                        }
-                      });
-                      // 图表中每条线的名字,去掉最后的逗号与空格
-                      seriesItem.theData.name = host;
-                      seriesItem.metric_name = seriesItem.theData.name;
                       // 设置时间-数据格式对
                       const dpsArr = Object.entries(queryItem.dps);
-                      // 将秒改为毫秒
-                      seriesItem.theData.data = dpsArr.map((dpsItem, dpsIndex) => {
-                        if (sumData.data[dpsIndex]) {
-                          const sumNum = sumData.data[dpsIndex][1] || 0;
-                          sumData.data[dpsIndex][1] = sumNum + dpsItem[1];
-                        } else {
-                          sumData.data[dpsIndex] = [dpsItem[0] * 1000, dpsItem[1]];
-                        }
-                        return [dpsItem[0] * 1000, dpsItem[1]];
-                      });
-                      series.push(seriesItem.theData);
-                      tableData.push({
-                        name: host.slice(host.indexOf(', ') + 1),
-                        metric: queryItem.metric,
-                        time: (dpsArr[dpsArr.length - 1][0]) * 1000,
-                        value: dpsArr[dpsArr.length - 1][1],
-                      });
+                      // 判断是否有数据
+                      if (dpsArr.length > 0 && tagsArr.length > 0) {
+                        tagsArr.forEach((tag, i) => {
+                          if (tag !== 'uuid') {
+                            host += i === 0 ? `${tag}=${queryItem.tags[tag]}` : `, ${tag}=${queryItem.tags[tag]}`;
+                          }
+                        });
+                        // 图表中每条线的名字,去掉最后的逗号与空格
+                        seriesItem.theData.name = host;
+                        seriesItem.metric_name = seriesItem.theData.name;
+                        // 将秒改为毫秒
+                        seriesItem.theData.data = dpsArr.map((dpsItem, dpsIndex) => {
+                          if (sumData.data[dpsIndex]) {
+                            const sumNum = sumData.data[dpsIndex][1] || 0;
+                            sumData.data[dpsIndex][1] = sumNum + dpsItem[1];
+                          } else {
+                            sumData.data[dpsIndex] = [dpsItem[0] * 1000, dpsItem[1]];
+                          }
+                          return [dpsItem[0] * 1000, dpsItem[1]];
+                        });
+                        tableData.push({
+                          name: host.slice(host.indexOf(', ') + 1),
+                          metric: queryItem.metric,
+                          time: (dpsArr[dpsArr.length - 1][0]) * 1000,
+                          value: dpsArr[dpsArr.length - 1][1],
+                        });
+                        series.push(seriesItem.theData);
+                      } else if (chartItem.elements && chartItem.elements[innerPos]) {
+                        // 无数据提示
+                        const currentInfo = chartItem.elements[innerPos];
+                        const errorMsg = `图表 ${chartItem.title} 中 ${currentInfo.metric},${currentInfo.tags} 无数据`;
+                        this.$Message.warning({
+                          duration: 15,
+                          content: errorMsg,
+                          closable: true,
+                        });
+                      }
                     });
                   }
                 }
