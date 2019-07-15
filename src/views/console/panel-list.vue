@@ -39,7 +39,7 @@
           <Input v-model="createInfo.name"></Input>
         </FormItem>
       </Form>
-       <div slot="footer">
+      <div slot="footer">
         <Button @click="createCancel">取消</Button>
         <Button @click="createSuccess" type="primary">确定</Button>
       </div>

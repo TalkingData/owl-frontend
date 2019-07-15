@@ -22,7 +22,7 @@
       </ul>
     </div>
     <div class="footer">
-      TalkingData@2011~2018
+      TalkingData@2011~2019
     </div>
   </div>
 </template>

@@ -10,6 +10,7 @@
           <Button type="primary" icon="plus" @click="createData">创建主机组</Button>
         </div>
         <div class="float-right">
+          <Checkbox v-model="isMyGroup" @on-change="checkMy">我的主机组</Checkbox>
           <Input style="width:200px;" v-model="searchName" @on-change="search" placeholder="输入关键字检索"></Input>
           <Button @click="reload">
             <Icon size="18" type="refresh"></Icon>
@@ -61,12 +62,14 @@ export default {
   data() {
     return {
       loading: false,
+      isMyGroup: true,
       dataList: [], // 表格数据,主机列表
       filter: {
         page_size: 10,
         page: 1,
         productId: '',
         order: '',
+        my: true,
       },
       total: 0, // 总数
       selectedData: [], // 选中数据
@@ -347,6 +350,15 @@ export default {
       const order = value.order === 'normal' ? '' : `${value.key}|${value.order}`;
       this.filter.order = order;
       this.initFilter();
+    },
+    checkMy(value) {
+      if (value) {
+        this.filter.my = true;
+        this.initFilter();
+      } else {
+        delete this.filter.my;
+        this.initFilter();
+      }
     },
     // 单选
     selectItem(item) {

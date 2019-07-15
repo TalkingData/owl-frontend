@@ -75,7 +75,7 @@ export default {
       searchName: '', //  搜索名称
       filterEnable: '', // 筛选条件
       filterStatus: '', // 状态筛选
-      isMyrule: false,
+      isMyrule: true,
       isRole: false,
       isAddStatus: false, // 是否是添加模式
       filter: { // 翻页
@@ -83,6 +83,7 @@ export default {
         page_size: 10,
         productId: '',
         order: '',
+        my: true,
       },
       total: 0,
       selectedData: [], // 选中数据
