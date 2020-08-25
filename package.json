@@ -17,7 +17,7 @@
     "apischema": "0.0.28",
     "async-validator": "^1.6.8",
     "axios": "^0.15.3",
-    "highcharts": "^5.0.14",
+    "highcharts": "^8.2.0",
     "highcharts-custom-events": "^2.0.20",
     "iview": "2.14.3",
     "js-cookie": "^2.1.4",
